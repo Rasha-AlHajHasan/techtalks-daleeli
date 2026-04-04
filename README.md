@@ -1,82 +1,152 @@
-Daleeli is a platform that helps people understand and complete syndicate registration in a simple and guided way.
+<div align="center">
 
-Instead of getting lost in requirements, papers, and unclear processes, Daleeli shows users exactly what they need to do — step by step.
+# دليلي · Daleeli
 
-🤔 Why Daleeli?
+**Your guided path through syndicate registration and labor rights in Lebanon.**
 
-In Lebanon (and many other countries), registering in a syndicate or understanding legal requirements can be confusing.
+[![Next.js](https://img.shields.io/badge/Next.js-React-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![Status](https://img.shields.io/badge/Status-MVP%20In%20Progress-blue?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)]()
 
-People often struggle with:
+</div>
 
-Not knowing which documents are required
-Missing important steps or conditions
-Not understanding their rights when working abroad
-Scattered or unclear information
+---
 
-Daleeli aims to solve this by making everything clear, structured, and accessible.
+## Overview
 
-💡 What Daleeli Does
-🏢 Syndicate Registration Guidance
-Choose a syndicate
-Instantly see:
-Required documents
-Conditions
-Fees and notes
-Decide whether to proceed or not
-👤 User Registration
-Simple onboarding with:
-Full name
-Syndicate ID (required)
-Phone number
-Email
-User is linked to their selected syndicate tables
-📰 News & Updates
-Users can subscribe to updates related to their syndicate
-News is collected from public government websites
-Content is synced using scraping or scheduled imports
-Each news item is linked to a relevant syndicate
-📄 Contract Review (Premium Feature)
-Users can upload job contracts (especially for work outside Lebanon)
-The system helps explain:
-Legal implications
-Rights and obligations
-Risks depending on the country
-Access requires a $2 subscription
-Contracts and results are securely stored
-🛠️ Admin Dashboard
+Daleeli (دليلي — Arabic for *"my guide"*) is a structured web platform that simplifies syndicate registration, delivers relevant labor news, and helps professionals understand their rights when working abroad.
 
-Admins have full control over the platform:
+Navigating syndicate requirements in Lebanon often means dealing with unclear processes, scattered paperwork, and little to no guidance. Daleeli centralizes all of that into a single, step-by-step experience — from choosing a syndicate to reviewing a foreign work contract.
 
-Manage syndicates and their requirements
-Manage users and registration requests
-Manage news and external sources
-Manage subscriptions and payments
-Manage uploaded contracts and analysis
-Configure categories, statuses, and system settings
-👥 User Types
-Guest User → Browses information
-Registered User → Applies for syndicates, subscribes to updates
-Subscribed User → Accesses contract review
-Admin → Manages the entire system
-⚙️ Tech Stack
-Next.js / React
+---
 
-🎯 MVP Scope
+## Key Features
 
-This project is built as Intternship with techtalks by 5 developers , focusing on:
+### 🏢 Syndicate Registration Guidance
+Users select a syndicate and immediately see everything they need: required documents, eligibility conditions, applicable fees, and important notes. The guided flow ensures no step is missed before submitting a registration request.
 
-Core registration flow
-User system
-Syndicate requirements
-News subscription
-Basic contract upload + subscription
-🔮 Future Vision
-Expand to multiple countries
-Smarter contract analysis (AI-assisted)
-Integration with official systems
-Mobile app
-✨ Final Note
+### 👤 User Account System
+A simple onboarding process collects the user's full name, syndicate ID, phone number, and email. Upon registration, the user is linked to their chosen syndicate — creating a traceable, persistent record in the system. Users are automatically redirected to their profile page after sign-up.
 
-Daleeli is about clarity.
 
-Helping users move from confusion → understanding → action.
+
+### 📰 News & Updates
+Users can subscribe to syndicate-specific news. Content is sourced from public government and labor authority websites through scheduled syncing or scraping, then organized and linked to the relevant syndicate within Daleeli.
+
+### 📄 Services *(Premium)*
+Registered users can upload job contracts for positions outside Lebanon. The platform analyzes the contract and surfaces key information: legal implications, rights and obligations, and country-specific labor considerations. Access to this feature requires a one-time **$2 subscription**.
+
+
+
+### 🛠️ Admin Dashboard
+A full-featured admin interface gives administrators complete control over the platform — syndicates, documents, users, registration requests, news, subscriptions, contracts, and system configuration.
+
+---
+
+## User Roles
+
+| Role | Access |
+|---|---|
+| **Guest** | Browse syndicates and public information |
+| **Registered User** | Submit registration requests, subscribe to news |
+| **Subscribed User** | Access services — contract upload & analysis (requires $2 payment) |
+| **Admin** | Full platform management |
+
+---
+
+## Platform Modules
+
+```
+Daleeli
+├── Syndicate Registration     → Guided selection → document checklist → registration request
+├── User Accounts              → Onboarding → redirect to /profile → syndicate linkage
+├── Profile                    → User info → registration status → subscription status
+├── News & Updates             → Syndicate-filtered feed → external source sync
+├── Services                   → PDF upload → contract analysis → stored results (premium)
+└── Admin Dashboard            → Full CRUD across all entities
+```
+
+---
+
+## Business Rules
+
+- Any visitor may browse syndicates and their requirements without an account.
+- Account creation is required to submit a registration request.
+- News subscription is opt-in and available to all registered users.
+- Services (contract upload & analysis) is a **paid feature** — a $2 subscription must be active before upload.
+- Each syndicate maintains its own document checklist and registration conditions.
+- News is sourced exclusively from public-facing government or labor authority pages; no backend API access is assumed.
+- All uploaded contracts and their analysis results are stored and accessible to both the user and admin.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js / React |
+| Styling | TBD |
+| Backend | TBD |
+| Database | TBD |
+| News Sync | Web scraping / scheduled import from public sources |
+| Payments | TBD (Stripe or equivalent) |
+
+---
+
+## Project Status
+
+Daleeli is currently in **active MVP development** as part of an internship program at [TechTalks](https://techtalks.com), built by a team of five developers.
+
+**MVP scope includes:**
+- Core syndicate registration flow
+- User account system with syndicate linkage
+- News subscription and display
+- Services page — contract upload with subscription gate
+- Basic admin dashboard
+
+**Post-MVP roadmap:**
+- AI-assisted contract analysis
+- Expansion to additional countries and syndicates
+- Integration with official government systems (where APIs become available)
+- Mobile application (iOS / Android)
+- Multi-language support (Arabic / English)
+
+---
+
+## Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/daleeli.git
+cd daleeli
+
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+> **Note:** Environment variables for database connection, payment gateway, and external sync configuration are required. See `.env.example` for the full list.
+
+---
+
+## Contributing
+
+This project is currently developed by the Daleeli internship team at TechTalks. Contribution guidelines will be published once the MVP is complete.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
+
+---
+
+<div align="center">
+
+*Daleeli — from confusion to clarity, one step at a time.*
+
+</div>
