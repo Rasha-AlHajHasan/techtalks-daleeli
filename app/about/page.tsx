@@ -113,6 +113,7 @@ export default function About() {
               alt="Lebanese Architecture"
               fill
               priority
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover object-center lg:rounded-l-3xl"
             />
           </div>
