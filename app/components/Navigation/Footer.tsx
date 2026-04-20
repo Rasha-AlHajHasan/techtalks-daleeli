@@ -2,26 +2,28 @@ import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="w-full border-t border-[#c5c6ce]/20 bg-white mt-auto">
-      <div className="max-w-7xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-12">
+    <footer className="w-full border-t border-slate-200 bg-white mt-auto">
+      <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <span className="font-display font-bold text-primary text-base block mb-3 tracking-tight">
+          <span className="font-bold text-slate-900 text-base block mb-3 tracking-tight">
             Daleeli
           </span>
-          <p className="text-[#75777e] text-sm leading-relaxed max-w-xs">
-            A digital ecosystem bridging professional excellence and modern
-            accessibility. Registered syndicate portal for the Lebanese Bar
-            Association.
+
+          <p className="text-slate-600 text-sm leading-relaxed max-w-xs">
+            A digital platform simplifying access to syndicate-related
+            information through a structured and user-friendly experience.
           </p>
-          <p className="text-[#a0a3a8] text-xs mt-5">
+
+          <p className="text-slate-400 text-xs mt-5">
             © 2026 Daleeli. All rights reserved.
           </p>
         </div>
 
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#a0a3a8] block mb-4">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-4">
             Navigation
           </span>
+
           <div className="flex flex-col gap-2">
             {[
               { href: "/syndicates", label: "Syndicates" },
@@ -32,7 +34,7 @@ const Footer = () => {
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-[#44474d] hover:text-primary transition-colors w-fit"
+                className="text-sm text-slate-600 hover:text-blue-700 hover:translate-x-0.5 transition-all w-fit"
               >
                 {label}
               </Link>
@@ -41,9 +43,10 @@ const Footer = () => {
         </div>
 
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#a0a3a8] block mb-4">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-4">
             Institutional
           </span>
+
           <div className="flex flex-col gap-2">
             {[
               { href: "#", label: "Legal Terms" },
@@ -53,26 +56,30 @@ const Footer = () => {
               <a
                 key={label}
                 href={href}
-                className="text-sm text-[#44474d] hover:text-primary transition-colors w-fit"
+                className="text-sm text-slate-600 hover:text-blue-700 hover:translate-x-0.5 transition-all w-fit"
               >
                 {label}
               </a>
             ))}
+
             <a
-              href="mailto:support@modernlegist.gov.lb"
-              className="text-sm text-[#44474d] hover:text-primary transition-colors w-fit mt-1"
+              href="mailto:support@daleeli.com"
+              className="text-sm text-slate-600 hover:text-blue-700 hover:translate-x-0.5 transition-all w-fit mt-1"
             >
-              support@modernlegist.gov.lb
+              support@daleeli.com
             </a>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-[#c5c6ce]/20 px-8 py-4 max-w-7xl mx-auto flex items-center justify-between">
-        <span className="text-xs text-[#a0a3a8]">
-          Lebanese Bar Association · Official Portal
-        </span>
-        <span className="text-xs text-[#a0a3a8]">Beirut, Lebanon</span>
+      <div className="border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
+          <span className="text-xs text-slate-400 font-medium">
+            Lebanese Professional Syndicate Portal
+          </span>
+
+          <span className="text-xs text-slate-400">Beirut, Lebanon</span>
+        </div>
       </div>
     </footer>
   );
