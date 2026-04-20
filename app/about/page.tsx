@@ -65,51 +65,48 @@ const orders = [
 export default function About() {
   return (
     <div className="flex-1 bg-slate-50 text-slate-800">
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center py-16 lg:py-20">
-          <div className="flex-1 px-8 mb-10 lg:mb-0 lg:pr-12">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-5 block">
+      <section className="bg-slate-50 pt-24 pb-16">
+        <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center lg:items-stretch min-h-130">
+          <div className="flex flex-col justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-6 block">
               About Daleeli
             </span>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5 leading-[1.1] text-slate-900">
+            <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900">
               Simplifying Access to{" "}
               <span className="text-blue-700">Syndicate Information</span>
             </h1>
 
-            <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-5">
-              Daleeli is a dedicated platform designed to simplify how
-              professionals in Lebanon search for and access syndicate-related
-              information. Instead of dealing with scattered data and unclear
-              sources, users can find everything through one organized and
-              user-friendly experience.
+            <p className="text-base text-slate-600 leading-relaxed max-w-md mb-6">
+              Daleeli centralizes Lebanese professional syndicate information
+              into one structured platform.
             </p>
 
-            <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-7">
-              Our mission is to make bureaucratic information easier to reach,
-              easier to understand, and more useful in everyday life. We believe
-              technology should remove complexity, not add it — and that is
-              exactly what we aim to do.
+            <p className="text-base text-slate-600 leading-relaxed max-w-md mb-8">
+              Our mission is to simplify access to regulations, requirements,
+              and institutional processes.
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/syndicates"
-                className="bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors"
-              >
-                Browse Syndicates
-              </Link>
-            </div>
+            <Link
+              href="/syndicates"
+              className="inline-flex w-fit bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition"
+            >
+              Browse Syndicates
+            </Link>
           </div>
 
-          <div className="w-full lg:w-1/2 h-80 lg:h-105 relative">
-            <Image
-              src="https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&q=80&w=1200"
-              alt="Lebanese Architecture"
-              fill
-              priority
-              className="object-cover object-center lg:rounded-l-3xl"
-            />
+          <div className="relative">
+            <div className="relative h-105 lg:h-full w-full rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+              <Image
+                src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?auto=format&fit=crop&q=80&w=1200"
+                alt="Modern professional environment"
+                fill
+                className="object-cover object-center"
+                priority
+              />
+            </div>
+
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-xl -z-10"></div>
           </div>
         </div>
       </section>
