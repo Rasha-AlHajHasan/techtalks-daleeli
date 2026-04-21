@@ -14,7 +14,7 @@
 
 ## Overview
 
-Daleeli (دليلي — Arabic for *"my guide"*) is a structured web platform that simplifies syndicate registration, delivers relevant labor news, and helps professionals understand their rights when working abroad.
+Daleeli (دليلي — Arabic for _"my guide"_) is a structured web platform that simplifies syndicate registration, delivers relevant labor news, and helps professionals understand their rights when working abroad.
 
 Navigating syndicate requirements in Lebanon often means dealing with unclear processes, scattered paperwork, and little to no guidance. Daleeli centralizes all of that into a single, step-by-step experience — from choosing a syndicate to reviewing a foreign work contract.
 
@@ -23,34 +23,35 @@ Navigating syndicate requirements in Lebanon often means dealing with unclear pr
 ## Key Features
 
 ### 🏢 Syndicate Registration Guidance
+
 Users select a syndicate and immediately see everything they need: required documents, eligibility conditions, applicable fees, and important notes. The guided flow ensures no step is missed before submitting a registration request.
 
 ### 👤 User Account System
+
 A simple onboarding process collects the user's full name, syndicate ID, phone number, and email. Upon registration, the user is linked to their chosen syndicate — creating a traceable, persistent record in the system. Users are automatically redirected to their profile page after sign-up.
 
-
-
 ### 📰 News & Updates
+
 Users can subscribe to syndicate-specific news. Content is sourced from public government and labor authority websites through scheduled syncing or scraping, then organized and linked to the relevant syndicate within Daleeli.
 
-### 📄 Services *(Premium)*
+### 📄 Services _(Premium)_
+
 Registered users can upload job contracts for positions outside Lebanon. The platform analyzes the contract and surfaces key information: legal implications, rights and obligations, and country-specific labor considerations. Access to this feature requires a one-time **$2 subscription**.
 
-
-
 ### 🛠️ Admin Dashboard
+
 A full-featured admin interface gives administrators complete control over the platform — syndicates, documents, users, registration requests, news, subscriptions, contracts, and system configuration.
 
 ---
 
 ## User Roles
 
-| Role | Access |
-|---|---|
-| **Guest** | Browse syndicates and public information |
-| **Registered User** | Submit registration requests, subscribe to news |
+| Role                | Access                                                             |
+| ------------------- | ------------------------------------------------------------------ |
+| **Guest**           | Browse syndicates and public information                           |
+| **Registered User** | Submit registration requests, subscribe to news                    |
 | **Subscribed User** | Access services — contract upload & analysis (requires $2 payment) |
-| **Admin** | Full platform management |
+| **Admin**           | Full platform management                                           |
 
 ---
 
@@ -82,22 +83,23 @@ Daleeli
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js / React |
-| Styling | TBD |
-| Backend | TBD |
-| Database | TBD |
+| Layer     | Technology                                          |
+| --------- | --------------------------------------------------- |
+| Frontend  | Next.js / React                                     |
+| Styling   | TBD                                                 |
+| Backend   | TBD                                                 |
+| Database  | TBD                                                 |
 | News Sync | Web scraping / scheduled import from public sources |
-| Payments | TBD (Stripe or equivalent) |
+| Payments  | TBD (Stripe or equivalent)                          |
 
 ---
 
 ## Project Status
 
-Daleeli is currently in **active MVP development** as part of an internship program at [TechTalks](https://techtalks.com), built by a team of five developers.
+Daleeli is currently in **active MVP development** as part of an internship program at [TechTalks](https://techtalkslb.com/), built by a team of five developers.
 
 **MVP scope includes:**
+
 - Core syndicate registration flow
 - User account system with syndicate linkage
 - News subscription and display
@@ -105,6 +107,7 @@ Daleeli is currently in **active MVP development** as part of an internship prog
 - Basic admin dashboard
 
 **Post-MVP roadmap:**
+
 - AI-assisted contract analysis
 - Expansion to additional countries and syndicates
 - Integration with official government systems (where APIs become available)
@@ -147,6 +150,6 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 
 <div align="center">
 
-*Daleeli — from confusion to clarity, one step at a time.*
+_Daleeli — from confusion to clarity, one step at a time._
 
 </div>
