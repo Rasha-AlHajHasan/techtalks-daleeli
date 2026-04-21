@@ -14,17 +14,17 @@ const Header = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-      <div className="flex items-center justify-between h-14 max-w-7xl mx-auto px-8">
+    <nav className="fixed top-0 z-50 w-full border-b border-[#e6e8ea] bg-white/85 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-8">
         <div className="flex items-center">
           <Link
             href="/"
-            className="text-base font-bold tracking-tight text-slate-900 hover:text-blue-700 transition"
+            className="text-lg font-bold tracking-tight text-[#1a2b48] transition hover:opacity-80"
           >
             Daleeli
           </Link>
 
-          <div className="hidden md:flex items-center ml-10 gap-1">
+          <div className="ml-10 hidden items-center gap-3 md:flex">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
 
@@ -32,10 +32,10 @@ const Header = () => {
                 <Link
                   key={href}
                   href={href}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                     isActive
-                      ? "text-blue-700 bg-blue-50"
-                      : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
+                      ? "bg-[#1a2b48] text-white"
+                      : "text-[#44474d] hover:bg-[#f2f4f6] hover:text-[#1a2b48]"
                   }`}
                 >
                   {label}
