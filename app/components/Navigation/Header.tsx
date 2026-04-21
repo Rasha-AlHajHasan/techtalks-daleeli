@@ -1,12 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
-import { useEffect, useState } from "react";
 import { UserCircle } from "lucide-react";
-import { createClient } from "@/app/Utils/supabase/client";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/app/utils/supabase/client";
 
 const navLinks = [
   { href: "/syndicates", label: "Syndicates" },
@@ -15,55 +14,65 @@ const navLinks = [
   { href: "/about", label: "About" },
 ];
 
+type AuthUser = {
+  email: string | null;
+  fullName: string | null;
+  initials: string;
+};
+
+const getInitials = (fullName: string | null, email: string | null) => {
+  if (fullName?.trim()) {
+    const parts = fullName.trim().split(/\s+/).slice(0, 2);
+    return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
+  }
+
+  return email?.[0]?.toUpperCase() ?? "";
+};
+
 const Header = () => {
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
-  const supabase = createClient();
-  const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
-  
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-  const [userName, setUserName] = useState<string | null>(null);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    async function loadUser() {
+    const loadUser = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (user) {
-        // fetch profile info
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
 
-        setUserName(profile?.full_name || user.email);
-      } else {
-        setUserName(null);
+      if (!user) {
+        setAuthUser(null);
+        return;
       }
-    }
 
-    // Load user initially
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      const fullName = profile?.full_name ?? null;
+
+      setAuthUser({
+        email: user.email ?? null,
+        fullName,
+        initials: getInitials(fullName, user.email ?? null),
+      });
+    };
+
     loadUser();
 
-    // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        // fetch profile info
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", session.user.id)
-          .single();
-
-        setUserName(profile?.full_name || session.user.email);
-      } else if (event === "SIGNED_OUT") {
-        setUserName(null);
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        setAuthUser(null);
+        setOpen(false);
+        return;
       }
+
+      void loadUser();
     });
 
     return () => {
@@ -71,55 +80,58 @@ const Header = () => {
     };
   }, []);
 
-  async function handleLogout() {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [open]);
+
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    setUserName(null);
-  }
+    setAuthUser(null);
+    setOpen(false);
+  };
 
-if(user) {
-  setUser({ firstName: user.user_metadata?.first_name||"", lastName: user.user_metadata?.last_name||"" });
- }
-} ;
+  const displayName = authUser?.fullName || authUser?.email;
 
-getUser();
-},[]);
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-[#e6e8ea]">
-      <div className="relative">
-  <button onClick={() => setOpen(!open)} className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">
-    {user?.firstName?.[0]}{user?.lastName?.[0]}
-  </button>
-
-  {open && (
-    <div className="absolute right-0 mt-2 w-48 bg-white border border-[#c5c6ce]/30 rounded-xl shadow-lg py-2 z-50">
-      <a href="/profile" className="block px-4 py-2 text-sm text-[#44474d] hover:bg-gray-50">Profile</a>
-      <a href="/settings" className="block px-4 py-2 text-sm text-[#44474d] hover:bg-gray-50">Settings</a>
-      <hr className="my-1 border-[#c5c6ce]/30" />
-      <button className="block w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-50">Sign out</button>
-    </div>
-  )}
-</div>
-      <div className="flex items-center justify-between h-14 max-w-7xl mx-auto px-8">
+    <nav className="fixed top-0 z-50 w-full border-b border-[#e6e8ea] bg-white/90 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6 sm:px-8">
         <div className="flex items-center">
-          <Image
-            src="/daleeli_logo_transparent.png"
-            alt="Daleeli Logo"
-            width={80}
-            height={10}
-            style={{marginRight: "30px",height:"auto"}}
-          />
-        
-          <div className="hidden md:flex items-center ml-10 gap-6">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/daleeli_logo_transparent.png"
+              alt="Daleeli Logo"
+              width={80}
+              height={10}
+              style={{ marginRight: "30px", height: "auto" }}
+            />
+          </Link>
+
+          <div className="ml-2 hidden items-center gap-1 md:flex">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
+
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                     isActive
-                      ? "text-blue-700 bg-blue-50"
-                      : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-700"
                   }`}
                 >
                   {label}
@@ -129,20 +141,51 @@ getUser();
           </div>
         </div>
 
-        {/* User */}
         <div className="flex items-center gap-3">
-          {userName ? (
-            <>
-              <span className="text-sm font-semibold text-slate-700">
-                {userName}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="rounded-lg border border-[#d9dde3] px-3 py-1 text-sm text-[#344054] hover:bg-[#f8fafc]"
-              >
-                Logout
-              </button>
-            </>
+          {authUser ? (
+            <div className="relative" ref={menuRef}>
+              <div className="flex items-center gap-3">
+                <span className="hidden text-sm font-semibold text-slate-700 sm:inline">
+                  {displayName}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setOpen((current) => !current)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-[#1a2b48] text-sm font-semibold text-white transition hover:bg-[#142238]"
+                  aria-label="Toggle account menu"
+                  aria-expanded={open}
+                >
+                  {authUser.initials ? (
+                    authUser.initials
+                  ) : (
+                    <UserCircle size={18} />
+                  )}
+                </button>
+              </div>
+
+              {open && (
+                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-[#c5c6ce]/30 bg-white py-2 shadow-lg">
+                  <div className="border-b border-slate-100 px-4 pb-3 pt-2">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {displayName}
+                    </p>
+                    {authUser.email && (
+                      <p className="mt-1 text-xs text-slate-500">
+                        {authUser.email}
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="mt-1 block w-full px-4 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Link
