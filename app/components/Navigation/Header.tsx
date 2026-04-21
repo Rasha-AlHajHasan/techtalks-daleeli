@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { UserCircle } from "lucide-react";
 import { createClient } from "@/app/Utils/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 const navLinks = [
   { href: "/syndicates", label: "Syndicates" },
@@ -19,9 +20,61 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const supabase = createClient();
   const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
-useEffect(() => {
+  
+  useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        // fetch profile info
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        setUserName(profile?.full_name || user.email);
+      } else {
+        setUserName(null);
+      }
+    }
+
+    // Load user initially
+    loadUser();
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        // fetch profile info
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", session.user.id)
+          .single();
+
+        setUserName(profile?.full_name || session.user.email);
+      } else if (event === "SIGNED_OUT") {
+        setUserName(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUserName(null);
+  }
 
 if(user) {
   setUser({ firstName: user.user_metadata?.first_name||"", lastName: user.user_metadata?.last_name||"" });
@@ -59,15 +112,14 @@ getUser();
           <div className="hidden md:flex items-center ml-10 gap-6">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
-
               return (
                 <Link
                   key={href}
                   href={href}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
                     isActive
-                      ? "bg-[#1a2b48] text-white"
-                      : "text-[#44474d] hover:bg-[#f2f4f6] hover:text-primary"
+                      ? "text-blue-700 bg-blue-50"
+                      : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
                   }`}
                 >
                   {label}
@@ -77,12 +129,36 @@ getUser();
           </div>
         </div>
 
-        <div className="flex items-center">
-          <Link href="/dashboard" aria-label="Dashboard">
-            <div className="h-8 w-8 rounded-full bg-[#1a2b48] flex items-center justify-center text-white text-xs font-semibold hover:opacity-90 transition">
-              JD
-            </div>
-          </Link>
+        {/* User */}
+        <div className="flex items-center gap-3">
+          {userName ? (
+            <>
+              <span className="text-sm font-semibold text-slate-700">
+                {userName}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="rounded-lg border border-[#d9dde3] px-3 py-1 text-sm text-[#344054] hover:bg-[#f8fafc]"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-lg border border-[#d9dde3] px-4 py-2 text-sm font-semibold text-[#344054] transition hover:bg-[#f8fafc]"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-lg bg-[#1a2b48] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#142238]"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
