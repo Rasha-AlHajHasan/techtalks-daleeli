@@ -1,13 +1,11 @@
 import Link from "next/link";
-
+import Image from "next/image";
 const Footer = () => {
   return (
     <footer className="w-full border-t border-[#c5c6ce]/20 bg-white mt-auto">
       <div className="max-w-7xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-3 gap-12">
         <div>
-          <span className="font-display font-bold text-primary text-base block mb-3 tracking-tight">
-            Daleeli
-          </span>
+          <Image src="/daleeli_logo_transparent.png" alt="Daleeli Logo" width={120} height={120} style={{margin: "0 70px", height:"auto"}} />
           <p className="text-[#75777e] text-sm leading-relaxed max-w-xs">
             A digital ecosystem bridging professional excellence and modern
             accessibility. Registered syndicate portal for the Lebanese Bar
