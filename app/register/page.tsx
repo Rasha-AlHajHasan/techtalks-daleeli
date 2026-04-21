@@ -1,71 +1,71 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/app/utils/supabase/client";
 
 type Syndicate = {
-  id: string
-  name: string
-  slug: string
-}
+  id: string;
+  name: string;
+  slug: string;
+};
 
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [syndicateId, setSyndicateId] = useState('')
-  const [memberNumber, setMemberNumber] = useState('')
-  const [syndicates, setSyndicates] = useState<Syndicate[]>([])
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [syndicateId, setSyndicateId] = useState("");
+  const [memberNumber, setMemberNumber] = useState("");
+  const [syndicates, setSyndicates] = useState<Syndicate[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   useEffect(() => {
     const fetchSyndicates = async () => {
       const { data, error } = await supabase
-        .from('syndicates')
-        .select('id, name, slug')
-        .eq('is_active', true)
-        .order('name', { ascending: true })
+        .from("syndicates")
+        .select("id, name, slug")
+        .eq("is_active", true)
+        .order("name", { ascending: true });
 
       if (error) {
-        setMessageType('error')
-        setMessage(`Failed to load syndicates: ${error.message}`)
-        return
+        setMessageType("error");
+        setMessage(`Failed to load syndicates: ${error.message}`);
+        return;
       }
 
-      setSyndicates(data || [])
-    }
+      setSyndicates(data || []);
+    };
 
-    fetchSyndicates()
-  }, [])
+    fetchSyndicates();
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setMessage('')
-    setMessageType('')
+    e.preventDefault();
+    setMessage("");
+    setMessageType("");
 
     if (!fullName.trim()) {
-      setMessageType('error')
-      setMessage('Full name is required.')
-      return
+      setMessageType("error");
+      setMessage("Full name is required.");
+      return;
     }
 
     if (!syndicateId) {
-      setMessageType('error')
-      setMessage('Please select a syndicate.')
-      return
+      setMessageType("error");
+      setMessage("Please select a syndicate.");
+      return;
     }
 
     if (!/^[0-9]{6,}$/.test(memberNumber)) {
-      setMessageType('error')
-      setMessage('Syndicate member number must be at least 6 digits.')
-      return
+      setMessageType("error");
+      setMessage("Syndicate member number must be at least 6 digits.");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -78,26 +78,28 @@ export default function RegisterPage() {
           syndicate_member_number: memberNumber,
         },
       },
-    })
+    });
 
-    setLoading(false)
+    setLoading(false);
 
     if (error) {
-      setMessageType('error')
-      setMessage(error.message)
-      return
+      setMessageType("error");
+      setMessage(error.message);
+      return;
     }
 
-    setMessageType('success')
-    setMessage('Registration successful. Check your email if confirmation is enabled.')
+    setMessageType("success");
+    setMessage(
+      "Registration successful. Check your email if confirmation is enabled.",
+    );
 
-    setFullName('')
-    setPhoneNumber('')
-    setEmail('')
-    setPassword('')
-    setSyndicateId('')
-    setMemberNumber('')
-  }
+    setFullName("");
+    setPhoneNumber("");
+    setEmail("");
+    setPassword("");
+    setSyndicateId("");
+    setMemberNumber("");
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-24">
@@ -114,8 +116,8 @@ export default function RegisterPage() {
               </h1>
 
               <p className="mt-4 max-w-md text-sm leading-6 text-slate-300">
-                Register with your official syndicate information to access guidance,
-                updates, and services in one secure place.
+                Register with your official syndicate information to access
+                guidance, updates, and services in one secure place.
               </p>
             </div>
 
@@ -123,8 +125,8 @@ export default function RegisterPage() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <h2 className="text-sm font-semibold">Required information</h2>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Full name, email, selected syndicate, and your government-issued
-                  syndicate number.
+                  Full name, email, selected syndicate, and your
+                  government-issued syndicate number.
                 </p>
               </div>
 
@@ -253,16 +255,16 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="w-full rounded-xl bg-[#1a2b48] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#142238] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? 'Registering...' : 'Create Account'}
+                {loading ? "Registering..." : "Create Account"}
               </button>
             </form>
 
             {message && (
               <div
                 className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
-                  messageType === 'success'
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : 'border-red-200 bg-red-50 text-red-700'
+                  messageType === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-red-200 bg-red-50 text-red-700"
                 }`}
               >
                 {message}
@@ -270,8 +272,11 @@ export default function RegisterPage() {
             )}
 
             <p className="mt-5 text-center text-sm text-slate-600">
-              Already registered?{' '}
-              <Link href="/login" className="font-semibold text-[#1a2b48] hover:underline">
+              Already registered?{" "}
+              <Link
+                href="/login"
+                className="font-semibold text-[#1a2b48] hover:underline"
+              >
                 Login here
               </Link>
             </p>
@@ -279,5 +284,5 @@ export default function RegisterPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }

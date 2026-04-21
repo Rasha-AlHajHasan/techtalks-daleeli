@@ -1,17 +1,15 @@
 import Link from "next/link";
-
+import Image from "next/image";
 const Footer = () => {
   return (
     <footer className="w-full border-t border-slate-200 bg-white mt-auto">
       <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <span className="font-bold text-slate-900 text-base block mb-3 tracking-tight">
-            Daleeli
-          </span>
-
-          <p className="text-slate-600 text-sm leading-relaxed max-w-xs">
-            A digital platform simplifying access to syndicate-related
-            information through a structured and user-friendly experience.
+          <Image src="/daleeli_logo_transparent.png" alt="Daleeli Logo" width={120} height={120} style={{margin: "0 70px", height:"auto"}} />
+          <p className="text-[#75777e] text-sm leading-relaxed max-w-xs">
+            A digital ecosystem bridging professional excellence and modern
+            accessibility. Registered syndicate portal for the Lebanese Bar
+            Association.
           </p>
 
           <p className="text-slate-400 text-xs mt-5">
