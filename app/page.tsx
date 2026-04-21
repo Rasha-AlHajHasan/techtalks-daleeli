@@ -51,7 +51,6 @@ const steps = [
   },
 ];
 
-export default function Home() {
   return (
     <div className="flex-1 bg-slate-50 text-slate-800">
       <section className="bg-slate-50 pt-24 pb-16">
