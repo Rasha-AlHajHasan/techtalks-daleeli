@@ -65,14 +65,14 @@ const orders = [
 export default function About() {
   return (
     <div className="flex-1 bg-slate-50 text-slate-800">
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center py-16 lg:py-20">
-          <div className="flex-1 px-8 mb-10 lg:mb-0 lg:pr-12">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-5 block">
+      <section className="bg-slate-50 pt-24 pb-16">
+        <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center lg:items-stretch min-h-130">
+          <div className="flex flex-col justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-6 block">
               About Daleeli
             </span>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-5 leading-[1.1] text-slate-900">
+            <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900">
               Simplifying Access to{" "}
               <span className="text-blue-700">Syndicate Information</span>
             </h1>
@@ -102,15 +102,18 @@ export default function About() {
             </div>
           </div>
 
-          <div className="w-full lg:w-1/2 h-80 lg:h-105 relative">
-            <Image
-              src="https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?auto=format&fit=crop&q=80&w=1200"
-              alt="Lebanese Architecture"
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-center lg:rounded-l-3xl"
-            />
+          <div className="relative">
+            <div className="relative h-105 lg:h-full w-full rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+              <Image
+                src="https://images.unsplash.com/photo-1568992687947-868a62a9f521?auto=format&fit=crop&q=80&w=1200"
+                alt="Modern professional environment"
+                fill
+                className="object-cover object-center"
+                priority
+              />
+            </div>
+
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-blue-100 rounded-xl -z-10"></div>
           </div>
         </div>
       </section>
