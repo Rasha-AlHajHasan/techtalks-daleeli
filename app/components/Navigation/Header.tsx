@@ -107,8 +107,8 @@ const Header = () => {
   const displayName = authUser?.fullName || authUser?.email;
 
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-[#e6e8ea] bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6 sm:px-8">
+    <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+      <div className="flex items-center justify-between h-14 max-w-7xl mx-auto px-8">
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <Image
@@ -120,7 +120,7 @@ const Header = () => {
             />
           </Link>
 
-          <div className="ml-2 hidden items-center gap-1 md:flex">
+          <div className="hidden md:flex items-center ml-10 gap-1">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
 
@@ -128,10 +128,10 @@ const Header = () => {
                 <Link
                   key={href}
                   href={href}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
                     isActive
-                      ? "bg-blue-50 text-blue-700"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-700"
+                      ? "text-blue-700 bg-blue-50"
+                      : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
                   }`}
                 >
                   {label}
