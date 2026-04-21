@@ -30,9 +30,35 @@ const Header = () => {
           .single();
 
         setUserName(profile?.full_name || user.email);
+      } else {
+        setUserName(null);
       }
     }
+
+    // Load user initially
     loadUser();
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        // fetch profile info
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", session.user.id)
+          .single();
+
+        setUserName(profile?.full_name || session.user.email);
+      } else if (event === "SIGNED_OUT") {
+        setUserName(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleLogout() {
