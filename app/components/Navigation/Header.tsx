@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 const navLinks = [
   { href: "/syndicates", label: "Syndicates" },
@@ -12,6 +14,57 @@ const navLinks = [
 
 const Header = () => {
   const pathname = usePathname();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        // fetch profile info
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        setUserName(profile?.full_name || user.email);
+      } else {
+        setUserName(null);
+      }
+    }
+
+    // Load user initially
+    loadUser();
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        // fetch profile info
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", session.user.id)
+          .single();
+
+        setUserName(profile?.full_name || session.user.email);
+      } else if (event === "SIGNED_OUT") {
+        setUserName(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUserName(null);
+  }
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
@@ -27,7 +80,6 @@ const Header = () => {
           <div className="hidden md:flex items-center ml-10 gap-1">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
-
               return (
                 <Link
                   key={href}
@@ -46,12 +98,35 @@ const Header = () => {
         </div>
 
         {/* User */}
-        <div className="flex items-center">
-          <Link href="/dashboard" aria-label="Dashboard">
-            <div className="h-8 w-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-xs font-semibold hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition">
-              JD
-            </div>
-          </Link>
+        <div className="flex items-center gap-3">
+          {userName ? (
+            <>
+              <span className="text-sm font-semibold text-slate-700">
+                {userName}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="rounded-lg border border-[#d9dde3] px-3 py-1 text-sm text-[#344054] hover:bg-[#f8fafc]"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-lg border border-[#d9dde3] px-4 py-2 text-sm font-semibold text-[#344054] transition hover:bg-[#f8fafc]"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-lg bg-[#1a2b48] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#142238]"
+              >
+                Register
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
