@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/app/utils/supabase/client";
+import { supabase } from "@/app/lib/supabase/client";
 
 type Syndicate = {
   id: string;

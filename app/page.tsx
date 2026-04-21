@@ -1,4 +1,4 @@
-import { supabase } from "./utils/supabase/client";
+import { supabase } from "./lib/supabase/client";
 
 export default async function Page() {
   const { data, error } = await supabase.from("test").select("*");

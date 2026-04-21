@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { supabase } from "@/app/utils/supabase/client";
+import { supabase } from "@/app/lib/supabase/client";
 
 type AuthMode = "signin" | "forgot" | "recovery";
 
