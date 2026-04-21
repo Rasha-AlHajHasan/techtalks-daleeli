@@ -45,19 +45,12 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-lg border border-[#d9dde3] px-4 py-2 text-sm font-semibold text-[#344054] transition hover:bg-[#f8fafc]"
-          >
-            Login
-          </Link>
-
-          <Link
-            href="/register"
-            className="rounded-lg bg-[#1a2b48] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#142238]"
-          >
-            Register
+        {/* User */}
+        <div className="flex items-center">
+          <Link href="/dashboard" aria-label="Dashboard">
+            <div className="h-8 w-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 text-xs font-semibold hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition">
+              JD
+            </div>
           </Link>
         </div>
       </div>
