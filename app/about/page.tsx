@@ -77,22 +77,29 @@ export default function About() {
               <span className="text-blue-700">Syndicate Information</span>
             </h1>
 
-            <p className="text-base text-slate-600 leading-relaxed max-w-md mb-6">
-              Daleeli centralizes Lebanese professional syndicate information
-              into one structured platform.
+            <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-5">
+              Daleeli is a dedicated platform designed to simplify how
+              professionals in Lebanon search for and access syndicate-related
+              information. Instead of dealing with scattered data and unclear
+              sources, users can find everything through one organized and
+              user-friendly experience.
             </p>
 
-            <p className="text-base text-slate-600 leading-relaxed max-w-md mb-8">
-              Our mission is to simplify access to regulations, requirements,
-              and institutional processes.
+            <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-7">
+              Our mission is to make bureaucratic information easier to reach,
+              easier to understand, and more useful in everyday life. We believe
+              technology should remove complexity, not add it — and that is
+              exactly what we aim to do.
             </p>
 
-            <Link
-              href="/syndicates"
-              className="inline-flex w-fit bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition"
-            >
-              Browse Syndicates
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/syndicates"
+                className="bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors"
+              >
+                Browse Syndicates
+              </Link>
+            </div>
           </div>
 
           <div className="relative">
