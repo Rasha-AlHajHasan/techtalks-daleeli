@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/app/utils/supabase/client";
+import { supabase } from "@/app/lib/supabase/client";
 
 const navLinks = [
   { href: "/syndicates", label: "Syndicates" },
