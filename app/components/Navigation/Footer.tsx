@@ -5,7 +5,8 @@ const Footer = () => {
     <footer className="w-full border-t border-slate-200 bg-white mt-auto">
       <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <Image src="/daleeli_logo_transparent.png" alt="Daleeli Logo" width={120} height={120} style={{margin: "0 70px", height:"auto"}} />
+          <Image src="/Daleeli-logo.svg" alt="Daleeli Logo" width={120} height={120}style={{ width: "120px", height: "auto" }} />
+          <h1 className="hidden md:block text-2xl font-bold text-blue-400 mt-2">Daleeli</h1>
           <p className="text-[#75777e] text-sm leading-relaxed max-w-xs">
             A digital ecosystem bridging professional excellence and modern
             accessibility. Registered syndicate portal for the Lebanese Bar

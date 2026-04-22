@@ -44,7 +44,7 @@ export default function LogoAnimation() {
           className="w-full h-full"
         >
           <Image
-            src="/daleeli_logo_transparent.png"
+            src="/Daleeli-logo.svg"
             alt="Daleeli Logo"
             fill // Better for responsiveness than hardcoded width/height
             priority
