@@ -112,12 +112,13 @@ const Header = () => {
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <Image
-              src="/daleeli_logo_transparent.png"
+              src="/Daleeli-logo.svg"
               alt="Daleeli Logo"
               width={80}
-              height={10}
-              style={{ marginRight: "30px", height: "auto" }}
+              height={80}
+              style={{ marginRight: "10px", width: "80", height: "auto" }}
             />
+            <span className="hidden md:inline text-xl font-bold text-blue-400">Daleeli</span>
           </Link>
 
           <div className="hidden md:flex items-center ml-10 gap-1">

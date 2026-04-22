@@ -33,7 +33,7 @@ export default function Logo({ size = 120, showName = true }: LogoProps) {
           }}
         />
         <Image
-          src="daleeli_logo_transparent.png"
+          src="/Daleeli-logo.svg"
           alt="Daleeli"
           width={size}
           height={size}
