@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabase/client";
+
+
 
 type Syndicate = {
   id: string;
@@ -41,65 +44,68 @@ export default function RegisterPage() {
 
     fetchSyndicates();
   }, []);
+  const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage("");
-    setMessageType("");
+  e.preventDefault();
+  setMessage("");
+  setMessageType("");
 
-    if (!fullName.trim()) {
-      setMessageType("error");
-      setMessage("Full name is required.");
-      return;
-    }
+  if (!fullName.trim()) {
+    setMessageType("error");
+    setMessage("Full name is required.");
+    return;
+  }
 
-    if (!syndicateId) {
-      setMessageType("error");
-      setMessage("Please select a syndicate.");
-      return;
-    }
+  if (!syndicateId) {
+    setMessageType("error");
+    setMessage("Please select a syndicate.");
+    return;
+  }
 
-    if (!/^[0-9]{6,}$/.test(memberNumber)) {
-      setMessageType("error");
-      setMessage("Syndicate member number must be at least 6 digits.");
-      return;
-    }
+  if (!/^[0-9]{6,}$/.test(memberNumber)) {
+    setMessageType("error");
+    setMessage("Syndicate member number must be at least 6 digits.");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          phone_number: phoneNumber,
-          syndicate_id: syndicateId,
-          syndicate_member_number: memberNumber,
-        },
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        syndicate_id: syndicateId,
+        syndicate_member_number: memberNumber,
       },
-    });
+    },
+  });
 
-    setLoading(false);
+  setLoading(false);
 
-    if (error) {
-      setMessageType("error");
-      setMessage(error.message);
-      return;
-    }
+  if (error) {
+    setMessageType("error");
+    setMessage(error.message);
+    return;
+  }
 
-    setMessageType("success");
-    setMessage(
-      "Registration successful. Check your email if confirmation is enabled.",
-    );
+  // ❗ IMPORTANT CHECK
+  if (!data.session) {
+    setMessageType("error");
+    setMessage("Email confirmation is still enabled. Disable it in Supabase.");
+    return;
+  }
 
-    setFullName("");
-    setPhoneNumber("");
-    setEmail("");
-    setPassword("");
-    setSyndicateId("");
-    setMemberNumber("");
-  };
+  // ✅ SUCCESS → ENTER WEBSITE
+  setMessageType("success");
+  setMessage("Welcome to Daleeli!");
+
+  router.push("/profile");   // 👈 go inside the app
+  router.refresh();
+};
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-24">

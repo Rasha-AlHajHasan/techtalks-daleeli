@@ -65,7 +65,7 @@ const Header = () => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
+    } = supabase.auth.onAuthStateChange((event: string) => {
       if (event === "SIGNED_OUT") {
         setAuthUser(null);
         setOpen(false);
@@ -81,9 +81,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
+    if (!open) return;
 
     const handlePointerDown = (event: MouseEvent) => {
       if (!menuRef.current?.contains(event.target as Node)) {
@@ -107,8 +105,8 @@ const Header = () => {
   const displayName = authUser?.fullName || authUser?.email;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-      <div className="flex items-center justify-between h-14 max-w-7xl mx-auto px-8">
+    <nav className="fixed top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-8">
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <Image
@@ -116,12 +114,14 @@ const Header = () => {
               alt="Daleeli Logo"
               width={80}
               height={80}
-              style={{ marginRight: "10px", width: "80", height: "auto" }}
+              className="mr-2 h-auto w-20"
             />
-            <span className="hidden md:inline text-xl font-bold text-blue-400">Daleeli</span>
+            <span className="hidden text-xl font-bold text-blue-400 md:inline">
+              Daleeli
+            </span>
           </Link>
 
-          <div className="hidden md:flex items-center ml-10 gap-1">
+          <div className="ml-10 hidden items-center gap-1 md:flex">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
 
@@ -129,10 +129,10 @@ const Header = () => {
                 <Link
                   key={href}
                   href={href}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                     isActive
-                      ? "text-blue-700 bg-blue-50"
-                      : "text-slate-600 hover:text-blue-700 hover:bg-slate-50"
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-700"
                   }`}
                 >
                   {label}
@@ -149,6 +149,7 @@ const Header = () => {
                 <span className="hidden text-sm font-semibold text-slate-700 sm:inline">
                   {displayName}
                 </span>
+
                 <button
                   type="button"
                   onClick={() => setOpen((current) => !current)}
@@ -156,26 +157,31 @@ const Header = () => {
                   aria-label="Toggle account menu"
                   aria-expanded={open}
                 >
-                  {authUser.initials ? (
-                    authUser.initials
-                  ) : (
-                    <UserCircle size={18} />
-                  )}
+                  {authUser.initials ? authUser.initials : <UserCircle size={18} />}
                 </button>
               </div>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-[#c5c6ce]/30 bg-white py-2 shadow-lg">
+                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
                   <div className="border-b border-slate-100 px-4 pb-3 pt-2">
                     <p className="text-sm font-semibold text-slate-800">
                       {displayName}
                     </p>
+
                     {authUser.email && (
                       <p className="mt-1 text-xs text-slate-500">
                         {authUser.email}
                       </p>
                     )}
                   </div>
+
+                  <Link
+                    href="/profile"
+                    onClick={() => setOpen(false)}
+                    className="block px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Profile
+                  </Link>
 
                   <button
                     type="button"
@@ -195,6 +201,7 @@ const Header = () => {
               >
                 Login
               </Link>
+
               <Link
                 href="/register"
                 className="rounded-lg bg-[#1a2b48] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#142238]"
