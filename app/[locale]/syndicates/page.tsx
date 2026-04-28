@@ -10,8 +10,10 @@ import {
   Calculator,
   FlaskConical,
 } from "lucide-react";
-import SyndicateCard from "../components/Cards/SyndicateCard";
+import { useTranslations } from "next-intl";
+import SyndicateCard from "../../components/Cards/SyndicateCard";
 
+// This dummy data will be replaced by DB data, so no translation needed
 const syndicates = [
   {
     id: "bar-beirut",
@@ -78,6 +80,7 @@ const syndicates = [
 const SECTORS = ["All", "Legal", "Healthcare", "Engineering", "Finance"];
 
 export default function SyndicateDirectory() {
+  const t = useTranslations("syndicates");
   const [search, setSearch] = useState("");
   const [activeSector, setActiveSector] = useState("All");
 
@@ -91,30 +94,38 @@ export default function SyndicateDirectory() {
     return matchesSector && matchesSearch;
   });
 
+  const getSectorLabel = (sector: string) => {
+    if (sector === "All") return t("filters.sectors.all");
+    if (sector === "Legal") return t("filters.sectors.legal");
+    if (sector === "Healthcare") return t("filters.sectors.healthcare");
+    if (sector === "Engineering") return t("filters.sectors.engineering");
+    if (sector === "Finance") return t("filters.sectors.finance");
+    return sector;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <section className="bg-slate-50 pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center lg:items-stretch min-h-130">
           <div className="flex flex-col justify-center">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-6 block">
-              Lebanese Professional Syndicate Authority
+              {t("hero.badge")}
             </span>
 
             <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900">
-              Select Your Professional{" "}
-              <span className="text-blue-700">Syndicate</span>
+              {t("hero.title")}{" "}
+              <span className="text-blue-700">{t("hero.titleHighlight")}</span>
             </h1>
 
             <p className="text-base text-slate-600 leading-relaxed max-w-md mb-8">
-              Access the official registry of Lebanese professional orders.
-              Browse requirements, verify memberships, and manage affiliations.
+              {t("hero.description")}
             </p>
 
             <a
               href="#directory"
               className="inline-flex w-fit bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition"
             >
-              Browse Directory
+              {t("hero.cta")}
             </a>
           </div>
 
@@ -143,7 +154,7 @@ export default function SyndicateDirectory() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search syndicates..."
+            placeholder={t("filters.searchPlaceholder")}
             className="w-full pl-11 pr-4 py-3 rounded-lg border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-700/20 focus:border-blue-700 shadow-sm"
           />
         </div>
@@ -151,6 +162,7 @@ export default function SyndicateDirectory() {
         <div className="flex flex-wrap gap-2">
           {SECTORS.map((sector) => {
             const isActive = activeSector === sector;
+            const sectorLabel = getSectorLabel(sector);
 
             return (
               <button
@@ -162,7 +174,7 @@ export default function SyndicateDirectory() {
                     : "bg-white border border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-700"
                 }`}
               >
-                {sector}
+                {sectorLabel}
               </button>
             );
           })}

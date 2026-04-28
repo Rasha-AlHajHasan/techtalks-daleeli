@@ -1,43 +1,44 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabase/client";
 
 type Profile = {
-  id: string
-  full_name: string
-  email: string
-  syndicate_member_number: string
-  created_at: string
+  id: string;
+  full_name: string;
+  email: string;
+  syndicate_member_number: string;
+  created_at: string;
   syndicates: {
-    name: string
-    slug: string
-  } | null
-}
+    name: string;
+    slug: string;
+  } | null;
+};
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [message, setMessage] = useState('')
+  const router = useRouter();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
       const {
         data: { user },
         error: userError,
-      } = await supabase.auth.getUser()
+      } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        router.push('/login')
-        return
+        router.push("/login");
+        return;
       }
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select(`
+        .from("profiles")
+        .select(
+          `
           id,
           full_name,
           email,
@@ -47,38 +48,39 @@ export default function ProfilePage() {
             name,
             slug
           )
-        `)
-        .eq('id', user.id)
-        .maybeSingle()
+        `,
+        )
+        .eq("id", user.id)
+        .maybeSingle();
 
       if (error) {
-        setMessage(error.message)
-        setLoading(false)
-        return
+        setMessage(error.message);
+        setLoading(false);
+        return;
       }
 
-      setProfile(data as Profile)
-      setLoading(false)
-    }
+      setProfile(data as Profile);
+      setLoading(false);
+    };
 
-    fetchProfile()
-  }, [router])
+    fetchProfile();
+  }, [router]);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const initials =
     profile?.full_name
-      ?.split(' ')
+      ?.split(" ")
       .filter(Boolean)
       .slice(0, 2)
       .map((name) => name[0]?.toUpperCase())
-      .join('') || 'U'
+      .join("") || "U";
 
   if (loading) {
     return (
@@ -94,7 +96,7 @@ export default function ProfilePage() {
           </div>
         </section>
       </main>
-    )
+    );
   }
 
   if (message) {
@@ -106,7 +108,7 @@ export default function ProfilePage() {
           </div>
         </section>
       </main>
-    )
+    );
   }
 
   return (
@@ -121,8 +123,8 @@ export default function ProfilePage() {
               My Account
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Manage your identity, syndicate connection, and account details from
-              one secure profile.
+              Manage your identity, syndicate connection, and account details
+              from one secure profile.
             </p>
           </div>
 
@@ -136,23 +138,23 @@ export default function ProfilePage() {
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.4fr]">
           <aside className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-           <div className="bg-white p-8 text-black border-b border-slate-200">
-  <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-slate-200 bg-slate-100 text-2xl font-bold shadow-inner">
-    {initials}
-  </div>
+            <div className="bg-white p-8 text-black border-b border-slate-200">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-slate-200 bg-slate-100 text-2xl font-bold shadow-inner">
+                {initials}
+              </div>
 
-  <h2 className="mt-6 text-2xl font-bold text-black">
-    {profile?.full_name || 'User'}
-  </h2>
+              <h2 className="mt-6 text-2xl font-bold text-black">
+                {profile?.full_name || "User"}
+              </h2>
 
-  <p className="mt-2 break-all text-sm text-slate-600">
-    {profile?.email}
-  </p>
+              <p className="mt-2 break-all text-sm text-slate-600">
+                {profile?.email}
+              </p>
 
-  <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-    Active Account
-  </div>
-</div>
+              <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                Active Account
+              </div>
+            </div>
 
             <div className="space-y-4 p-6">
               <div>
@@ -160,7 +162,7 @@ export default function ProfilePage() {
                   Member Number
                 </p>
                 <p className="mt-2 text-lg font-bold text-slate-900">
-                  {profile?.syndicate_member_number || '-'}
+                  {profile?.syndicate_member_number || "-"}
                 </p>
               </div>
 
@@ -171,7 +173,7 @@ export default function ProfilePage() {
                   Account Created
                 </p>
                 <p className="mt-2 text-base font-semibold text-slate-900">
-                  {profile?.created_at ? formatDate(profile.created_at) : '-'}
+                  {profile?.created_at ? formatDate(profile.created_at) : "-"}
                 </p>
               </div>
             </div>
@@ -185,7 +187,7 @@ export default function ProfilePage() {
                     Syndicate Connection
                   </p>
                   <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {profile?.syndicates?.name || 'Not assigned'}
+                    {profile?.syndicates?.name || "Not assigned"}
                   </h3>
                 </div>
 
@@ -197,15 +199,15 @@ export default function ProfilePage() {
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <InfoCard
                   label="Syndicate"
-                  value={profile?.syndicates?.name || 'Not assigned'}
+                  value={profile?.syndicates?.name || "Not assigned"}
                 />
                 <InfoCard
                   label="Syndicate Slug"
-                  value={profile?.syndicates?.slug || '-'}
+                  value={profile?.syndicates?.slug || "-"}
                 />
                 <InfoCard
                   label="Government Number"
-                  value={profile?.syndicate_member_number || '-'}
+                  value={profile?.syndicate_member_number || "-"}
                 />
                 <InfoCard
                   label="Account Status"
@@ -221,11 +223,19 @@ export default function ProfilePage() {
               </p>
 
               <div className="mt-5 space-y-4">
-                <DetailRow label="Full Name" value={profile?.full_name || '-'} />
-                <DetailRow label="Email Address" value={profile?.email || '-'} />
+                <DetailRow
+                  label="Full Name"
+                  value={profile?.full_name || "-"}
+                />
+                <DetailRow
+                  label="Email Address"
+                  value={profile?.email || "-"}
+                />
                 <DetailRow
                   label="Created At"
-                  value={profile?.created_at ? formatDate(profile.created_at) : '-'}
+                  value={
+                    profile?.created_at ? formatDate(profile.created_at) : "-"
+                  }
                 />
               </div>
             </div>
@@ -233,17 +243,17 @@ export default function ProfilePage() {
         </div>
       </section>
     </main>
-  )
+  );
 }
 
 function InfoCard({
   label,
   value,
-  valueClassName = 'text-slate-950',
+  valueClassName = "text-slate-950",
 }: {
-  label: string
-  value: string
-  valueClassName?: string
+  label: string;
+  value: string;
+  valueClassName?: string;
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
@@ -254,7 +264,7 @@ function InfoCard({
         {value}
       </p>
     </div>
-  )
+  );
 }
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -263,5 +273,5 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <p className="text-sm font-medium text-slate-500">{label}</p>
       <p className="break-all text-sm font-semibold text-slate-900">{value}</p>
     </div>
-  )
+  );
 }

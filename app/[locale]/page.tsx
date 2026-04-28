@@ -11,65 +11,74 @@ import {
   BookOpen,
   FolderSync,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-const requiredDocs = [
-  {
-    Icon: FileText,
-    label: "Civil Status Record",
-    sub: "Issued within 3 months",
-  },
-  {
-    Icon: GraduationCap,
-    label: "Educational Certs",
-    sub: "Authenticated copy",
-  },
-  { Icon: Camera, label: "Passport Photos", sub: "Four (4) recent photos" },
-  { Icon: ShieldCheck, label: "Judicial Record", sub: "Clean criminal record" },
-];
+export default function Page() {
+  const t = useTranslations("home");
 
-const eligibility = [
-  "Lebanese Nationality for at least 10 years or as per reciprocity laws.",
-  "Minimum of 2 years professional internship under a certified syndicate member.",
-  "Permanent residency and established office within Lebanese territories.",
-];
+  const requiredDocs = [
+    {
+      Icon: FileText,
+      label: t("requiredDocs.civilStatus.label"),
+      sub: t("requiredDocs.civilStatus.sub"),
+    },
+    {
+      Icon: GraduationCap,
+      label: t("requiredDocs.educationalCerts.label"),
+      sub: t("requiredDocs.educationalCerts.sub"),
+    },
+    {
+      Icon: Camera,
+      label: t("requiredDocs.passportPhotos.label"),
+      sub: t("requiredDocs.passportPhotos.sub"),
+    },
+    {
+      Icon: ShieldCheck,
+      label: t("requiredDocs.judicialRecord.label"),
+      sub: t("requiredDocs.judicialRecord.sub"),
+    },
+  ];
 
-const steps = [
-  {
-    icon: Search,
-    title: "1. Find Your Syndicate",
-    desc: "Browse our comprehensive directory to locate the specific professional order for your domain.",
-  },
-  {
-    icon: BookOpen,
-    title: "2. Review Requirements",
-    desc: "Understand the exact legal mandates, ethical codes, and documentation needed for your registration.",
-  },
-  {
-    icon: FolderSync,
-    title: "3. Prepare Your File",
-    desc: "Gather your authenticated documents and ensure you meet all eligibility criteria before applying.",
-  },
-];
+  const eligibility = [
+    t("eligibility.criteria1"),
+    t("eligibility.criteria2"),
+    t("eligibility.criteria3"),
+  ];
 
-export default async function Page() {
+  const steps = [
+    {
+      icon: Search,
+      title: t("steps.findSyndicate.title"),
+      desc: t("steps.findSyndicate.desc"),
+    },
+    {
+      icon: BookOpen,
+      title: t("steps.reviewRequirements.title"),
+      desc: t("steps.reviewRequirements.desc"),
+    },
+    {
+      icon: FolderSync,
+      title: t("steps.prepareFile.title"),
+      desc: t("steps.prepareFile.desc"),
+    },
+  ];
+
   return (
     <div className="flex-1 bg-slate-50 text-slate-800">
       <section className="bg-slate-50 pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center lg:items-stretch min-h-130">
           <div className="flex flex-col justify-center">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-6 block">
-              Welcome to Daleeli
+              {t("hero.badge")}
             </span>
 
             <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900">
-              Your Gateway to Lebanese{" "}
-              <span className="text-blue-700">Professional Syndicates</span>
+              {t("hero.title")}{" "}
+              <span className="text-blue-700">{t("hero.titleHighlight")}</span>
             </h1>
 
             <p className="text-base text-slate-600 leading-relaxed max-w-md mb-8">
-              Initialize your official registration with ease. Daleeli
-              centralizes requirements, ethical codes, and legal mandates across
-              all major Lebanese professional orders.
+              {t("hero.description")}
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -77,14 +86,14 @@ export default async function Page() {
                 href="/syndicates"
                 className="bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition flex items-center gap-2"
               >
-                Browse Directory <ArrowRight size={16} />
+                {t("hero.ctaPrimary")} <ArrowRight size={16} />
               </Link>
 
               <Link
                 href="/about"
                 className="bg-slate-100 text-slate-900 px-6 py-3 rounded-lg text-sm font-semibold hover:bg-slate-200 transition"
               >
-                Learn More
+                {t("hero.ctaSecondary")}
               </Link>
             </div>
           </div>
@@ -104,13 +113,14 @@ export default async function Page() {
           </div>
         </div>
       </section>
+
       <section className="max-w-7xl mx-auto px-8 py-16 lg:py-24">
         <div className="text-center mb-12">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-3 block">
-            Getting Started
+            {t("steps.badge")}
           </span>
           <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900">
-            A Streamlined Path to Registration
+            {t("steps.title")}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -141,7 +151,7 @@ export default async function Page() {
         <div className="max-w-7xl mx-auto px-8">
           <div className="flex items-center gap-4 mb-10">
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 shrink-0">
-              Standard Required Documents
+              {t("requiredDocs.title")}
             </h2>
             <div className="h-px bg-slate-200 flex-1"></div>
           </div>
@@ -169,10 +179,10 @@ export default async function Page() {
         <div className="max-w-7xl mx-auto px-8 py-20 grid md:grid-cols-5 gap-12 lg:gap-20 items-start">
           <div className="md:col-span-3">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-4 block">
-              Eligibility Criteria
+              {t("eligibility.title")}
             </span>
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-8">
-              General Requirements
+              {t("eligibility.subtitle")}
             </h2>
             <ul className="space-y-5">
               {eligibility.map((text, i) => (
@@ -192,18 +202,17 @@ export default async function Page() {
 
           <div className="md:col-span-2 bg-white border border-slate-200 rounded-xl p-8 shadow-sm">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-700 mb-3 block">
-              Important Notice
+              {t("eligibility.notice.title")}
             </span>
             <p className="text-sm text-slate-600 leading-relaxed mb-8">
-              Incomplete applications will be held for 30 days before automatic
-              cancellation. Ensure all academic documents are apostilled by the
-              Ministry of Education before formal submission.
+              {t("eligibility.notice.description")}
             </p>
             <Link
               href="/register"
               className="flex items-center justify-between bg-blue-700 text-white text-sm font-semibold px-5 py-3.5 rounded-lg hover:bg-blue-800 transition-colors w-full shadow-sm"
             >
-              Begin Registration <ArrowRight size={16} strokeWidth={2} />
+              {t("eligibility.notice.cta")}{" "}
+              <ArrowRight size={16} strokeWidth={2} />
             </Link>
           </div>
         </div>

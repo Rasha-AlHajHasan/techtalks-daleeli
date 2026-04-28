@@ -13,83 +13,79 @@ import {
   FileSignature,
   Fingerprint,
 } from "lucide-react";
-import PrincipleCard from "../components/Cards/PrincipleCard";
-import FeatureCard from "../components/Cards/FeatureCard";
-import OrderCard from "../components/Cards/OrderCard";
-
-const principles = [
-  {
-    icon: Scale,
-    title: "Clarity & Simplicity",
-    desc: "Clear and structured information without confusion.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Reliable Information",
-    desc: "Accurate and organized data you can trust.",
-  },
-  {
-    icon: TreePine,
-    title: "Practical Impact",
-    desc: "Useful information for real daily needs.",
-  },
-];
-
-const features = [
-  {
-    icon: Landmark,
-    title: "Centralized Access",
-    desc: "One place for all institutional information.",
-  },
-  {
-    icon: FileSignature,
-    title: "Simple Navigation",
-    desc: "Easy and intuitive directory structure.",
-  },
-  {
-    icon: Fingerprint,
-    title: "User-Focused",
-    desc: "Designed entirely around professional needs.",
-  },
-];
-
-const orders = [
-  { name: "Beirut Bar Association", icon: Scale },
-  { name: "Order of Physicians", icon: Stethoscope },
-  { name: "Order of Engineers & Architects", icon: HardHat },
-  { name: "Association of Accountants", icon: Calculator },
-  { name: "Tripoli Bar Association", icon: Scale },
-  { name: "Order of Pharmacists", icon: FlaskConical },
-];
+import { useTranslations } from "next-intl";
+import FeatureCard from "@/app/components/Cards/FeatureCard";
+import PrincipleCard from "@/app/components/Cards/PrincipleCard";
+import OrderCard from "@/app/components/Cards/OrderCard";
 
 export default function About() {
+  const t = useTranslations("about");
+
+  const principles = [
+    {
+      icon: Scale,
+      title: t("principles.clarity.title"),
+      desc: t("principles.clarity.desc"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("principles.reliability.title"),
+      desc: t("principles.reliability.desc"),
+    },
+    {
+      icon: TreePine,
+      title: t("principles.practicalImpact.title"),
+      desc: t("principles.practicalImpact.desc"),
+    },
+  ];
+
+  const features = [
+    {
+      icon: Landmark,
+      title: t("features.centralized.title"),
+      desc: t("features.centralized.desc"),
+    },
+    {
+      icon: FileSignature,
+      title: t("features.simpleNavigation.title"),
+      desc: t("features.simpleNavigation.desc"),
+    },
+    {
+      icon: Fingerprint,
+      title: t("features.userFocused.title"),
+      desc: t("features.userFocused.desc"),
+    },
+  ];
+
+  const orders = [
+    { name: t("syndicates.orderNames.beirutBar"), icon: Scale },
+    { name: t("syndicates.orderNames.physicians"), icon: Stethoscope },
+    { name: t("syndicates.orderNames.engineers"), icon: HardHat },
+    { name: t("syndicates.orderNames.accountants"), icon: Calculator },
+    { name: t("syndicates.orderNames.tripoliBar"), icon: Scale },
+    { name: t("syndicates.orderNames.pharmacists"), icon: FlaskConical },
+  ];
+
   return (
     <div className="flex-1 bg-slate-50 text-slate-800">
       <section className="bg-slate-50 pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-8 grid lg:grid-cols-2 gap-12 items-center lg:items-stretch min-h-130">
           <div className="flex flex-col justify-center">
             <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-6 block">
-              About Daleeli
+              {t("hero.badge")}
             </span>
 
             <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900">
-              Simplifying Access to{" "}
-              <span className="text-blue-700">Syndicate Information</span>
+              {t("hero.title")}{" "}
+              <span className="text-blue-700">{t("hero.titleHighlight")}</span>
             </h1>
 
             <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-5">
-              Daleeli is a dedicated platform designed to simplify how
-              professionals in Lebanon search for and access syndicate-related
-              information. Instead of dealing with scattered data and unclear
-              sources, users can find everything through one organized and
-              user-friendly experience.
+              {t("hero.paragraph1")}
             </p>
 
             <p className="text-base text-slate-600 leading-relaxed max-w-lg mb-7">
-              Our mission is to make bureaucratic information easier to reach,
-              easier to understand, and more useful in everyday life. We believe
-              technology should remove complexity, not add it — and that is
-              exactly what we aim to do.
+              {t("hero.paragraph2")}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -97,7 +93,7 @@ export default function About() {
                 href="/syndicates"
                 className="bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors"
               >
-                Browse Syndicates
+                {t("hero.cta")}
               </Link>
             </div>
           </div>
@@ -137,10 +133,10 @@ export default function About() {
       <section className="max-w-7xl mx-auto px-8 py-20">
         <div className="text-center mb-12">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-3 block">
-            What Daleeli Stands For
+            {t("principles.badge")}
           </span>
           <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900">
-            Built on Simplicity & Trust
+            {t("principles.title")}
           </h2>
         </div>
 
@@ -159,19 +155,15 @@ export default function About() {
       <section className="bg-white py-20 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-8 text-center">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 mb-3 block">
-            Who We Are
+            {t("team.badge")}
           </span>
 
           <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
-            Built by a Driven Team
+            {t("team.title")}
           </h2>
 
           <p className="text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            We are a team of passionate developers and designers working
-            together as part of the TeckTalks Internship program in Lebanon.
-            Through Daleeli, we aim to build a meaningful solution that solves
-            real-world regulatory problems while growing our experience in
-            creating impactful, modern digital products.
+            {t("team.description")}
           </p>
         </div>
       </section>
@@ -179,12 +171,9 @@ export default function About() {
       <section className="max-w-7xl mx-auto px-8 py-20">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">
-            Supporting Recognized Orders
+            {t("syndicates.title")}
           </h2>
-          <p className="text-slate-600 text-sm">
-            Working to map the requirements of Lebanon's core professional
-            bodies.
-          </p>
+          <p className="text-slate-600 text-sm">{t("syndicates.subtitle")}</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -198,19 +187,17 @@ export default function About() {
         <div className="bg-blue-50 border border-blue-100 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="max-w-xl">
             <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 mb-2">
-              Questions about Daleeli?
+              {t("contact.title")}
             </h2>
-            <p className="text-slate-600 text-sm">
-              Reach out for support, institutional inquiries, or technical help.
-            </p>
+            <p className="text-slate-600 text-sm">{t("contact.subtitle")}</p>
           </div>
 
           <a
-            href="mailto:support@daleeli.com"
+            href={`mailto:${t("contact.email") || "support@daleeli.com"}`}
             className="flex items-center gap-2 bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors shadow-sm"
           >
             <Mail size={18} />
-            Contact Us
+            {t("contact.button")}
           </a>
         </div>
       </section>
