@@ -20,7 +20,7 @@ const SYNDICATES = [
 const newsList: (NewsItem & { syndicate_id: string })[] = [
   {
     id: "1",
-    title: "Engineers Syndicate Issues New Safety Standards for High-Rise Buildings",
+    title: "Engineers ",
     summary: "New mandatory regulations for structural assessments in buildings above 12 floors, effective immediately across Lebanon.",
     content: "",
     published_at: today,
