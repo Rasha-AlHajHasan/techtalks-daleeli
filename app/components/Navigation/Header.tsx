@@ -6,13 +6,8 @@ import { usePathname } from "next/navigation";
 import { UserCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/app/lib/supabase/client";
-
-const navLinks = [
-  { href: "/syndicates", label: "Syndicates" },
-  { href: "/news", label: "News" },
-  { href: "/services/contract-review", label: "Services" },
-  { href: "/about", label: "About" },
-];
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "../LanguageSwitcher";
 
 type AuthUser = {
   email: string | null;
@@ -25,7 +20,6 @@ const getInitials = (fullName: string | null, email: string | null) => {
     const parts = fullName.trim().split(/\s+/).slice(0, 2);
     return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
   }
-
   return email?.[0]?.toUpperCase() ?? "";
 };
 
@@ -34,6 +28,14 @@ const Header = () => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const t = useTranslations("header");
+
+  const navLinks = [
+    { href: "/syndicates", label: t("navLinks.syndicates") },
+    { href: "/news", label: t("navLinks.news") },
+    { href: "/services/contract-review", label: t("navLinks.services") },
+    { href: "/about", label: t("navLinks.about") },
+  ];
 
   useEffect(() => {
     const loadUser = async () => {
@@ -71,7 +73,6 @@ const Header = () => {
         setOpen(false);
         return;
       }
-
       void loadUser();
     });
 
@@ -90,7 +91,6 @@ const Header = () => {
     };
 
     document.addEventListener("mousedown", handlePointerDown);
-
     return () => {
       document.removeEventListener("mousedown", handlePointerDown);
     };
@@ -114,17 +114,16 @@ const Header = () => {
               alt="Daleeli Logo"
               width={80}
               height={80}
-              className="mr-2 h-auto w-20"
+              className="me-2 h-auto w-20"
             />
             <span className="hidden text-xl font-bold text-blue-400 md:inline">
               Daleeli
             </span>
           </Link>
 
-          <div className="ml-10 hidden items-center gap-1 md:flex">
+          <div className="ms-10 hidden items-center gap-1 md:flex">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href);
-
               return (
                 <Link
                   key={href}
@@ -143,6 +142,7 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           {authUser ? (
             <div className="relative" ref={menuRef}>
               <div className="flex items-center gap-3">
@@ -154,20 +154,23 @@ const Header = () => {
                   type="button"
                   onClick={() => setOpen((current) => !current)}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-[#1a2b48] text-sm font-semibold text-white transition hover:bg-[#142238]"
-                  aria-label="Toggle account menu"
+                  aria-label={t("auth.toggleMenu")}
                   aria-expanded={open}
                 >
-                  {authUser.initials ? authUser.initials : <UserCircle size={18} />}
+                  {authUser.initials ? (
+                    authUser.initials
+                  ) : (
+                    <UserCircle size={18} />
+                  )}
                 </button>
               </div>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
+                <div className="absolute inset-e-0 mt-2 w-60 rounded-xl border border-slate-200 bg-white py-2 shadow-lg">
                   <div className="border-b border-slate-100 px-4 pb-3 pt-2">
                     <p className="text-sm font-semibold text-slate-800">
                       {displayName}
                     </p>
-
                     {authUser.email && (
                       <p className="mt-1 text-xs text-slate-500">
                         {authUser.email}
@@ -180,15 +183,15 @@ const Header = () => {
                     onClick={() => setOpen(false)}
                     className="block px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
                   >
-                    Profile
+                    {t("auth.profile")}
                   </Link>
 
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="mt-1 block w-full px-4 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    className="mt-1 block w-full px-4 py-2 text-start text-sm font-medium text-red-600 transition hover:bg-red-50"
                   >
-                    Sign out
+                    {t("auth.signOut")}
                   </button>
                 </div>
               )}
@@ -199,14 +202,14 @@ const Header = () => {
                 href="/login"
                 className="rounded-lg border border-[#d9dde3] px-4 py-2 text-sm font-semibold text-[#344054] transition hover:bg-[#f8fafc]"
               >
-                Login
+                {t("auth.login")}
               </Link>
 
               <Link
                 href="/register"
                 className="rounded-lg bg-[#1a2b48] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#142238]"
               >
-                Register
+                {t("auth.register")}
               </Link>
             </>
           )}
