@@ -1,0 +1,180 @@
+{
+  "common": {
+    "siteName": "Daleeli",
+    "tagline": "A digital ecosystem bridging professional excellence and modern accessibility. Registered syndicate portal for the Lebanese Bar Association.",
+    "copyright": "© 2026 Daleeli. All rights reserved.",
+    "institutionalTagline": "Lebanese Professional Syndicate Portal",
+    "location": "Beirut, Lebanon",
+    "languageSelector": "Select language"
+  },
+  "header": {
+    "navLinks": {
+      "syndicates": "Syndicates",
+      "news": "News",
+      "services": "Services",
+      "about": "About"
+    },
+    "auth": {
+      "login": "Login",
+      "register": "Register",
+      "signOut": "Sign out",
+      "profile": "Profile",
+      "toggleMenu": "Toggle account menu"
+    }
+  },
+  "footer": {
+    "navigation": {
+      "title": "Navigation",
+      "syndicates": "Syndicates",
+      "news": "News & Updates",
+      "contractServices": "Contract Services",
+      "about": "About"
+    },
+    "institutional": {
+      "title": "Institutional",
+      "legalTerms": "Legal Terms",
+      "privacyPolicy": "Privacy Policy",
+      "syndicateBylaws": "Syndicate Bylaws",
+      "supportEmail": "support@daleeli.com"
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "About Daleeli",
+      "title": "Simplifying Access to",
+      "titleHighlight": "Syndicate Information",
+      "paragraph1": "Daleeli is a dedicated platform designed to simplify how professionals in Lebanon search for and access syndicate-related information. Instead of dealing with scattered data and unclear sources, users can find everything through one organized and user-friendly experience.",
+      "paragraph2": "Our mission is to make bureaucratic information easier to reach, easier to understand, and more useful in everyday life. We believe technology should remove complexity, not add it — and that is exactly what we aim to do.",
+      "cta": "Browse Syndicates"
+    },
+    "features": {
+      "centralized": {
+        "title": "Centralized Access",
+        "desc": "One place for all institutional information."
+      },
+      "simpleNavigation": {
+        "title": "Simple Navigation",
+        "desc": "Easy and intuitive directory structure."
+      },
+      "userFocused": {
+        "title": "User-Focused",
+        "desc": "Designed entirely around professional needs."
+      }
+    },
+    "principles": {
+      "badge": "What Daleeli Stands For",
+      "title": "Built on Simplicity & Trust",
+      "clarity": {
+        "title": "Clarity & Simplicity",
+        "desc": "Clear and structured information without confusion."
+      },
+      "reliability": {
+        "title": "Reliable Information",
+        "desc": "Accurate and organized data you can trust."
+      },
+      "practicalImpact": {
+        "title": "Practical Impact",
+        "desc": "Useful information for real daily needs."
+      }
+    },
+    "team": {
+      "badge": "Who We Are",
+      "title": "Built by a Driven Team",
+      "description": "We are a team of passionate developers and designers working together as part of the TeckTalks Internship program in Lebanon. Through Daleeli, we aim to build a meaningful solution that solves real-world regulatory problems while growing our experience in creating impactful, modern digital products."
+    },
+    "syndicates": {
+      "title": "Supporting Recognized Orders",
+      "subtitle": "Working to map the requirements of Lebanon's core professional bodies.",
+      "orderNames": {
+        "beirutBar": "Beirut Bar Association",
+        "physicians": "Order of Physicians",
+        "engineers": "Order of Engineers & Architects",
+        "accountants": "Association of Accountants",
+        "tripoliBar": "Tripoli Bar Association",
+        "pharmacists": "Order of Pharmacists"
+      }
+    },
+    "contact": {
+      "title": "Questions about Daleeli?",
+      "subtitle": "Reach out for support, institutional inquiries, or technical help.",
+      "button": "Contact Us",
+      "email": "support@daleeli.com"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Welcome to Daleeli",
+      "title": "Your Gateway to Lebanese",
+      "titleHighlight": "Professional Syndicates",
+      "description": "Initialize your official registration with ease. Daleeli centralizes requirements, ethical codes, and legal mandates across all major Lebanese professional orders.",
+      "ctaPrimary": "Browse Directory",
+      "ctaSecondary": "Learn More"
+    },
+    "steps": {
+      "badge": "Getting Started",
+      "title": "A Streamlined Path to Registration",
+      "findSyndicate": {
+        "title": "1. Find Your Syndicate",
+        "desc": "Browse our comprehensive directory to locate the specific professional order for your domain."
+      },
+      "reviewRequirements": {
+        "title": "2. Review Requirements",
+        "desc": "Understand the exact legal mandates, ethical codes, and documentation needed for your registration."
+      },
+      "prepareFile": {
+        "title": "3. Prepare Your File",
+        "desc": "Gather your authenticated documents and ensure you meet all eligibility criteria before applying."
+      }
+    },
+    "requiredDocs": {
+      "title": "Standard Required Documents",
+      "civilStatus": {
+        "label": "Civil Status Record",
+        "sub": "Issued within 3 months"
+      },
+      "educationalCerts": {
+        "label": "Educational Certs",
+        "sub": "Authenticated copy"
+      },
+      "passportPhotos": {
+        "label": "Passport Photos",
+        "sub": "Four (4) recent photos"
+      },
+      "judicialRecord": {
+        "label": "Judicial Record",
+        "sub": "Clean criminal record"
+      }
+    },
+    "eligibility": {
+      "title": "Eligibility Criteria",
+      "subtitle": "General Requirements",
+      "criteria1": "Lebanese Nationality for at least 10 years or as per reciprocity laws.",
+      "criteria2": "Minimum of 2 years professional internship under a certified syndicate member.",
+      "criteria3": "Permanent residency and established office within Lebanese territories.",
+      "notice": {
+        "title": "Important Notice",
+        "description": "Incomplete applications will be held for 30 days before automatic cancellation. Ensure all academic documents are apostilled by the Ministry of Education before formal submission.",
+        "cta": "Begin Registration"
+      }
+    }
+  },
+  "syndicates": {
+    "hero": {
+      "badge": "Lebanese Professional Syndicate Authority",
+      "title": "Select Your Professional",
+      "titleHighlight": "Syndicate",
+      "description": "Accédez au registre officiel des ordres professionnels libanais. Consultez les exigences, vérifiez les adhésions et gérez les affiliations.",
+      "cta": "Browse Directory"
+    },
+    "filters": {
+      "searchPlaceholder": "Search syndicates...",
+      "sectors": {
+        "all": "All",
+        "legal": "Legal",
+        "healthcare": "Healthcare",
+        "engineering": "Engineering",
+        "finance": "Finance"
+      }
+    }
+  }
+}
