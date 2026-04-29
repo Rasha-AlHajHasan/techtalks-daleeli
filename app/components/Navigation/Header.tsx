@@ -110,7 +110,7 @@ const Header = () => {
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <Image
-              src="/Daleeli-logo.svg"
+              src="/Daleeli-logo-navy.svg"
               alt="Daleeli Logo"
               width={80}
               height={80}

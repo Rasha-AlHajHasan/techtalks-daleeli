@@ -27,7 +27,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
           <Image
-            src="/Daleeli-logo.svg"
+            src="/Daleeli-logo-navy.svg"
             alt={`${tCommon("siteName")} Logo`}
             width={120}
             height={120}
