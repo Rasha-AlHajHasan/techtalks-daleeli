@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Server-side client with service role key (bypasses RLS)
+// Client-side client with anon key (respects RLS)
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )

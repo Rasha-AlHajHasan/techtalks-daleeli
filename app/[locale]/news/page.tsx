@@ -1,98 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, Newspaper, ExternalLink, Calendar, Heart } from "lucide-react";
 import type { NewsItem, ContentType } from "@/app/lib/news/types";
-
-// ─── Mock data (replace with Supabase fetch later) ──────────────────────────
+import { useParams } from "next/navigation"
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 const today = new Date().toISOString().split("T")[0];
 
-const SYNDICATES = [
-  { id: "engineers", name: "Order of Engineers & Architects", count: 5 },
-  { id: "physicians", name: "Order of Physicians", count: 3 },
-  { id: "bar-beirut", name: "Beirut Bar Association", count: 4 },
-  { id: "accountants", name: "Association of Accountants", count: 2 },
-  { id: "bar-tripoli", name: "Tripoli Bar Association", count: 1 },
-  { id: "pharmacists", name: "Order of Pharmacists", count: 3 },
-  { id: "dentists", name: "Order of Dentists", count: 2 },
-];
-
-const newsList: (NewsItem & { syndicate_id: string })[] = [
-  {
-    id: "1",
-    title: "Engineers ",
-    summary: "New mandatory regulations for structural assessments in buildings above 12 floors, effective immediately across Lebanon.",
-    content: "",
-    published_at: today,
-    fetched_at: today,
-    content_type: "decisions",
-    syndicate_id: "engineers",
-    syndicate: { id: "engineers", name: "Order of Engineers & Architects" },
-    source_url: "https://example.com",
-  },
-  {
-    id: "2",
-    title: "Annual Medical Conference Registration Now Open for 2026",
-    summary: "The Order of Physicians announces its flagship annual conference, featuring international speakers and CME credits.",
-    content: "",
-    published_at: today,
-    fetched_at: today,
-    content_type: "events",
-    syndicate_id: "physicians",
-    syndicate: { id: "physicians", name: "Order of Physicians" },
-    source_url: "https://example.com",
-  },
-  {
-    id: "3",
-    title: "Beirut Bar Association Circular on Court Procedures Update",
-    summary: "Important circular regarding updated procedures for filing motions at the Beirut Court of First Instance.",
-    content: "",
-    published_at: "2026-04-20",
-    fetched_at: "2026-04-20",
-    content_type: "circulars",
-    syndicate_id: "bar-beirut",
-    syndicate: { id: "bar-beirut", name: "Beirut Bar Association" },
-    source_url: "https://example.com",
-  },
-  {
-    id: "4",
-    title: "Membership Renewal Deadline Extended to May 31st",
-    summary: "The Association of Accountants has extended the membership renewal deadline following numerous requests from members.",
-    content: "",
-    published_at: "2026-04-18",
-    fetched_at: "2026-04-18",
-    content_type: "membership_updates",
-    syndicate_id: "accountants",
-    syndicate: { id: "accountants", name: "Association of Accountants" },
-    source_url: "https://example.com",
-  },
-  {
-    id: "5",
-    title: "New Pharmaceutical Import Regulations Effective June 2026",
-    summary: "Order of Pharmacists releases detailed guidelines on the new import compliance requirements from the Ministry of Health.",
-    content: "",
-    published_at: today,
-    fetched_at: today,
-    content_type: "announcements",
-    syndicate_id: "pharmacists",
-    syndicate: { id: "pharmacists", name: "Order of Pharmacists" },
-    source_url: "https://example.com",
-  },
-  {
-    id: "6",
-    title: "Tripoli Bar Association Elects New Executive Board",
-    summary: "Following recent elections, the Tripoli Bar Association has announced its new executive board for the 2026-2028 term.",
-    content: "",
-    published_at: "2026-04-15",
-    fetched_at: "2026-04-15",
-    content_type: "news",
-    syndicate_id: "bar-tripoli",
-    syndicate: { id: "bar-tripoli", name: "Tripoli Bar Association" },
-    source_url: "https://example.com",
-  },
-];
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
   news: "News",
   announcements: "Announcement",
@@ -125,6 +39,11 @@ function formatDate(dateStr: string) {
     year: "numeric",
   });
 }
+
+type ApiNewsItem = NewsItem & {
+  syndicate_id: string;
+  syndicates?: NewsItem["syndicate"];
+};
 
 // ─── News Card ────────────────────────────────────────────────────────────────
 function NewsCard({ item }: { item: NewsItem }) {
@@ -195,8 +114,8 @@ function NewsCard({ item }: { item: NewsItem }) {
             Read More
           </button>
           {item.source_url && (
-            <a
-              href={item.source_url}
+            
+             <a href={item.source_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
@@ -213,9 +132,69 @@ function NewsCard({ item }: { item: NewsItem }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function NewsPage() {
+  const params = useParams()
+  const locale = (params?.locale as string) === "api" ? "en" : (params?.locale as string) ?? "en";
   const [search, setSearch] = useState("");
   const [activeSyndicate, setActiveSyndicate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"latest" | "featured">("latest");
+  const [newsList, setNewsList] = useState<(NewsItem & { syndicate_id: string })[]>([]);
+  const [syndicates, setSyndicates] = useState<{ id: string; name: string; count: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/news`, { cache: "no-store" })
+      .then(async (res) => {
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          const message = payload?.error ?? `HTTP error: ${res.status}`;
+          throw new Error(message);
+        }
+
+        return res.json();
+      })
+      .then((payload) => {
+        const rawItems = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+
+        const data = rawItems.map((item: ApiNewsItem) => ({
+          ...item,
+          syndicate: item.syndicate ?? item.syndicates,
+          content_type: item.content_type ?? "news",
+        })) as (NewsItem & { syndicate_id: string })[];
+
+        setError(null);
+        setNewsList(data);
+
+        // Build syndicates list dynamically from the news data
+        const syndicateMap = new Map<string, { id: string; name: string; count: number }>();
+        data.forEach((item) => {
+          if (item.syndicate_id && item.syndicate) {
+            const existing = syndicateMap.get(item.syndicate_id);
+            if (existing) {
+              existing.count++;
+            } else {
+              syndicateMap.set(item.syndicate_id, {
+                id: item.syndicate_id,
+                name: item.syndicate.name,
+                count: 1,
+              });
+            }
+          }
+        });
+        setSyndicates(Array.from(syndicateMap.values()));
+      })
+      .catch((err) => {
+        console.error("Failed to fetch news:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch news");
+        setNewsList([]);
+        setSyndicates([]);
+      })
+      .finally(() => setLoading(false));
+  }, [locale]);
 
   const filtered = useMemo(() => {
     let items = newsList;
@@ -224,7 +203,7 @@ export default function NewsPage() {
     }
     if (search.trim()) {
       const q = search.toLowerCase();
-      const matchedSyndicateIds = SYNDICATES
+      const matchedSyndicateIds = syndicates
         .filter((s) => s.name.toLowerCase().includes(q))
         .map((s) => s.id);
       items = items.filter(
@@ -235,7 +214,7 @@ export default function NewsPage() {
       );
     }
     return items;
-  }, [search, activeSyndicate]);
+  }, [search, activeSyndicate, newsList, syndicates]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -308,7 +287,7 @@ export default function NewsPage() {
                   </span>
                 </button>
               </li>
-              {SYNDICATES.map((syn) => (
+              {syndicates.map((syn) => (
                 <li key={syn.id}>
                   <button
                     onClick={() => {
@@ -361,7 +340,18 @@ export default function NewsPage() {
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-20 text-slate-400">
+              <Newspaper size={40} className="mx-auto mb-3 opacity-30 animate-pulse" />
+              <p className="text-sm font-medium">Loading news...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20 text-slate-400">
+              <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm font-medium text-red-500">Unable to load news.</p>
+              <p className="text-xs mt-2 text-slate-500">{error}</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
               <p className="text-sm font-medium">No news found for your search.</p>
