@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import { ArrowRight, LucideIcon } from "lucide-react";
 
 export interface Syndicate {
@@ -15,11 +16,13 @@ export interface Syndicate {
 }
 
 export default function SyndicateCard({ syn }: { syn: Syndicate }) {
+  const params = useParams();
+  const locale = params.locale;
   const Icon = syn.Icon;
 
   return (
     <Link
-      href={`/syndicates/${syn.id}`}
+      href={`/${locale}/syndicates/${syn.id}`}
       className="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition"
     >
       <div className="h-44 relative overflow-hidden">
