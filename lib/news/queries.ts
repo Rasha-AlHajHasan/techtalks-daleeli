@@ -1,11 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { supabase } from "@/app/lib/supabase/client";
 
 export type DBNewsItem = {
   id: string;
@@ -36,15 +29,37 @@ export type DBSyndicate = {
 
 export type SyndicateInfo = Pick<DBSyndicate, "id" | "name" | "slug" | "logo_url">;
 
-// syndicates is always a single object (or null) after mapping
 export type NewsItemWithSyndicate = DBNewsItem & {
   syndicates: SyndicateInfo | null;
 };
 
-// ─── Queries ──────────────────────────────────────────────────────────────────
+// ─── Translation-aware fetch ───────────────────────────────────────────────────
+// Calls the API route which handles Claude translation at fetch time.
+// Falls back to direct Supabase query (Arabic) if API route fails.
 
-/** Fetch all published & active news items with their syndicate info */
-export async function getAllNews(): Promise<NewsItemWithSyndicate[]> {
+export async function getAllNews(locale: string = "ar"): Promise<NewsItemWithSyndicate[]> {
+  try {
+    const baseUrl =
+      typeof window === "undefined"
+        ? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+        : "";
+
+    const res = await fetch(`${baseUrl}/api/news?locale=${locale}`, {
+      next: { revalidate: 600, tags: [`news-${locale}`] },
+    });
+
+    if (!res.ok) throw new Error("API route failed");
+
+    const { news } = await res.json();
+    return news as NewsItemWithSyndicate[];
+  } catch {
+    // Fallback: fetch Arabic directly from Supabase
+    return fetchNewsDirectly();
+  }
+}
+
+// Internal — used as fallback, always returns Arabic (source language)
+async function fetchNewsDirectly(): Promise<NewsItemWithSyndicate[]> {
   const { data, error } = await supabase
     .from("news_items")
     .select(`
@@ -74,7 +89,6 @@ export async function getAllNews(): Promise<NewsItemWithSyndicate[]> {
 
   if (error) throw error;
 
-  // Supabase returns syndicates as an array from the join — normalize to object
   return ((data ?? []) as Array<DBNewsItem & { syndicates: SyndicateInfo[] | SyndicateInfo | null }>).map((item) => ({
     ...item,
     syndicates: Array.isArray(item.syndicates)
@@ -82,6 +96,8 @@ export async function getAllNews(): Promise<NewsItemWithSyndicate[]> {
       : (item.syndicates ?? null),
   })) as NewsItemWithSyndicate[];
 }
+
+// ─── Syndicate queries (unchanged) ────────────────────────────────────────────
 
 /** Fetch a single syndicate by slug */
 export async function getSyndicateBySlug(slug: string): Promise<DBSyndicate | null> {

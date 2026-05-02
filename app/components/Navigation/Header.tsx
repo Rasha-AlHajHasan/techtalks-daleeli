@@ -38,29 +38,42 @@ const Header = () => {
   ];
 
   useEffect(() => {
+    // Track if this effect is still mounted
+    let cancelled = false;
+
     const loadUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) {
-        setAuthUser(null);
-        return;
+        if (cancelled) return;
+
+        if (!user) {
+          setAuthUser(null);
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+
+        if (cancelled) return;
+
+        const fullName = profile?.full_name ?? null;
+
+        setAuthUser({
+          email: user.email ?? null,
+          fullName,
+          initials: getInitials(fullName, user.email ?? null),
+        });
+      } catch (err: any) {
+        // Ignore abort errors caused by React Strict Mode double-invoke
+        if (err?.name === "AbortError" || cancelled) return;
+        console.error("Failed to load user:", err);
       }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .single();
-
-      const fullName = profile?.full_name ?? null;
-
-      setAuthUser({
-        email: user.email ?? null,
-        fullName,
-        initials: getInitials(fullName, user.email ?? null),
-      });
     };
 
     loadUser();
@@ -68,6 +81,7 @@ const Header = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: string) => {
+      if (cancelled) return;
       if (event === "SIGNED_OUT") {
         setAuthUser(null);
         setOpen(false);
@@ -77,6 +91,7 @@ const Header = () => {
     });
 
     return () => {
+      cancelled = true;
       subscription.unsubscribe();
     };
   }, []);

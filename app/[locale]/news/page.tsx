@@ -23,9 +23,11 @@ function isToday(dateStr?: string | null) {
   return dateStr.split("T")[0] === today;
 }
 
-function formatDate(dateStr: string | null) {
+function formatDate(dateStr: string | null, locale: string) {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", {
+  // Use locale-aware date formatting
+  const localeCode = locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-GB";
+  return new Date(dateStr).toLocaleDateString(localeCode, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -50,26 +52,29 @@ function SkeletonCard() {
 }
 
 // ─── News Card ────────────────────────────────────────────────────────────────
-function NewsCard({ item }: { item: NewsItemWithSyndicate }) {
+function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: string }) {
   const [saved, setSaved] = useState(false);
-  const params = useParams();
-  const locale = params.locale as string;
 
   const displayDate = item.published_at ?? item.fetched_at;
   const todayItem = isToday(displayDate);
 
-  // syndicates is an object from Supabase, not an array
   const syndicate = item.syndicates ?? null;
   const syndicateSlug = syndicate?.slug ?? null;
 
+  // RTL layout for Arabic
+  const isRTL = locale === "ar";
+
   return (
-    <article className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#1a3560]/30 transition-all duration-300 flex flex-col">
+    <article
+      dir={isRTL ? "rtl" : "ltr"}
+      className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#1a3560]/30 transition-all duration-300 flex flex-col"
+    >
       {/* Today Banner */}
       {todayItem && (
         <div className="bg-yellow-400 px-4 py-1.5 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-yellow-700 animate-pulse" />
           <span className="text-xs font-bold text-yellow-900 uppercase tracking-widest">
-            Today
+            {locale === "ar" ? "اليوم" : locale === "fr" ? "Aujourd'hui" : "Today"}
           </span>
         </div>
       )}
@@ -137,7 +142,7 @@ function NewsCard({ item }: { item: NewsItemWithSyndicate }) {
           {displayDate && (
             <span className="flex items-center gap-1 text-[10px] text-slate-400 flex-shrink-0">
               <Calendar size={10} />
-              {formatDate(displayDate)}
+              {formatDate(displayDate, locale)}
             </span>
           )}
         </div>
@@ -148,11 +153,11 @@ function NewsCard({ item }: { item: NewsItemWithSyndicate }) {
               href={`/${locale}/syndicates/${syndicateSlug}`}
               className="flex-1 text-center text-xs font-semibold text-white bg-[#1a3560] hover:bg-[#0d2240] rounded-lg py-2 transition"
             >
-              Read More
+              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
             </Link>
           ) : (
             <span className="flex-1 text-center text-xs font-semibold text-slate-400 bg-slate-100 rounded-lg py-2 cursor-not-allowed">
-              Read More
+              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
             </span>
           )}
 
@@ -164,7 +169,7 @@ function NewsCard({ item }: { item: NewsItemWithSyndicate }) {
               className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
             >
               <ExternalLink size={11} />
-              Source
+              {locale === "ar" ? "المصدر" : locale === "fr" ? "Source" : "Source"}
             </a>
           )}
         </div>
@@ -175,6 +180,11 @@ function NewsCard({ item }: { item: NewsItemWithSyndicate }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function NewsPage() {
+  const params = useParams();
+  // locale comes from the [locale] dynamic segment — e.g. "en", "ar", "fr"
+  const locale = (params.locale as string) ?? "ar";
+  const isRTL = locale === "ar";
+
   const [search, setSearch] = useState("");
   const [activeSyndicate, setActiveSyndicate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"latest" | "featured">("latest");
@@ -183,13 +193,14 @@ export default function NewsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Re-fetch whenever locale changes (user switches language)
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
         setError(false);
         const [news, syns] = await Promise.all([
-          getAllNews(),
+          getAllNews(locale), // ← passes locale to trigger Claude translation
           getSyndicatesWithCount(),
         ]);
         setNewsList(news);
@@ -202,12 +213,11 @@ export default function NewsPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [locale]); // ← locale in dep array = refetch on language switch
 
   const filtered = useMemo(() => {
     let items = newsList;
 
-    // ✅ syndicates is an object — access .slug directly
     if (activeSyndicate) {
       items = items.filter((n) => n.syndicates?.slug === activeSyndicate);
     }
@@ -228,8 +238,52 @@ export default function NewsPage() {
     return items;
   }, [search, activeSyndicate, newsList, syndicates]);
 
+  // ── UI strings per locale ─────────────────────────────────────────────────
+  const t = {
+    portal:
+      locale === "ar" ? "البوابة الرسمية للنقابات" :
+      locale === "fr" ? "Portail Officiel des Syndicats" :
+      "Official Syndicate Portal",
+    heading:
+      locale === "ar" ? "آخر الأخبار" :
+      locale === "fr" ? "Dernières Nouvelles" :
+      "Latest News",
+    subtitle:
+      locale === "ar" ? "اطلع على آخر التحديثات والقرارات والإعلانات من النقابات اللبنانية المهنية." :
+      locale === "fr" ? "Découvrez les dernières mises à jour, décisions et annonces des syndicats professionnels libanais." :
+      "Check latest updates, decisions, and announcements from Lebanese professional syndicates.",
+    searchPlaceholder:
+      locale === "ar" ? "ابحث باسم النقابة أو بالكلمة المفتاحية..." :
+      locale === "fr" ? "Rechercher par syndicat ou mot-clé..." :
+      "Search by syndicate name or keyword...",
+    searchBtn:
+      locale === "ar" ? "بحث" : locale === "fr" ? "Chercher" : "Search",
+    syndicateLabel:
+      locale === "ar" ? "النقابة" : locale === "fr" ? "Syndicat" : "Syndicate",
+    allSyndicates:
+      locale === "ar" ? "جميع النقابات" : locale === "fr" ? "Tous les syndicats" : "All Syndicates",
+    latestNews:
+      locale === "ar" ? "آخر الأخبار" : locale === "fr" ? "Dernières nouvelles" : "Latest News",
+    featured:
+      locale === "ar" ? "مميز" : locale === "fr" ? "À la une" : "Featured",
+    exploreLabel:
+      locale === "ar" ? "استكشف تحديثات النقابات في لبنان" :
+      locale === "fr" ? "Explorez les actualités des syndicats du Liban" :
+      "Explore syndicate updates from Lebanon",
+    errorMsg:
+      locale === "ar" ? "فشل تحميل الأخبار. يرجى تحديث الصفحة." :
+      locale === "fr" ? "Échec du chargement. Veuillez actualiser." :
+      "Failed to load news. Please try refreshing.",
+    noNews:
+      locale === "ar" ? "لا توجد أخبار." : locale === "fr" ? "Aucune actualité trouvée." : "No news found.",
+    translating:
+      locale === "ar" ? null :
+      locale === "fr" ? "Traduction en cours…" :
+      "Translating news…",
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50" dir={isRTL ? "rtl" : "ltr"}>
       {/* ── Hero ── */}
       <section
         className="relative overflow-hidden"
@@ -248,14 +302,13 @@ export default function NewsPage() {
         />
         <div className="relative max-w-5xl mx-auto px-6 py-16 text-center">
           <span className="inline-block bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-5">
-            Official Syndicate Portal
+            {t.portal}
           </span>
           <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-3">
-            Latest News
+            {t.heading}
           </h1>
           <p className="text-[#a8c0e0] text-base mb-8 max-w-md mx-auto">
-            Check latest updates, decisions, and announcements from Lebanese
-            professional syndicates.
+            {t.subtitle}
           </p>
 
           <div className="max-w-xl mx-auto flex gap-3">
@@ -270,12 +323,12 @@ export default function NewsPage() {
                   setSearch(e.target.value);
                   setActiveSyndicate(null);
                 }}
-                placeholder="Search by syndicate name or keyword..."
+                placeholder={t.searchPlaceholder}
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-white text-sm text-slate-800 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
               />
             </div>
             <button className="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold text-sm px-5 py-3 rounded-xl transition shadow-md whitespace-nowrap">
-              Search
+              {t.searchBtn}
             </button>
           </div>
         </div>
@@ -287,7 +340,7 @@ export default function NewsPage() {
         <aside className="lg:w-64 flex-shrink-0">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sticky top-6">
             <h2 className="text-xs font-extrabold text-[#0d2240] uppercase tracking-widest mb-4">
-              Syndicate
+              {t.syndicateLabel}
             </h2>
             <ul className="space-y-1">
               <li>
@@ -300,7 +353,7 @@ export default function NewsPage() {
                       : "text-slate-600 hover:bg-slate-50")
                   }
                 >
-                  <span>All Syndicates</span>
+                  <span>{t.allSyndicates}</span>
                   <span
                     className={
                       "text-[11px] px-2 py-0.5 rounded-full font-semibold " +
@@ -360,11 +413,9 @@ export default function NewsPage() {
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
               <h2 className="text-xl font-extrabold text-[#0d2240]">
-                Latest News
+                {t.latestNews}
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Explore syndicate updates from Lebanon
-              </p>
+              <p className="text-xs text-slate-400 mt-0.5">{t.exploreLabel}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -376,7 +427,7 @@ export default function NewsPage() {
                     : "bg-white border border-slate-200 text-slate-600 hover:border-[#1a3560]/40")
                 }
               >
-                Latest News
+                {t.latestNews}
               </button>
               <button
                 onClick={() => setActiveTab("featured")}
@@ -387,18 +438,24 @@ export default function NewsPage() {
                     : "bg-white border border-slate-200 text-slate-600 hover:border-[#1a3560]/40")
                 }
               >
-                Featured
+                {t.featured}
               </button>
             </div>
           </div>
+
+          {/* Translation in-progress banner (shown while loading non-Arabic) */}
+          {loading && locale !== "ar" && t.translating && (
+            <div className="flex items-center gap-2 mb-4 text-xs text-[#1a3560] bg-blue-50 border border-blue-100 px-4 py-2.5 rounded-xl">
+              <span className="w-2 h-2 rounded-full bg-[#1a3560] animate-pulse flex-shrink-0" />
+              {t.translating}
+            </div>
+          )}
 
           {/* Error state */}
           {error && (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium text-red-500">
-                Failed to load news. Please try refreshing.
-              </p>
+              <p className="text-sm font-medium text-red-500">{t.errorMsg}</p>
             </div>
           )}
 
@@ -415,7 +472,7 @@ export default function NewsPage() {
           {!loading && !error && filtered.length === 0 && (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">No news found.</p>
+              <p className="text-sm font-medium">{t.noNews}</p>
             </div>
           )}
 
@@ -423,7 +480,7 @@ export default function NewsPage() {
           {!loading && !error && filtered.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {filtered.map((item) => (
-                <NewsCard key={item.id} item={item} />
+                <NewsCard key={item.id} item={item} locale={locale} />
               ))}
             </div>
           )}
