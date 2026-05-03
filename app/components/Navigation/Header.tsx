@@ -138,7 +138,7 @@ const Header = () => {
 
   return (
     <>
-      <nav className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md shadow-sm will-change-transform">
+      <nav className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
           <div className="flex items-center gap-8 lg:gap-12">
             <Link href="/" className="flex items-center gap-3">
@@ -240,7 +240,7 @@ const Header = () => {
               )}
             </div>
 
-            <div onClick={() => setMobileMenuOpen(true)}>
+            <div onClick={() => setMobileMenuOpen(true)} className="lg:hidden">
               <Menu className="size-5" />
             </div>
           </div>
