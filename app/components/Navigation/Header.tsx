@@ -131,9 +131,9 @@ const Header = () => {
               height={80}
               className="me-2 h-auto w-20"
             />
-            <span className="hidden text-xl font-bold text-blue-400 md:inline">
-              Daleeli
-            </span>
+      <span className="hidden text-xl font-bold md:inline" style={{ color: '#0048ff' }}>
+  Daleeli
+</span>
           </Link>
 
           <div className="ms-10 hidden items-center gap-1 md:flex">
