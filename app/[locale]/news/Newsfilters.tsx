@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import type { Syndicate, ContentType } from "@/app/lib/news/types";
+import type { Syndicate, ContentType } from "@/lib/news/types";
 
 const CONTENT_TYPES: { value: ContentType | ""; label: string }[] = [
   { value: "", label: "All Types" },
@@ -49,7 +49,7 @@ export default function NewsFilters({
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-extrabold text-[#0d2240] uppercase tracking-widest">
+        <span className="text-xs font-extrabold text-[1d4ed8] uppercase tracking-widest">
           Filter & Search
         </span>
         {hasActiveFilters && (
@@ -75,7 +75,7 @@ export default function NewsFilters({
             value={filters.search}
             onChange={(e) => set({ search: e.target.value, syndicateId: "" })}
             placeholder="Search by syndicate name or keyword..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#1a3560]/20 focus:border-[#1a3560] focus:bg-white transition"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[1d4ed8]/20 focus:border-[1d4ed8] focus:bg-white transition"
           />
           {filters.search && (
             <button
@@ -91,7 +91,7 @@ export default function NewsFilters({
         <select
           value={filters.syndicateId}
           onChange={(e) => set({ syndicateId: e.target.value, search: "" })}
-          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[#1a3560]/20 focus:border-[#1a3560] focus:bg-white transition min-w-[180px]"
+          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[1d4ed8]/20 focus:border-[1d4ed8] focus:bg-white transition min-w-[180px]"
         >
           <option value="">All Syndicates</option>
           {syndicates.map((s) => (
@@ -105,7 +105,7 @@ export default function NewsFilters({
         <select
           value={filters.contentType}
           onChange={(e) => set({ contentType: e.target.value })}
-          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[#1a3560]/20 focus:border-[#1a3560] focus:bg-white transition min-w-[160px]"
+          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[1d4ed8]/20 focus:border-[1d4ed8] focus:bg-white transition min-w-[160px]"
         >
           {CONTENT_TYPES.map((ct) => (
             <option key={ct.value} value={ct.value}>
@@ -118,7 +118,7 @@ export default function NewsFilters({
         <select
           value={filters.sort}
           onChange={(e) => set({ sort: e.target.value as "latest" | "oldest" })}
-          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[#1a3560]/20 focus:border-[#1a3560] focus:bg-white transition min-w-[120px]"
+          className="px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 focus:ring-2 focus:ring-[1d4ed8]/20 focus:border-[1d4ed8] focus:bg-white transition min-w-[120px]"
         >
           <option value="latest">Latest first</option>
           <option value="oldest">Oldest first</option>
@@ -154,7 +154,7 @@ export default function NewsFilters({
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 bg-[#1a3560]/8 text-[#1a3560] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[#1a3560]/20">
+    <span className="inline-flex items-center gap-1.5 bg-[1d4ed8]/8 text-[1d4ed8] text-[11px] font-semibold px-2.5 py-1 rounded-full border border-[1d4ed8]/20">
       {label}
       <button onClick={onRemove} className="hover:text-rose-500 transition">
         <X size={10} />
