@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { X, ExternalLink, Calendar, Building2 } from "lucide-react";
-import type { NewsItem, ContentType } from "@/app/lib/news/types";
+import type { NewsItem, ContentType } from "@/lib/news/types";
 
 const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
   news: "News",

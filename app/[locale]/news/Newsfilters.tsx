@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import type { Syndicate, ContentType } from "@/app/lib/news/types";
+import type { Syndicate, ContentType } from "@/lib/news/types";
 
 const CONTENT_TYPES: { value: ContentType | ""; label: string }[] = [
   { value: "", label: "All Types" },

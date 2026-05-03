@@ -198,8 +198,49 @@ export default function NewsPage() {
     if (next.syndicateId || next.search) setActiveSyndicate(null);
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50">
+  // ── UI strings per locale ─────────────────────────────────────────────────
+  const t = {
+    portal:
+      locale === "ar" ? "البوابة الرسمية للنقابات" :
+      locale === "fr" ? "Portail Officiel des Syndicats" :
+      "Official Syndicate Portal",
+    heading:
+      locale === "ar" ? "آخر الأخبار" :
+      locale === "fr" ? "Dernières Nouvelles" :
+      "Latest News",
+    subtitle:
+      locale === "ar" ? "اطلع على آخر التحديثات والقرارات والإعلانات من النقابات اللبنانية المهنية." :
+      locale === "fr" ? "Découvrez les dernières mises à jour, décisions et annonces des syndicats professionnels libanais." :
+      "Check latest updates, decisions, and announcements from Lebanese professional syndicates.",
+    searchPlaceholder:
+      locale === "ar" ? "ابحث باسم النقابة أو بالكلمة المفتاحية..." :
+      locale === "fr" ? "Rechercher par syndicat ou mot-clé..." :
+      "Search by syndicate name or keyword...",
+    searchBtn:
+      locale === "ar" ? "بحث" : locale === "fr" ? "Chercher" : "Search",
+    syndicateLabel:
+      locale === "ar" ? "النقابة" : locale === "fr" ? "Syndicat" : "Syndicate",
+    allSyndicates:
+      locale === "ar" ? "جميع النقابات" : locale === "fr" ? "Tous les syndicats" : "All Syndicates",
+    latestNews:
+      locale === "ar" ? "آخر الأخبار" : locale === "fr" ? "Dernières nouvelles" : "Latest News",
+    featured:
+      locale === "ar" ? "مميز" : locale === "fr" ? "À la une" : "Featured",
+    exploreLabel:
+      locale === "ar" ? "استكشف تحديثات النقابات في لبنان" :
+      locale === "fr" ? "Explorez les actualités des syndicats du Liban" :
+      "Explore syndicate updates from Lebanon",
+    errorMsg:
+      locale === "ar" ? "فشل تحميل الأخبار. يرجى تحديث الصفحة." :
+      locale === "fr" ? "Échec du chargement. Veuillez actualiser." :
+      "Failed to load news. Please try refreshing.",
+    noNews:
+      locale === "ar" ? "لا توجد أخبار." : locale === "fr" ? "Aucune actualité trouvée." : "No news found.",
+    translating:
+      locale === "ar" ? null :
+      locale === "fr" ? "Traduction en cours…" :
+      "Translating news…",
+  };
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="border-b border-slate-200 bg-white">
@@ -279,7 +320,27 @@ export default function NewsPage() {
                 Clear filters
               </button>
             </div>
-          ) : (
+          )}
+
+          {/* Loading skeletons */}
+          {loading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!loading && !error && filtered.length === 0 && (
+            <div className="text-center py-20 text-slate-400">
+              <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm font-medium">{t.noNews}</p>
+            </div>
+          )}
+
+          {/* News grid */}
+          {!loading && !error && filtered.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {filtered.map((item) => (
                 <NewsCard

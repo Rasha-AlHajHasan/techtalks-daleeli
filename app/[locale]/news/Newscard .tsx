@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Heart, MapPin, Clock, Tag } from "lucide-react";
-import type { NewsItem, ContentType } from "@/app/lib/news/types";
+import type { NewsItem, ContentType } from "@/lib/news/types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 

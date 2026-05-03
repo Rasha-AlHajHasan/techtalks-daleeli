@@ -1,10 +1,30 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// ── Singleton pattern — only one instance is ever created ──────────────────
+let instance: SupabaseClient | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+export function getSupabaseClient(): SupabaseClient {
+  if (!instance) {
+    instance = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          // Bypasses the Web Lock API to prevent lock conflicts
+          // Safe because we use a singleton — no concurrent instances
+          lock: async (
+            _name: string,
+            _acquireTimeout: number,
+            fn: () => Promise<unknown>
+          ) => fn(),
+        },
+      }
+    );
+  }
+  return instance;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Named export for convenience — same instance every time
+export const supabase = getSupabaseClient();
+
+export { createClient };
