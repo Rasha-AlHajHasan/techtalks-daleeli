@@ -236,10 +236,10 @@ export default function NewsPage() {
 
   // ── UI strings ───────────────────────────────────────────────────────────
   const t = {
-    // portal:
-      // locale === "ar" ? "البوابة الرسمية للنقابات"
-      // : locale === "fr" ? "Portail Officiel des Syndicats"
-      // : "Official Syndicate Portal",
+    portal:
+      locale === "ar" ? "البوابة الرسمية للنقابات"
+      : locale === "fr" ? "Portail Officiel des Syndicats"
+      : "Official Syndicate Portal",
     heading:
       locale === "ar" ? "آخر الأخبار"
       : locale === "fr" ? "Dernières Nouvelles"
