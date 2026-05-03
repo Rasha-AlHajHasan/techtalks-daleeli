@@ -1,0 +1,206 @@
+import { supabase } from '@/app/lib/supabase/client'
+import { scrapeLOPNews } from './scrapers/lop'
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return 'Unknown error'
+}
+
+async function findSyndicateId(keywords: string[]) {
+  for (const keyword of keywords) {
+    const { data, error } = await supabase
+      .from('syndicates')
+      .select('id')
+      .ilike('name', `%${keyword}%`)
+      .maybeSingle()
+
+    if (error) {
+      console.error(`Syndicate lookup failed for "${keyword}":`, error.message)
+      continue
+    }
+
+    if (data?.id) {
+      return data.id
+    }
+  }
+
+  return null
+}
+
+async function resolveSourceId(syndicateId: string) {
+  const { data: matchingItem } = await supabase
+    .from('news_items')
+    .select('source_id')
+    .eq('syndicate_id', syndicateId)
+    .not('source_id', 'is', null)
+    .limit(1)
+    .maybeSingle()
+
+  if (matchingItem?.source_id) {
+    return matchingItem.source_id
+  }
+
+  const { data: fallbackItem } = await supabase
+    .from('news_items')
+    .select('source_id')
+    .not('source_id', 'is', null)
+    .limit(1)
+    .maybeSingle()
+
+  return fallbackItem?.source_id ?? null
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '')
+    .slice(0, 200)
+}
+
+async function saveNewsItem(item: {
+  title: string;
+  summary: string;
+  source_url: string;
+  published_at: string;
+}, syndicateId: string, sourceId: string) {
+  const slug = slugify(item.title)
+
+  const { data: existing, error: existingError } = await supabase
+    .from('news_items')
+    .select('id')
+    .eq('slug', slug)
+    .limit(1)
+    .maybeSingle()
+
+  if (existingError) {
+    return { error: existingError }
+  }
+
+  const payload = {
+    title: item.title,
+    slug,
+    summary: item.summary,
+    source_url: item.source_url,
+    published_at: item.published_at,
+    fetched_at: new Date().toISOString(),
+    source_id: sourceId,
+    syndicate_id: syndicateId,
+    status: 'published',
+    is_active: true,
+    language: 'en',
+  }
+
+  if (existing?.id) {
+    return supabase
+      .from('news_items')
+      .update(payload)
+      .eq('id', existing.id)
+  }
+
+  return supabase
+    .from('news_items')
+    .insert(payload)
+}
+
+export async function syncLOPNews() {
+  console.log('Starting LOP news sync...')
+
+  // 1. Get the LOP syndicate ID from your DB
+  const syndicateId = await findSyndicateId(['physician', 'physicians', 'doctor', 'doctors', 'lop', 'medical'])
+
+  if (!syndicateId) {
+    console.error('LOP syndicate not found in DB')
+    return { inserted: 0, found: 0 }
+  }
+
+  const sourceId = await resolveSourceId(syndicateId)
+
+  if (!sourceId) {
+    console.error('No valid source_id found for LOP sync')
+    return { inserted: 0, found: 0, error: 'No valid source_id found' }
+  }
+
+  try {
+    // 2. Create a crawl job record when the table is available
+    const { data: job, error: jobError } = await supabase
+      .from('crawl_jobs')
+      .insert({
+        source_id: syndicateId,
+        job_type: 'scheduled',
+        status: 'running',
+        started_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (jobError) {
+      console.error('Failed to create crawl job:', jobError.message)
+    }
+
+    // 3. Scrape the articles
+    const items = await scrapeLOPNews()
+    console.log(`Found ${items.length} articles`)
+
+    let inserted = 0
+    let firstError: string | null = null
+
+    // 4. Save each article to news_items
+    for (const item of items) {
+      const { error } = await saveNewsItem(item, syndicateId, sourceId)
+
+      if (!error) inserted++
+      else {
+        if (!firstError) {
+          firstError = error.message
+        }
+        console.error('Insert error:', error.message)
+      }
+    }
+
+    // 5. Update crawl job as completed
+    if (job?.id) {
+      await supabase
+        .from('crawl_jobs')
+        .update({
+          status: 'completed',
+          finished_at: new Date().toISOString(),
+          items_found: items.length,
+          items_inserted: inserted,
+        })
+        .eq('id', job.id)
+    }
+
+    console.log(`Sync done. Inserted: ${inserted}/${items.length}`)
+    return { inserted, found: items.length, error: firstError }
+
+  } catch (error: unknown) {
+    const errorMessage = getErrorMessage(error)
+
+    const { data: latestJob } = await supabase
+      .from('crawl_jobs')
+      .select('id')
+      .eq('source_id', syndicateId)
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (latestJob?.id) {
+      await supabase
+        .from('crawl_jobs')
+        .update({
+          status: 'failed',
+          finished_at: new Date().toISOString(),
+          error_message: errorMessage,
+        })
+        .eq('id', latestJob.id)
+    }
+
+    console.error('Sync failed:', errorMessage)
+    return { inserted: 0, found: 0, error: errorMessage }
+  }
+}
