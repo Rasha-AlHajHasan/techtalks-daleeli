@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import type { Syndicate, ContentType } from "@/lib/news/types";
+import type { Syndicate, ContentType } from "@/app/lib/news/types";
 
 const CONTENT_TYPES: { value: ContentType | ""; label: string }[] = [
   { value: "", label: "All Types" },
@@ -64,7 +64,6 @@ export default function NewsFilters({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-
         {/* ── Search by syndicate name or keyword ── */}
         <div className="relative flex-1 min-w-[220px]">
           <Search
@@ -129,17 +128,26 @@ export default function NewsFilters({
       {(filters.syndicateId || filters.contentType || filters.search) && (
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
           {filters.search && (
-            <Chip label={`"${filters.search}"`} onRemove={() => set({ search: "" })} />
+            <Chip
+              label={`"${filters.search}"`}
+              onRemove={() => set({ search: "" })}
+            />
           )}
           {filters.syndicateId && (
             <Chip
-              label={syndicates.find((s) => s.id === filters.syndicateId)?.name ?? filters.syndicateId}
+              label={
+                syndicates.find((s) => s.id === filters.syndicateId)?.name ??
+                filters.syndicateId
+              }
               onRemove={() => set({ syndicateId: "" })}
             />
           )}
           {filters.contentType && (
             <Chip
-              label={CONTENT_TYPES.find((c) => c.value === filters.contentType)?.label ?? filters.contentType}
+              label={
+                CONTENT_TYPES.find((c) => c.value === filters.contentType)
+                  ?.label ?? filters.contentType
+              }
               onRemove={() => set({ contentType: "" })}
             />
           )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Heart, MapPin, Clock, Tag } from "lucide-react";
-import type { NewsItem, ContentType } from "@/lib/news/types";
+import type { NewsItem, ContentType } from "@/app/lib/news/types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -57,7 +57,8 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
   const [saved, setSaved] = useState(false);
   const displayDate = item.published_at ?? item.fetched_at ?? "";
   const todayItem = isToday(displayDate);
-  const typeColor = CONTENT_TYPE_COLORS[item.content_type] ?? CONTENT_TYPE_COLORS.news;
+  const typeColor =
+    CONTENT_TYPE_COLORS[item.content_type] ?? CONTENT_TYPE_COLORS.news;
   const typeLabel = CONTENT_TYPE_LABELS[item.content_type] ?? item.content_type;
 
   return (
@@ -65,9 +66,11 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
       className={`
         group relative bg-white border rounded-2xl overflow-hidden
         hover:shadow-lg transition-all duration-200 flex flex-col
-        ${todayItem
-          ? "border-blue-200 shadow-blue-100/60 shadow-sm"
-          : "border-slate-200 hover:border-[1d4ed8]/25"}
+        ${
+          todayItem
+            ? "border-blue-200 shadow-blue-100/60 shadow-sm"
+            : "border-slate-200 hover:border-[1d4ed8]/25"
+        }
       `}
     >
       {/* ── Today banner ── */}
@@ -81,12 +84,13 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
       )}
 
       <div className="p-5 flex flex-col flex-1 gap-3">
-
         {/* ── Row 1: meta tags + save ── */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             {/* Content type badge */}
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide ${typeColor}`}>
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide ${typeColor}`}
+            >
               <Tag size={9} />
               {typeLabel}
             </span>
@@ -112,9 +116,11 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
             onClick={() => setSaved(!saved)}
             aria-label={saved ? "Unsave" : "Save"}
             className={`w-7 h-7 flex items-center justify-center rounded-full border transition flex-shrink-0
-              ${saved
-                ? "border-rose-200 bg-rose-50 text-rose-400"
-                : "border-slate-200 bg-white text-slate-300 hover:text-rose-400 hover:border-rose-200"}`}
+              ${
+                saved
+                  ? "border-rose-200 bg-rose-50 text-rose-400"
+                  : "border-slate-200 bg-white text-slate-300 hover:text-rose-400 hover:border-rose-200"
+              }`}
           >
             <Heart size={13} fill={saved ? "currentColor" : "none"} />
           </button>
@@ -141,7 +147,9 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
             {item.syndicate && (
               <span className="flex items-center gap-1 text-[11px] text-slate-500 min-w-0">
                 <MapPin size={11} className="text-slate-400 flex-shrink-0" />
-                <span className="truncate font-medium">{item.syndicate.name}</span>
+                <span className="truncate font-medium">
+                  {item.syndicate.name}
+                </span>
               </span>
             )}
 

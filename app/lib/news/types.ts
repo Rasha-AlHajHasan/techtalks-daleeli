@@ -17,6 +17,7 @@ export type NewsItem = {
   fetched_at: string;
   content_type: ContentType;
   source_url: string;
+  image_url: string | null;
   syndicate: {
     id: string;
     name: string;
