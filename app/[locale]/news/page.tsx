@@ -4,8 +4,8 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Search, Newspaper, ExternalLink, Calendar, Heart } from "lucide-react";
-import { getAllNews, getSyndicatesWithCount } from "@/lib/news/queries";
-import type { NewsItemWithSyndicate } from "@/lib/news/queries";
+import { getAllNews, getSyndicatesWithCount } from "@/app/lib/news/queries";
+import type { NewsItemWithSyndicate } from "@/app/lib/news/queries";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SyndicateFilter = {
@@ -26,7 +26,8 @@ function isToday(dateStr?: string | null) {
 function formatDate(dateStr: string | null, locale: string) {
   if (!dateStr) return "—";
   // Use locale-aware date formatting
-  const localeCode = locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-GB";
+  const localeCode =
+    locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-GB";
   return new Date(dateStr).toLocaleDateString(localeCode, {
     day: "numeric",
     month: "short",
@@ -52,7 +53,13 @@ function SkeletonCard() {
 }
 
 // ─── News Card ────────────────────────────────────────────────────────────────
-function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: string }) {
+function NewsCard({
+  item,
+  locale,
+}: {
+  item: NewsItemWithSyndicate;
+  locale: string;
+}) {
   const [saved, setSaved] = useState(false);
 
   const displayDate = item.published_at ?? item.fetched_at;
@@ -74,7 +81,11 @@ function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: strin
         <div className="bg-yellow-400 px-4 py-1.5 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-yellow-700 animate-pulse" />
           <span className="text-xs font-bold text-yellow-900 uppercase tracking-widest">
-            {locale === "ar" ? "اليوم" : locale === "fr" ? "Aujourd'hui" : "Today"}
+            {locale === "ar"
+              ? "اليوم"
+              : locale === "fr"
+                ? "Aujourd'hui"
+                : "Today"}
           </span>
         </div>
       )}
@@ -153,11 +164,19 @@ function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: strin
               href={`/${locale}/syndicates/${syndicateSlug}`}
               className="flex-1 text-center text-xs font-semibold text-white bg-[#1a3560] hover:bg-[#0d2240] rounded-lg py-2 transition"
             >
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
+              {locale === "ar"
+                ? "اقرأ المزيد"
+                : locale === "fr"
+                  ? "Lire la suite"
+                  : "Read More"}
             </Link>
           ) : (
             <span className="flex-1 text-center text-xs font-semibold text-slate-400 bg-slate-100 rounded-lg py-2 cursor-not-allowed">
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
+              {locale === "ar"
+                ? "اقرأ المزيد"
+                : locale === "fr"
+                  ? "Lire la suite"
+                  : "Read More"}
             </span>
           )}
 
@@ -169,7 +188,11 @@ function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: strin
               className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
             >
               <ExternalLink size={11} />
-              {locale === "ar" ? "المصدر" : locale === "fr" ? "Source" : "Source"}
+              {locale === "ar"
+                ? "المصدر"
+                : locale === "fr"
+                  ? "Source"
+                  : "Source"}
             </a>
           )}
         </div>
@@ -231,7 +254,7 @@ export default function NewsPage() {
         (n) =>
           n.title.toLowerCase().includes(q) ||
           n.summary?.toLowerCase().includes(q) ||
-          matchedSlugs.includes(n.syndicates?.slug ?? "")
+          matchedSlugs.includes(n.syndicates?.slug ?? ""),
       );
     }
 
@@ -241,45 +264,71 @@ export default function NewsPage() {
   // ── UI strings per locale ─────────────────────────────────────────────────
   const t = {
     portal:
-      locale === "ar" ? "البوابة الرسمية للنقابات" :
-      locale === "fr" ? "Portail Officiel des Syndicats" :
-      "Official Syndicate Portal",
+      locale === "ar"
+        ? "البوابة الرسمية للنقابات"
+        : locale === "fr"
+          ? "Portail Officiel des Syndicats"
+          : "Official Syndicate Portal",
     heading:
-      locale === "ar" ? "آخر الأخبار" :
-      locale === "fr" ? "Dernières Nouvelles" :
-      "Latest News",
+      locale === "ar"
+        ? "آخر الأخبار"
+        : locale === "fr"
+          ? "Dernières Nouvelles"
+          : "Latest News",
     subtitle:
-      locale === "ar" ? "اطلع على آخر التحديثات والقرارات والإعلانات من النقابات اللبنانية المهنية." :
-      locale === "fr" ? "Découvrez les dernières mises à jour, décisions et annonces des syndicats professionnels libanais." :
-      "Check latest updates, decisions, and announcements from Lebanese professional syndicates.",
+      locale === "ar"
+        ? "اطلع على آخر التحديثات والقرارات والإعلانات من النقابات اللبنانية المهنية."
+        : locale === "fr"
+          ? "Découvrez les dernières mises à jour, décisions et annonces des syndicats professionnels libanais."
+          : "Check latest updates, decisions, and announcements from Lebanese professional syndicates.",
     searchPlaceholder:
-      locale === "ar" ? "ابحث باسم النقابة أو بالكلمة المفتاحية..." :
-      locale === "fr" ? "Rechercher par syndicat ou mot-clé..." :
-      "Search by syndicate name or keyword...",
+      locale === "ar"
+        ? "ابحث باسم النقابة أو بالكلمة المفتاحية..."
+        : locale === "fr"
+          ? "Rechercher par syndicat ou mot-clé..."
+          : "Search by syndicate name or keyword...",
     searchBtn:
       locale === "ar" ? "بحث" : locale === "fr" ? "Chercher" : "Search",
     syndicateLabel:
       locale === "ar" ? "النقابة" : locale === "fr" ? "Syndicat" : "Syndicate",
     allSyndicates:
-      locale === "ar" ? "جميع النقابات" : locale === "fr" ? "Tous les syndicats" : "All Syndicates",
+      locale === "ar"
+        ? "جميع النقابات"
+        : locale === "fr"
+          ? "Tous les syndicats"
+          : "All Syndicates",
     latestNews:
-      locale === "ar" ? "آخر الأخبار" : locale === "fr" ? "Dernières nouvelles" : "Latest News",
+      locale === "ar"
+        ? "آخر الأخبار"
+        : locale === "fr"
+          ? "Dernières nouvelles"
+          : "Latest News",
     featured:
       locale === "ar" ? "مميز" : locale === "fr" ? "À la une" : "Featured",
     exploreLabel:
-      locale === "ar" ? "استكشف تحديثات النقابات في لبنان" :
-      locale === "fr" ? "Explorez les actualités des syndicats du Liban" :
-      "Explore syndicate updates from Lebanon",
+      locale === "ar"
+        ? "استكشف تحديثات النقابات في لبنان"
+        : locale === "fr"
+          ? "Explorez les actualités des syndicats du Liban"
+          : "Explore syndicate updates from Lebanon",
     errorMsg:
-      locale === "ar" ? "فشل تحميل الأخبار. يرجى تحديث الصفحة." :
-      locale === "fr" ? "Échec du chargement. Veuillez actualiser." :
-      "Failed to load news. Please try refreshing.",
+      locale === "ar"
+        ? "فشل تحميل الأخبار. يرجى تحديث الصفحة."
+        : locale === "fr"
+          ? "Échec du chargement. Veuillez actualiser."
+          : "Failed to load news. Please try refreshing.",
     noNews:
-      locale === "ar" ? "لا توجد أخبار." : locale === "fr" ? "Aucune actualité trouvée." : "No news found.",
+      locale === "ar"
+        ? "لا توجد أخبار."
+        : locale === "fr"
+          ? "Aucune actualité trouvée."
+          : "No news found.",
     translating:
-      locale === "ar" ? null :
-      locale === "fr" ? "Traduction en cours…" :
-      "Translating news…",
+      locale === "ar"
+        ? null
+        : locale === "fr"
+          ? "Traduction en cours…"
+          : "Translating news…",
   };
 
   return (
@@ -377,7 +426,7 @@ export default function NewsPage() {
                       <button
                         onClick={() => {
                           setActiveSyndicate(
-                            syn.slug === activeSyndicate ? null : syn.slug
+                            syn.slug === activeSyndicate ? null : syn.slug,
                           );
                           setSearch("");
                         }}

@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { X, ExternalLink, Calendar, Building2 } from "lucide-react";
-import type { NewsItem, ContentType } from "@/lib/news/types";
+import { X, ExternalLink, Calendar } from "lucide-react";
+import type { NewsItem, ContentType } from "@/app/lib/news/types";
 
 const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
   news: "News",
@@ -60,8 +60,7 @@ export default function NewsDetailsModal({
   const displayDate = item.published_at ?? item.fetched_at;
   const typeColor =
     CONTENT_TYPE_COLORS[item.content_type] ?? CONTENT_TYPE_COLORS.news;
-  const typeLabel =
-    CONTENT_TYPE_LABELS[item.content_type] ?? item.content_type;
+  const typeLabel = CONTENT_TYPE_LABELS[item.content_type] ?? item.content_type;
 
   return (
     <div

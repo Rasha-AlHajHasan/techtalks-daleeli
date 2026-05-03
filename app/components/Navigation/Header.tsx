@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/app/lib/supabase/client";
+import { supabase } from "@/app/lib/supabase/browser";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { Button } from "@/components/ui/button";
