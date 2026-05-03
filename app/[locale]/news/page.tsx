@@ -1,242 +1,202 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { Search, Newspaper, ExternalLink, Calendar, Heart } from "lucide-react";
-import { getAllNews, getSyndicatesWithCount } from "@/lib/news/queries";
-import type { NewsItemWithSyndicate } from "@/lib/news/queries";
+import { useState, useMemo } from "react";
+import { Search, Newspaper } from "lucide-react";
+import type { NewsItem } from "@/app/lib/news/types";
+import NewsCard from "./Newscard ";
+import NewsFilters, { type NewsFiltersState } from "./Newsfilters";
+import NewsDetailsModal from "./Newsdetailsmodal";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-type SyndicateFilter = {
-  id: string;
-  name: string;
-  slug: string;
-  count: number;
+// ─── Mock data — replace with Supabase fetch later ───────────────────────────
+const TODAY = new Date().toISOString().split("T")[0];
+
+const SYNDICATES = [
+  { id: "engineers",    name: "Order of Engineers & Architects" },
+  { id: "physicians",   name: "Order of Physicians" },
+  { id: "bar-beirut",   name: "Beirut Bar Association" },
+  { id: "accountants",  name: "Association of Accountants" },
+  { id: "bar-tripoli",  name: "Tripoli Bar Association" },
+  { id: "pharmacists",  name: "Order of Pharmacists" },
+  { id: "dentists",     name: "Order of Dentists" },
+];
+
+// News count per syndicate derived from newsList below
+const SYNDICATE_COUNTS: Record<string, number> = {
+  engineers: 2, physicians: 2, "bar-beirut": 1,
+  accountants: 1, "bar-tripoli": 1, pharmacists: 1, dentists: 0,
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const today = new Date().toISOString().split("T")[0];
+const NEWS_LIST: (NewsItem & { syndicate_id: string })[] = [
+  {
+    id: "1",
+    title: "Engineers Syndicate Issues New Safety Standards for High-Rise Buildings",
+    summary: "New mandatory regulations for structural assessments in buildings above 12 floors, effective immediately across Lebanon.",
+    content: "Full content from DB will appear here.",
+    published_at: TODAY,
+    fetched_at: TODAY,
+    content_type: "decisions",
+    syndicate_id: "engineers",
+    syndicate: { id: "engineers", name: "Order of Engineers & Architects" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "2",
+    title: "Engineers Launch Free Structural Audit Initiative for Public Schools",
+    summary: "The order partners with the Ministry of Education to provide free inspections for 300 public schools nationwide.",
+    content: "Full content from DB will appear here.",
+    published_at: "2026-04-22",
+    fetched_at: "2026-04-22",
+    content_type: "activities",
+    syndicate_id: "engineers",
+    syndicate: { id: "engineers", name: "Order of Engineers & Architects" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "3",
+    title: "Annual Medical Conference Registration Now Open for 2026",
+    summary: "The Order of Physicians announces its flagship annual conference, featuring international speakers and CME credits.",
+    content: "Full content from DB will appear here.",
+    published_at: TODAY,
+    fetched_at: TODAY,
+    content_type: "events",
+    syndicate_id: "physicians",
+    syndicate: { id: "physicians", name: "Order of Physicians" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "4",
+    title: "New Guidelines on Electronic Prescriptions Issued",
+    summary: "Physicians must comply with updated e-prescription standards by July 1st to maintain active registration.",
+    content: "Full content from DB will appear here.",
+    published_at: "2026-04-21",
+    fetched_at: "2026-04-21",
+    content_type: "circulars",
+    syndicate_id: "physicians",
+    syndicate: { id: "physicians", name: "Order of Physicians" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "5",
+    title: "Beirut Bar Association Circular on Court Procedures Update",
+    summary: "Important circular regarding updated procedures for filing motions at the Beirut Court of First Instance.",
+    content: "Full content from DB will appear here.",
+    published_at: "2026-04-20",
+    fetched_at: "2026-04-20",
+    content_type: "circulars",
+    syndicate_id: "bar-beirut",
+    syndicate: { id: "bar-beirut", name: "Beirut Bar Association" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "6",
+    title: "Membership Renewal Deadline Extended to May 31st",
+    summary: "The Association of Accountants has extended the membership renewal deadline following numerous requests.",
+    content: "Full content from DB will appear here.",
+    published_at: "2026-04-18",
+    fetched_at: "2026-04-18",
+    content_type: "membership_updates",
+    syndicate_id: "accountants",
+    syndicate: { id: "accountants", name: "Association of Accountants" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "7",
+    title: "New Pharmaceutical Import Regulations Effective June 2026",
+    summary: "Order of Pharmacists releases detailed guidelines on the new import compliance requirements from the Ministry of Health.",
+    content: "Full content from DB will appear here.",
+    published_at: TODAY,
+    fetched_at: TODAY,
+    content_type: "announcements",
+    syndicate_id: "pharmacists",
+    syndicate: { id: "pharmacists", name: "Order of Pharmacists" },
+    source_url: "https://example.com",
+  },
+  {
+    id: "8",
+    title: "Tripoli Bar Association Elects New Executive Board",
+    summary: "Following recent elections, the Tripoli Bar Association has announced its new executive board for the 2026–2028 term.",
+    content: "Full content from DB will appear here.",
+    published_at: "2026-04-15",
+    fetched_at: "2026-04-15",
+    content_type: "news",
+    syndicate_id: "bar-tripoli",
+    syndicate: { id: "bar-tripoli", name: "Tripoli Bar Association" },
+    source_url: "https://example.com",
+  },
+];
 
-function isToday(dateStr?: string | null) {
-  if (!dateStr) return false;
-  return dateStr.split("T")[0] === today;
-}
+// ─── Filtering logic ──────────────────────────────────────────────────────────
+function applyFilters(
+  items: typeof NEWS_LIST,
+  filters: NewsFiltersState,
+  activeSyndicate: string | null
+) {
+  let result = [...items];
 
-function formatDate(dateStr: string | null, locale: string) {
-  if (!dateStr) return "—";
-  // Use locale-aware date formatting
-  const localeCode = locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-GB";
-  return new Date(dateStr).toLocaleDateString(localeCode, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+  // Sidebar syndicate click takes priority
+  if (activeSyndicate) {
+    result = result.filter((n) => n.syndicate_id === activeSyndicate);
+  }
+
+  // Search: match syndicate name OR title/summary
+  if (filters.search.trim()) {
+    const q = filters.search.toLowerCase();
+    const matchedSyndicateIds = SYNDICATES
+      .filter((s) => s.name.toLowerCase().includes(q))
+      .map((s) => s.id);
+    result = result.filter(
+      (n) =>
+        n.title.toLowerCase().includes(q) ||
+        n.summary?.toLowerCase().includes(q) ||
+        matchedSyndicateIds.includes(n.syndicate_id)
+    );
+  }
+
+  // Dropdown syndicate filter (from NewsFilters)
+  if (filters.syndicateId) {
+    result = result.filter((n) => n.syndicate_id === filters.syndicateId);
+  }
+
+  // Content type filter
+  if (filters.contentType) {
+    result = result.filter((n) => n.content_type === filters.contentType);
+  }
+
+  // Sort
+  result.sort((a, b) => {
+    const da = new Date(a.published_at ?? a.fetched_at ?? "").getTime();
+    const db = new Date(b.published_at ?? b.fetched_at ?? "").getTime();
+    return filters.sort === "latest" ? db - da : da - db;
   });
-}
 
-// ─── Skeleton Card ────────────────────────────────────────────────────────────
-function SkeletonCard() {
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-1 bg-slate-200" />
-      <div className="h-36 bg-slate-100" />
-      <div className="p-5 space-y-3">
-        <div className="h-3 bg-slate-100 rounded w-1/3" />
-        <div className="h-4 bg-slate-200 rounded w-3/4" />
-        <div className="h-3 bg-slate-100 rounded w-full" />
-        <div className="h-3 bg-slate-100 rounded w-2/3" />
-        <div className="h-8 bg-slate-100 rounded mt-4" />
-      </div>
-    </div>
-  );
-}
-
-// ─── News Card ────────────────────────────────────────────────────────────────
-function NewsCard({ item, locale }: { item: NewsItemWithSyndicate; locale: string }) {
-  const [saved, setSaved] = useState(false);
-
-  const displayDate = item.published_at ?? item.fetched_at;
-  const todayItem = isToday(displayDate);
-
-  const syndicate = item.syndicates ?? null;
-  const syndicateSlug = syndicate?.slug ?? null;
-
-  // RTL layout for Arabic
-  const isRTL = locale === "ar";
-
-  return (
-    <article
-      dir={isRTL ? "rtl" : "ltr"}
-      className="group relative bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-[#1a3560]/30 transition-all duration-300 flex flex-col"
-    >
-      {/* Today Banner */}
-      {todayItem && (
-        <div className="bg-yellow-400 px-4 py-1.5 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-yellow-700 animate-pulse" />
-          <span className="text-xs font-bold text-yellow-900 uppercase tracking-widest">
-            {locale === "ar" ? "اليوم" : locale === "fr" ? "Aujourd'hui" : "Today"}
-          </span>
-        </div>
-      )}
-
-      {/* Top navy accent bar */}
-      <div className="h-1 bg-gradient-to-r from-[#1a3560] to-[#2d5aa0]" />
-
-      {/* Image or placeholder */}
-      <div className="h-36 bg-gradient-to-br from-[#0d2240]/5 to-[#1a3560]/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-        {item.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={item.image_url}
-            alt={item.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <Newspaper size={32} className="text-[#1a3560]/20" />
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center justify-between mb-3 gap-2">
-          {item.language && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border bg-blue-50 text-blue-700 border-blue-200">
-              {item.language}
-            </span>
-          )}
-          <button
-            onClick={() => setSaved(!saved)}
-            className="ml-auto text-slate-300 hover:text-rose-400 transition-colors"
-          >
-            <Heart
-              size={14}
-              fill={saved ? "currentColor" : "none"}
-              className={saved ? "text-rose-400" : ""}
-            />
-          </button>
-        </div>
-
-        <h3 className="text-sm font-bold text-[#0d2240] leading-snug mb-2 line-clamp-2 group-hover:text-[#2d5aa0] transition-colors">
-          {item.title}
-        </h3>
-
-        {item.summary && (
-          <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-3 flex-1">
-            {item.summary}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between gap-2 mb-4">
-          {syndicate && (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <div className="w-5 h-5 rounded-full bg-[#1a3560] flex items-center justify-center flex-shrink-0">
-                <span className="text-[9px] text-white font-bold">
-                  {syndicate.name.charAt(0)}
-                </span>
-              </div>
-              <span className="text-[11px] text-slate-500 font-medium truncate">
-                {syndicate.name}
-              </span>
-            </div>
-          )}
-          {displayDate && (
-            <span className="flex items-center gap-1 text-[10px] text-slate-400 flex-shrink-0">
-              <Calendar size={10} />
-              {formatDate(displayDate, locale)}
-            </span>
-          )}
-        </div>
-
-        <div className="flex gap-2 mt-auto pt-3 border-t border-slate-100">
-          {syndicateSlug ? (
-            <Link
-              href={`/${locale}/syndicates/${syndicateSlug}`}
-              className="flex-1 text-center text-xs font-semibold text-white bg-[#1a3560] hover:bg-[#0d2240] rounded-lg py-2 transition"
-            >
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
-            </Link>
-          ) : (
-            <span className="flex-1 text-center text-xs font-semibold text-slate-400 bg-slate-100 rounded-lg py-2 cursor-not-allowed">
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
-            </span>
-          )}
-
-          {item.source_url && (
-            <a
-              href={item.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
-            >
-              <ExternalLink size={11} />
-              {locale === "ar" ? "المصدر" : locale === "fr" ? "Source" : "Source"}
-            </a>
-          )}
-        </div>
-      </div>
-    </article>
-  );
+  return result;
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function NewsPage() {
-  const params = useParams();
-  // locale comes from the [locale] dynamic segment — e.g. "en", "ar", "fr"
-  const locale = (params.locale as string) ?? "ar";
-  const isRTL = locale === "ar";
-
-  const [search, setSearch] = useState("");
   const [activeSyndicate, setActiveSyndicate] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"latest" | "featured">("latest");
-  const [newsList, setNewsList] = useState<NewsItemWithSyndicate[]>([]);
-  const [syndicates, setSyndicates] = useState<SyndicateFilter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
+  const [filters, setFilters] = useState<NewsFiltersState>({
+    search: "",
+    syndicateId: "",
+    contentType: "",
+    sort: "latest",
+  });
 
-  // Re-fetch whenever locale changes (user switches language)
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        setError(false);
-        const [news, syns] = await Promise.all([
-          getAllNews(locale), // ← passes locale to trigger Claude translation
-          getSyndicatesWithCount(),
-        ]);
-        setNewsList(news);
-        setSyndicates(syns);
-      } catch (err) {
-        console.error("Failed to fetch news:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [locale]); // ← locale in dep array = refetch on language switch
+  const filtered = useMemo(
+    () => applyFilters(NEWS_LIST, filters, activeSyndicate),
+    [filters, activeSyndicate]
+  );
 
-  const filtered = useMemo(() => {
-    let items = newsList;
+  const handleSidebarClick = (id: string) => {
+    setActiveSyndicate((prev) => (prev === id ? null : id));
+    setFilters((f) => ({ ...f, search: "", syndicateId: "" }));
+  };
 
-    if (activeSyndicate) {
-      items = items.filter((n) => n.syndicates?.slug === activeSyndicate);
-    }
-
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      const matchedSlugs = syndicates
-        .filter((s) => s.name.toLowerCase().includes(q))
-        .map((s) => s.slug);
-      items = items.filter(
-        (n) =>
-          n.title.toLowerCase().includes(q) ||
-          n.summary?.toLowerCase().includes(q) ||
-          matchedSlugs.includes(n.syndicates?.slug ?? "")
-      );
-    }
-
-    return items;
-  }, [search, activeSyndicate, newsList, syndicates]);
+  const handleFiltersChange = (next: NewsFiltersState) => {
+    setFilters(next);
+    if (next.syndicateId || next.search) setActiveSyndicate(null);
+  };
 
   // ── UI strings per locale ─────────────────────────────────────────────────
   const t = {
@@ -282,35 +242,18 @@ export default function NewsPage() {
       "Translating news…",
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50" dir={isRTL ? "rtl" : "ltr"}>
-      {/* ── Hero ── */}
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(135deg, #0d1f3c 0%, #1a3560 60%, #1e4080 100%)",
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
-        <div className="relative max-w-5xl mx-auto px-6 py-16 text-center">
-          <span className="inline-block bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-5">
-            {t.portal}
-          </span>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-3">
-            {t.heading}
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section className="border-b border-slate-200 bg-white">
+        <div className="max-w-5xl mx-auto px-6 py-12 text-center">
+          
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-3">
+            New News!!
           </h1>
-          <p className="text-[#a8c0e0] text-base mb-8 max-w-md mx-auto">
-            {t.subtitle}
+          <p className="text-slate-500 text-base mb-8 max-w-md mx-auto">
+            Check latest updates, decisions, and announcements from Lebanese professional syndicates.
           </p>
 
+          {/* Hero search — searches by syndicate name */}
           <div className="max-w-xl mx-auto flex gap-3">
             <div className="flex-1 relative">
               <Search
@@ -318,144 +261,64 @@ export default function NewsPage() {
                 size={16}
               />
               <input
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setActiveSyndicate(null);
-                }}
-                placeholder={t.searchPlaceholder}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white text-sm text-slate-800 shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                value={filters.search}
+                onChange={(e) =>
+                  handleFiltersChange({ ...filters, search: e.target.value, syndicateId: "" })
+                }
+                placeholder="Search by syndicate name or keyword..."
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-700/20"
               />
             </div>
-            <button className="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold text-sm px-5 py-3 rounded-xl transition shadow-md whitespace-nowrap">
-              {t.searchBtn}
+            <button className="bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm px-5 py-3 rounded-xl transition whitespace-nowrap">
+              Search
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── Body ── */}
+      {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <aside className="lg:w-64 flex-shrink-0">
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 sticky top-6">
-            <h2 className="text-xs font-extrabold text-[#0d2240] uppercase tracking-widest mb-4">
-              {t.syndicateLabel}
-            </h2>
-            <ul className="space-y-1">
-              <li>
-                <button
-                  onClick={() => setActiveSyndicate(null)}
-                  className={
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition " +
-                    (activeSyndicate === null
-                      ? "bg-[#1a3560] text-white font-semibold"
-                      : "text-slate-600 hover:bg-slate-50")
-                  }
-                >
-                  <span>{t.allSyndicates}</span>
-                  <span
-                    className={
-                      "text-[11px] px-2 py-0.5 rounded-full font-semibold " +
-                      (activeSyndicate === null
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 text-slate-500")
-                    }
-                  >
-                    {newsList.length}
-                  </span>
-                </button>
-              </li>
-              {loading
-                ? [...Array(3)].map((_, i) => (
-                    <li key={i}>
-                      <div className="h-9 bg-slate-100 rounded-lg animate-pulse mx-1 my-1" />
-                    </li>
-                  ))
-                : syndicates.map((syn) => (
-                    <li key={syn.id}>
-                      <button
-                        onClick={() => {
-                          setActiveSyndicate(
-                            syn.slug === activeSyndicate ? null : syn.slug
-                          );
-                          setSearch("");
-                        }}
-                        className={
-                          "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition " +
-                          (activeSyndicate === syn.slug
-                            ? "bg-[#1a3560] text-white font-semibold"
-                            : "text-slate-600 hover:bg-slate-50")
-                        }
-                      >
-                        <span className="text-left leading-snug">
-                          {syn.name}
-                        </span>
-                        <span
-                          className={
-                            "text-[11px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2 " +
-                            (activeSyndicate === syn.slug
-                              ? "bg-white/20 text-white"
-                              : "bg-slate-100 text-slate-500")
-                          }
-                        >
-                          {syn.count}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-            </ul>
-          </div>
-        </aside>
 
-        {/* Main */}
+   
+
+
+        {/* ── Main ── */}
         <main className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
             <div>
-              <h2 className="text-xl font-extrabold text-[#0d2240]">
-                {t.latestNews}
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">{t.exploreLabel}</p>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setActiveTab("latest")}
-                className={
-                  "text-xs font-semibold px-4 py-2 rounded-lg transition " +
-                  (activeTab === "latest"
-                    ? "bg-[#1a3560] text-white shadow"
-                    : "bg-white border border-slate-200 text-slate-600 hover:border-[#1a3560]/40")
-                }
-              >
-                {t.latestNews}
-              </button>
-              <button
-                onClick={() => setActiveTab("featured")}
-                className={
-                  "text-xs font-semibold px-4 py-2 rounded-lg transition " +
-                  (activeTab === "featured"
-                    ? "bg-[#1a3560] text-white shadow"
-                    : "bg-white border border-slate-200 text-slate-600 hover:border-[#1a3560]/40")
-                }
-              >
-                {t.featured}
-              </button>
+              <h2 className="text-xl font-extrabold text-blue-700">Latest News</h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Explore suggested syndicate updates
+              </p>
             </div>
           </div>
 
-          {/* Translation in-progress banner (shown while loading non-Arabic) */}
-          {loading && locale !== "ar" && t.translating && (
-            <div className="flex items-center gap-2 mb-4 text-xs text-[#1a3560] bg-blue-50 border border-blue-100 px-4 py-2.5 rounded-xl">
-              <span className="w-2 h-2 rounded-full bg-[#1a3560] animate-pulse flex-shrink-0" />
-              {t.translating}
-            </div>
-          )}
+          {/* Filters bar */}
+          <div className="mb-6">
+            <NewsFilters
+              filters={filters}
+              onChange={handleFiltersChange}
+              syndicates={SYNDICATES}
+              totalResults={filtered.length}
+            />
+          </div>
 
-          {/* Error state */}
-          {error && (
+          {/* Grid */}
+          {filtered.length === 0 ? (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium text-red-500">{t.errorMsg}</p>
+              <p className="text-sm font-medium">No news found for your search.</p>
+              <button
+                onClick={() => {
+                  setActiveSyndicate(null);
+                  setFilters({ search: "", syndicateId: "", contentType: "", sort: "latest" });
+                }}
+                className="mt-4 text-xs text-blue-700 underline underline-offset-2 hover:no-underline"
+              >
+                Clear filters
+              </button>
             </div>
           )}
 
@@ -480,12 +343,22 @@ export default function NewsPage() {
           {!loading && !error && filtered.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {filtered.map((item) => (
-                <NewsCard key={item.id} item={item} locale={locale} />
+                <NewsCard
+                  key={item.id}
+                  item={item}
+                  onReadMore={setSelectedItem}
+                />
               ))}
             </div>
           )}
         </main>
       </div>
+
+      {/* ── Modal ── */}
+      <NewsDetailsModal
+        item={selectedItem}
+        onClose={() => setSelectedItem(null)}
+      />
     </div>
   );
 }
