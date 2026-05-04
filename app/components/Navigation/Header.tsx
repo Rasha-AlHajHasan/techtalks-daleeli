@@ -35,7 +35,7 @@ const Header = () => {
   const navLinks = [
     { href: "/syndicates", label: t("navLinks.syndicates") },
     { href: "/news", label: t("navLinks.news") },
-    { href: "/services/contract-review", label: t("navLinks.services") },
+    { href: "/services", label: t("navLinks.services") },
     { href: "/about", label: t("navLinks.about") },
   ];
 
