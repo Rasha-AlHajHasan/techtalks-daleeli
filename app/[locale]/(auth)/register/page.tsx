@@ -8,6 +8,13 @@ import { supabase } from "@/app/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowRight } from "lucide-react";
 
 type Syndicate = {
@@ -101,9 +108,6 @@ export default function RegisterPage() {
     router.push("/profile");
     router.refresh();
   };
-
-  const selectClass =
-    "w-full h-11 rounded-lg border border-input bg-transparent px-3 py-1 text-sm text-foreground outline-none transition focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
   return (
     <div className="flex flex-1 min-h-screen">
@@ -207,20 +211,22 @@ export default function RegisterPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="syndicate">Syndicate</Label>
-              <select
-                id="syndicate"
-                className={selectClass}
+              <Select
                 value={syndicateId}
-                onChange={(e) => setSyndicateId(e.target.value)}
+                onValueChange={setSyndicateId}
                 required
               >
-                <option value="">Select a syndicate</option>
-                {syndicates.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="syndicate" className="w-full h-11">
+                  <SelectValue placeholder="Select a syndicate" />
+                </SelectTrigger>
+                <SelectContent>
+                  {syndicates.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <Button
@@ -250,15 +256,23 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <p className="mt-8 text-sm text-slate-500 text-center">
-            Already have an account?{" "}
+          <div className="mt-8 space-y-4 text-center">
+            <p className="text-sm text-slate-500">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Sign in here
+              </Link>
+            </p>
             <Link
-              href="/login"
-              className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
+              href="/"
+              className="inline-block text-sm font-semibold text-slate-400 hover:text-slate-700 transition"
             >
-              Sign in here
+              Back to Home
             </Link>
-          </p>
+          </div>
 
           <p className="text-xs text-slate-300 text-center mt-12">
             © {new Date().getFullYear()} Daleeli · Lebanese Professional
