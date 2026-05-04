@@ -1,4 +1,4 @@
-import { supabase } from "@/app/lib/supabase/client";
+import { supabase as supabase } from '@/app/lib/supabase/browser'
 
 export type DBNewsItem = {
   id: string;
