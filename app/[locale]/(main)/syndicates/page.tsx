@@ -11,7 +11,7 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import SyndicateCard from "../../components/Cards/SyndicateCard";
+import SyndicateCard from "../../../components/Cards/SyndicateCard";
 
 // This dummy data will be replaced by DB data, so no translation needed
 const syndicates = [
