@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import type { DBNewsItem, NewsItemWithSyndicate, SyndicateInfo } from "@/lib/news/queries";
+import type {
+  DBNewsItem,
+  NewsItemWithSyndicate,
+  SyndicateInfo,
+} from "@/app/lib/news/queries";
 
 // ─── Language map ─────────────────────────────────────────────────────────────
 const LANGUAGE_MAP: Record<string, string> = {
@@ -33,7 +37,7 @@ const SEPARATOR = " ||| ";
 
 async function myMemoryRequest(
   text: string,
-  targetLang: string
+  targetLang: string,
 ): Promise<string> {
   const email = process.env.MYMEMORY_EMAIL
     ? `&de=${process.env.MYMEMORY_EMAIL}`
@@ -57,7 +61,10 @@ async function myMemoryRequest(
 }
 
 // ─── Translate a single field (splits into 490-char chunks if needed) ─────────
-async function translateField(text: string, targetLang: string): Promise<string> {
+async function translateField(
+  text: string,
+  targetLang: string,
+): Promise<string> {
   if (!text?.trim()) return text;
   if (text.length <= 490) return myMemoryRequest(text, targetLang);
 
@@ -75,7 +82,7 @@ async function translateField(text: string, targetLang: string): Promise<string>
 
   // Translate all chunks of this field in parallel
   const translated = await Promise.all(
-    chunks.map((chunk) => myMemoryRequest(chunk, targetLang))
+    chunks.map((chunk) => myMemoryRequest(chunk, targetLang)),
   );
 
   return translated.join(" ");
@@ -84,7 +91,7 @@ async function translateField(text: string, targetLang: string): Promise<string>
 // ─── Translate one news item — all 3 fields in parallel ──────────────────────
 async function translateNewsItem(
   item: NewsItemWithSyndicate,
-  targetLang: string
+  targetLang: string,
 ): Promise<NewsItemWithSyndicate> {
   const translated = { ...item };
 
@@ -93,8 +100,8 @@ async function translateNewsItem(
     FIELDS_TO_TRANSLATE.map((field) =>
       item[field as TranslatableField]
         ? translateField(item[field as TranslatableField] as string, targetLang)
-        : Promise.resolve(item[field as TranslatableField] as string)
-    )
+        : Promise.resolve(item[field as TranslatableField] as string),
+    ),
   );
 
   FIELDS_TO_TRANSLATE.forEach((field, i) => {
@@ -115,7 +122,7 @@ const BATCH_SIZE = 5;
 
 async function translateAllNews(
   news: NewsItemWithSyndicate[],
-  targetLang: string
+  targetLang: string,
 ): Promise<NewsItemWithSyndicate[]> {
   const results: NewsItemWithSyndicate[] = [];
 
@@ -124,7 +131,7 @@ async function translateAllNews(
 
     // All articles in this batch translate in parallel
     const batchResults = await Promise.all(
-      batch.map((item) => translateNewsItem(item, targetLang))
+      batch.map((item) => translateNewsItem(item, targetLang)),
     );
 
     results.push(...batchResults);
@@ -141,7 +148,7 @@ export async function GET(request: NextRequest) {
   if (!LANGUAGE_MAP[locale]) {
     return NextResponse.json(
       { error: `Unsupported locale: ${locale}` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -149,7 +156,8 @@ export async function GET(request: NextRequest) {
 
   const { data, error } = await supabase
     .from("news_items")
-    .select(`
+    .select(
+      `
       id,
       syndicate_id,
       title,
@@ -169,7 +177,8 @@ export async function GET(request: NextRequest) {
         slug,
         logo_url
       )
-    `)
+    `,
+    )
     .eq("is_active", true)
     .eq("status", "published")
     .order("published_at", { ascending: false });

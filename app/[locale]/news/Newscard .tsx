@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Heart, MapPin, Clock, Tag } from "lucide-react";
-import type { NewsItem, ContentType } from "@/lib/news/types";
+import type { NewsItem, ContentType } from "@/app/lib/news/types";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
 const CONTENT_TYPE_COLORS: Record<ContentType, string> = {
   news: "text-blue-600 bg-blue-50 border-blue-200",
   announcements: "text-amber-600 bg-amber-50 border-amber-200",
-  decisions: "text-[#1a3560] bg-[#1a3560]/8 border-[#1a3560]/20",
+  decisions: "text-[1d4ed8] bg-[1d4ed8]/8 border-[1d4ed8]/20",
   activities: "text-green-600 bg-green-50 border-green-200",
   circulars: "text-orange-600 bg-orange-50 border-orange-200",
   events: "text-teal-600 bg-teal-50 border-teal-200",
@@ -57,7 +57,8 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
   const [saved, setSaved] = useState(false);
   const displayDate = item.published_at ?? item.fetched_at ?? "";
   const todayItem = isToday(displayDate);
-  const typeColor = CONTENT_TYPE_COLORS[item.content_type] ?? CONTENT_TYPE_COLORS.news;
+  const typeColor =
+    CONTENT_TYPE_COLORS[item.content_type] ?? CONTENT_TYPE_COLORS.news;
   const typeLabel = CONTENT_TYPE_LABELS[item.content_type] ?? item.content_type;
 
   return (
@@ -65,28 +66,31 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
       className={`
         group relative bg-white border rounded-2xl overflow-hidden
         hover:shadow-lg transition-all duration-200 flex flex-col
-        ${todayItem
-          ? "border-yellow-300 shadow-yellow-100/60 shadow-sm"
-          : "border-slate-200 hover:border-[#1a3560]/25"}
+        ${
+          todayItem
+            ? "border-blue-200 shadow-blue-100/60 shadow-sm"
+            : "border-slate-200 hover:border-[1d4ed8]/25"
+        }
       `}
     >
       {/* ── Today banner ── */}
       {todayItem && (
-        <div className="bg-yellow-400 px-4 py-1.5 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-yellow-800 animate-pulse" />
-          <span className="text-[10px] font-bold text-yellow-900 uppercase tracking-widest">
+        <div className="bg-blue-100 px-4 py-1.5 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-100 animate-pulse" />
+          <span className="text-[10px] font-bold text-blue-800 uppercase tracking-widest">
             Today
           </span>
         </div>
       )}
 
       <div className="p-5 flex flex-col flex-1 gap-3">
-
         {/* ── Row 1: meta tags + save ── */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             {/* Content type badge */}
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide ${typeColor}`}>
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] font-semibold uppercase tracking-wide ${typeColor}`}
+            >
               <Tag size={9} />
               {typeLabel}
             </span>
@@ -112,9 +116,11 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
             onClick={() => setSaved(!saved)}
             aria-label={saved ? "Unsave" : "Save"}
             className={`w-7 h-7 flex items-center justify-center rounded-full border transition flex-shrink-0
-              ${saved
-                ? "border-rose-200 bg-rose-50 text-rose-400"
-                : "border-slate-200 bg-white text-slate-300 hover:text-rose-400 hover:border-rose-200"}`}
+              ${
+                saved
+                  ? "border-rose-200 bg-rose-50 text-rose-400"
+                  : "border-slate-200 bg-white text-slate-300 hover:text-rose-400 hover:border-rose-200"
+              }`}
           >
             <Heart size={13} fill={saved ? "currentColor" : "none"} />
           </button>
@@ -122,7 +128,7 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
 
         {/* ── Row 2: Title ── */}
         <div>
-          <h3 className="text-[15px] font-bold text-[#0d2240] leading-snug line-clamp-2 group-hover:text-[#1a3560] transition-colors">
+          <h3 className="text-[15px] font-bold text-[1d4ed8] leading-snug line-clamp-2 group-hover:text-[1d4ed8] transition-colors">
             {item.title}
           </h3>
         </div>
@@ -141,12 +147,14 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
             {item.syndicate && (
               <span className="flex items-center gap-1 text-[11px] text-slate-500 min-w-0">
                 <MapPin size={11} className="text-slate-400 flex-shrink-0" />
-                <span className="truncate font-medium">{item.syndicate.name}</span>
+                <span className="truncate font-medium">
+                  {item.syndicate.name}
+                </span>
               </span>
             )}
 
             {/* Content type as "category" tag */}
-            <span className="flex items-center gap-1 text-[11px] text-[#1a3560] font-semibold bg-[#1a3560]/6 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 text-[11px] text-[1d4ed8] font-semibold bg-[1d4ed8]/6 px-2 py-0.5 rounded-full">
               {typeLabel}
             </span>
           </div>
@@ -158,7 +166,7 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
                 href={item.source_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 text-slate-400 hover:text-[#1a3560] hover:border-[#1a3560]/30 transition"
+                className="flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 text-slate-400 hover:text-[1d4ed8] hover:border-[1d4ed8]/30 transition"
                 title="View Source"
               >
                 <ExternalLink size={12} />
@@ -166,7 +174,7 @@ export default function NewsCard({ item, onReadMore }: NewsCardProps) {
             )}
             <button
               onClick={() => onReadMore?.(item)}
-              className="bg-[#1a3560] hover:bg-[#0d2240] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap"
+              className="bg-[1d4ed8] hover:bg-[1d4ed8] text-white text-[11px] font-bold px-4 py-1.5 rounded-lg transition whitespace-nowrap"
             >
               Read More
             </button>
