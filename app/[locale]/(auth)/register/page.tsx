@@ -110,16 +110,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-1 min-h-screen">
-      <div className="flex flex-1 items-center justify-center px-8 py-16 sm:px-12 bg-white overflow-y-auto">
-        <div className="w-full max-w-90 flex flex-col">
-          <Link href="/" className="flex items-center gap-3 w-fit mb-10">
+    <div className="flex h-dvh min-h-0 flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-6 py-4 sm:px-10">
+        <div className="flex w-full max-w-xl flex-col">
+          <Link href="/" className="mb-4 flex w-fit items-center gap-3">
             <Image
               src="/Daleeli-logo-navy.svg"
               alt="Daleeli Logo"
               width={100}
               height={100}
-              className="h-11 w-auto"
+              className="h-9 w-auto"
               priority
             />
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
@@ -127,34 +127,50 @@ export default function RegisterPage() {
             </span>
           </Link>
 
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-3 block">
+          <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700">
             Get Started
           </span>
 
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">
+          <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-slate-900">
             Create your account
           </h1>
 
-          <p className="text-sm text-slate-500 leading-relaxed mb-8">
+          <p className="mb-3 text-sm leading-relaxed text-slate-500">
             Register with your official syndicate information to access services
             and guidance.
           </p>
 
-          <form onSubmit={handleRegister} className="space-y-5">
-            <div className="space-y-1.5">
-              <Label htmlFor="full-name">Full Name</Label>
-              <Input
-                id="full-name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Enter your full name"
-                required
-                className="h-11"
-              />
+          <form onSubmit={handleRegister} className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="full-name">Full Name</Label>
+                <Input
+                  id="full-name"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                  className="h-10"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Professional Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  required
+                  className="h-10"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
@@ -163,7 +179,7 @@ export default function RegisterPage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="+961 ..."
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
               <div className="space-y-1.5">
@@ -175,64 +191,52 @@ export default function RegisterPage() {
                   onChange={(e) => setMemberNumber(e.target.value)}
                   placeholder="Min. 6 digits"
                   required
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Professional Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                autoComplete="email"
-                required
-                className="h-11"
-              />
-            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  minLength={6}
+                  required
+                  className="h-10"
+                />
+              </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="new-password"
-                minLength={6}
-                required
-                className="h-11"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="syndicate">Syndicate</Label>
-              <Select
-                value={syndicateId}
-                onValueChange={setSyndicateId}
-                required
-              >
-                <SelectTrigger id="syndicate" className="w-full h-11">
-                  <SelectValue placeholder="Select a syndicate" />
-                </SelectTrigger>
-                <SelectContent>
-                  {syndicates.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1.5">
+                <Label htmlFor="syndicate">Syndicate</Label>
+                <Select
+                  value={syndicateId}
+                  onValueChange={setSyndicateId}
+                  required
+                >
+                  <SelectTrigger id="syndicate" className="h-10 w-full">
+                    <SelectValue placeholder="Select a syndicate" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {syndicates.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 h-11"
+              className="h-10 w-full bg-blue-700 hover:bg-blue-800"
             >
               {loading ? (
                 "Creating account..."
@@ -256,7 +260,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          <div className="mt-8 space-y-4 text-center">
+          <div className="mt-4 space-y-1 text-center">
             <p className="text-sm text-slate-500">
               Already have an account?{" "}
               <Link
@@ -274,7 +278,7 @@ export default function RegisterPage() {
             </Link>
           </div>
 
-          <p className="text-xs text-slate-300 text-center mt-12">
+          <p className="mt-4 text-center text-xs text-slate-300">
             © {new Date().getFullYear()} Daleeli · Lebanese Professional
             Syndicates Portal
           </p>
@@ -297,7 +301,7 @@ export default function RegisterPage() {
             </span>
           </div>
           <p className="text-xl font-semibold leading-snug text-white max-w-sm">
-            Join Lebanon's professional community — one unified platform for all
+            Join Lebanon&apos;s professional community — one unified platform for all
             syndicates.
           </p>
           <div className="mt-8 flex items-center gap-8">

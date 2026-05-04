@@ -141,16 +141,16 @@ export default function LoginPage() {
   const isRecoveryMode = mode === "recovery";
 
   return (
-    <div className="flex flex-1 min-h-screen">
-      <div className="flex flex-1 items-center justify-center px-8 py-16 sm:px-12 bg-white">
+    <div className="flex h-dvh min-h-0 flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-white px-6 py-6 sm:px-10 sm:py-8">
         <div className="w-full max-w-90 flex flex-col">
-          <Link href="/" className="flex items-center gap-3 w-fit mb-10">
+          <Link href="/" className="mb-6 flex w-fit items-center gap-3">
             <Image
               src="/Daleeli-logo-navy.svg"
               alt="Daleeli Logo"
               width={100}
               height={100}
-              className="h-11 w-auto"
+              className="h-10 w-auto"
               priority
             />
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
@@ -174,7 +174,7 @@ export default function LoginPage() {
                 : "Sign in to your account"}
           </h1>
 
-          <p className="text-sm text-slate-500 leading-relaxed mb-8">
+          <p className="mb-6 text-sm leading-relaxed text-slate-500">
             {isRecoveryMode
               ? "Choose a strong new password for your Daleeli account."
               : isForgotMode
@@ -183,7 +183,7 @@ export default function LoginPage() {
           </p>
 
           {isRecoveryMode ? (
-            <form onSubmit={handleUpdatePassword} className="space-y-5">
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="new-password">New Password</Label>
                 <Input
@@ -195,13 +195,13 @@ export default function LoginPage() {
                   minLength={6}
                   autoComplete="new-password"
                   required
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-700 hover:bg-blue-800 h-11"
+                className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
                   "Updating..."
@@ -213,7 +213,7 @@ export default function LoginPage() {
               </Button>
             </form>
           ) : isForgotMode ? (
-            <form onSubmit={handleForgotPassword} className="space-y-5">
+            <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="forgot-email">Professional Email</Label>
                 <Input
@@ -224,13 +224,13 @@ export default function LoginPage() {
                   placeholder="name@example.com"
                   autoComplete="email"
                   required
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-700 hover:bg-blue-800 h-11"
+                className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
                   "Sending..."
@@ -252,7 +252,7 @@ export default function LoginPage() {
               </button>
             </form>
           ) : (
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email">Professional Email</Label>
                 <Input
@@ -263,7 +263,7 @@ export default function LoginPage() {
                   placeholder="name@example.com"
                   autoComplete="email"
                   required
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
 
@@ -289,14 +289,14 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   autoComplete="current-password"
                   required
-                  className="h-11"
+                  className="h-10"
                 />
               </div>
 
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-700 hover:bg-blue-800 h-11"
+                className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
                   "Authenticating..."
@@ -321,7 +321,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className="mt-8 space-y-4 text-center">
+          <div className="mt-6 space-y-3 text-center">
             {!isRecoveryMode && (
               <p className="text-sm text-slate-500">
                 Don&apos;t have an account?{" "}
@@ -341,7 +341,7 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <p className="text-xs text-slate-300 text-center mt-12">
+          <p className="mt-6 text-center text-xs text-slate-300">
             © {new Date().getFullYear()} Daleeli · Lebanese Professional
             Syndicates Portal
           </p>
@@ -365,7 +365,7 @@ export default function LoginPage() {
           </div>
           <p className="text-xl font-semibold leading-snug text-white max-w-sm">
             Bridging professional excellence with modern accessibility for
-            Lebanon's practitioners.
+            Lebanon&apos;s practitioners.
           </p>
           <div className="mt-8 flex items-center gap-8">
             {[
