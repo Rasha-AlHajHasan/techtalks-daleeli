@@ -321,17 +321,25 @@ export default function LoginPage() {
             </div>
           )}
 
-          {!isRecoveryMode && (
-            <p className="mt-8 text-sm text-slate-500 text-center">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
-              >
-                Register here
-              </Link>
-            </p>
-          )}
+          <div className="mt-8 space-y-4 text-center">
+            {!isRecoveryMode && (
+              <p className="text-sm text-slate-500">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/register"
+                  className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
+                >
+                  Register here
+                </Link>
+              </p>
+            )}
+            <Link
+              href="/"
+              className="inline-block text-sm font-semibold text-slate-400 hover:text-slate-700 transition"
+            >
+              Back to Home
+            </Link>
+          </div>
 
           <p className="text-xs text-slate-300 text-center mt-12">
             © {new Date().getFullYear()} Daleeli · Lebanese Professional
