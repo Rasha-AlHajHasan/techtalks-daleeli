@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/app/lib/supabase/browser";
@@ -26,6 +26,7 @@ const getInitials = (fullName: string | null, email: string | null) => {
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -132,6 +133,7 @@ const Header = () => {
     setAuthUser(null);
     setOpen(false);
     setMobileMenuOpen(false);
+    router.push("/login");
   };
 
   const displayName = authUser?.fullName || authUser?.email;
