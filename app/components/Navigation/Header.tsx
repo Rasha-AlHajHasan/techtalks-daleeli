@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { supabase } from "@/app/lib/supabase/browser";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -27,6 +27,7 @@ const getInitials = (fullName: string | null, email: string | null) => {
 const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const [, startTransition] = useTransition();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,7 +42,9 @@ const Header = () => {
   ];
 
   useEffect(() => {
-    setMobileMenuOpen(false);
+    startTransition(() => {
+      setMobileMenuOpen(false);
+    });
   }, [pathname]);
 
   useEffect(() => {
