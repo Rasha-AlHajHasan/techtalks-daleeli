@@ -6,7 +6,7 @@ import {
   FileText, Upload, ChevronDown, CheckCircle2,
   AlertCircle, Loader2, Globe, X, FileCheck,
 } from "lucide-react";
-import { supabase } from "@/app/lib/supabase/client";
+import { supabase } from "@/app/lib/supabase/browser";
 
 // ─── Countries ────────────────────────────────────────────────────────────────
 const COUNTRIES = [

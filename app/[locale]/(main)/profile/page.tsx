@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/lib/supabase/client";
+import { supabase } from "@/app/lib/supabase/browser";
 
 type Profile = {
   id: string;
