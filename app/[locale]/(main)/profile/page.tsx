@@ -14,7 +14,7 @@ type Profile = {
   syndicates: {
     name: string;
     slug: string;
-  } | null;
+  }[] | null;
 };
 
 export default function ProfilePage() {
@@ -187,7 +187,7 @@ export default function ProfilePage() {
                     Syndicate Connection
                   </p>
                   <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {profile?.syndicates?.name || "Not assigned"}
+                    {profile?.syndicates?.[0]?.name || "Not assigned"}
                   </h3>
                 </div>
 
@@ -199,11 +199,11 @@ export default function ProfilePage() {
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <InfoCard
                   label="Syndicate"
-                  value={profile?.syndicates?.name || "Not assigned"}
+                  value={profile?.syndicates?.[0]?.name || "Not assigned"}
                 />
                 <InfoCard
                   label="Syndicate Slug"
-                  value={profile?.syndicates?.slug || "-"}
+                  value={profile?.syndicates?.[0]?.slug || "-"}
                 />
                 <InfoCard
                   label="Government Number"
