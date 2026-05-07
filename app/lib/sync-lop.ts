@@ -31,7 +31,8 @@ async function findSyndicateId(keywords: string[]) {
 }
 
 async function resolveSourceId(syndicateId: string) {
-  const { data: matchingItem } = await supabase
+  // First try to find from existing news_items
+  const { data: fromNews } = await supabase
     .from('news_items')
     .select('source_id')
     .eq('syndicate_id', syndicateId)
@@ -39,18 +40,17 @@ async function resolveSourceId(syndicateId: string) {
     .limit(1)
     .maybeSingle()
 
-  if (matchingItem?.source_id) {
-    return matchingItem.source_id
-  }
+  if (fromNews?.source_id) return fromNews.source_id
 
-  const { data: fallbackItem } = await supabase
-    .from('news_items')
-    .select('source_id')
-    .not('source_id', 'is', null)
+  // Fallback — look directly in syndicate_sources
+  const { data: fromSources } = await supabase
+    .from('syndicate_sources')
+    .select('id')
+    .eq('syndicate_id', syndicateId)
     .limit(1)
     .maybeSingle()
 
-  return fallbackItem?.source_id ?? null
+  return fromSources?.id ?? null
 }
 
 function slugify(text: string): string {
@@ -111,7 +111,7 @@ export async function syncLOPNews() {
   console.log('Starting LOP news sync...')
 
   // 1. Get the LOP syndicate ID from your DB
-  const syndicateId = await findSyndicateId(['physician', 'physicians', 'doctor', 'doctors', 'lop', 'medical'])
+ const syndicateId = await findSyndicateId(['أطباء', 'بيروت', 'physician', 'doctor', 'lop'])
 
   if (!syndicateId) {
     console.error('LOP syndicate not found in DB')

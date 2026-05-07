@@ -213,3 +213,49 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ news }); // fallback: return Arabic
   }
 }
+
+// ─── POST /api/news ───────────────────────────────────────────────────────────
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // Validate required fields
+    if (!body.title) {
+      return NextResponse.json(
+        { error: "Title is required" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseServer();
+
+    const { data, error } = await supabase
+      .from("news_items")
+      .insert([
+        {
+          title: body.title,
+          summary: body.summary || "",
+          content: body.content || "",
+          source_url: body.source_url || "",
+          published_at: body.published_at || new Date().toISOString(),
+          content_type: body.content_type || "news",
+          is_active: true,
+          status: "published",
+          language: "ar",
+        }
+      ])
+      .select();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (err) {
+    console.error("POST error:", err);
+    return NextResponse.json(
+      { error: "Failed to create news article" },
+      { status: 500 }
+    );
+  }
+}
