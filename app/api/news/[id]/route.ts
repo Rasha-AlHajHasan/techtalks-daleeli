@@ -23,16 +23,21 @@ export async function GET(req: NextRequest) {
     }
 
      return NextResponse.json(data ?? [])
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to load news"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+    const { id } = await params
     const { error } = await supabase
         .from('news_items')
         .delete()
-        .eq('id', params.id)
+        .eq('id', id)
 
         if (error) return NextResponse.json({ error: error.message }, { status: 400 })
         return NextResponse.json({ message: 'News item deleted' })
