@@ -1,5 +1,5 @@
 import { supabase } from '@/app/lib/supabase/client'
-import { scrapeBBANews } from '@/app/lib/scrapers/bba'
+import { scrapeORLBNews } from '@/app/lib/scrapers/orlb'
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message
@@ -19,7 +19,6 @@ async function findSyndicateId(keywords: string[]) {
 }
 
 async function resolveSourceId(syndicateId: string) {
-  // First try to find from existing news_items
   const { data: fromNews } = await supabase
     .from('news_items')
     .select('source_id')
@@ -30,7 +29,6 @@ async function resolveSourceId(syndicateId: string) {
 
   if (fromNews?.source_id) return fromNews.source_id
 
-  // Fallback — look directly in syndicate_sources
   const { data: fromSources } = await supabase
     .from('syndicate_sources')
     .select('id')
@@ -83,18 +81,18 @@ async function saveNewsItem(
   return supabase.from('news_items').insert(payload)
 }
 
-export async function syncBBANews() {
-  console.log('Starting BBA news sync...')
+export async function syncORLBNews() {
+  console.log('Starting ORLB news sync...')
 
-  const syndicateId = await findSyndicateId(['محامين', 'المتدرجين', 'beirut', 'bba'])
+  const syndicateId = await findSyndicateId(['محرري', 'الصحافة', 'محررين', 'orlb'])
   if (!syndicateId) {
-    console.error('BBA syndicate not found')
+    console.error('ORLB syndicate not found')
     return { inserted: 0, found: 0 }
   }
 
   const sourceId = await resolveSourceId(syndicateId)
   if (!sourceId) {
-    console.error('No source_id found for BBA')
+    console.error('No source_id found for ORLB')
     return { inserted: 0, found: 0 }
   }
 
@@ -110,7 +108,7 @@ export async function syncBBANews() {
     .single()
 
   try {
-    const items = await scrapeBBANews()
+    const items = await scrapeORLBNews()
     console.log(`Found ${items.length} articles`)
     let inserted = 0
 

@@ -1,0 +1,102 @@
+[33m4ca4eb7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbackend/remaining-news[m[33m, [m[1;31morigin/backend/remaining-news[m[33m)[m feat: add the remaining news
+[33m3fd7b6c[m fix: update services link in navigation header
+[33m09e2bef[m Merge pull request #31 from Rasha-AlHajHasan/fix/daleeli-conflit
+[33mb9a1c4c[m Merge pull request #30 from Rasha-AlHajHasan/fix/layout-header-footer
+[33m1a5b310[m[33m ([m[1;31morigin/fix/daleeli-conflit[m[33m)[m services version 1
+[33m1488a4f[m editing news layout dashboard with portal
+[33m4944259[m editing news layout dashboard
+[33m615db27[m[33m ([m[1;31morigin/fix/layout-header-footer[m[33m)[m Merge branch 'fix/daleeli-conflit' into fix/layout-header-footer
+[33mb528a22[m fix: adjust header UI layout
+[33m37e5097[m fix: fix conflit
+[33m79ddbc8[m fix: adjust button UI
+[33m51bf283[m fix: adjust LaguageSwitcher UI
+[33m0ee5cd0[m fix: adjust header UI layout
+[33m7bf632b[m Merge pull request #27 from Rasha-AlHajHasan/backend/news
+[33m6eed9d7[m[33m ([m[1;31morigin/backend/news[m[33m)[m Merge branch 'fix/daleeli-conflit' into backend/news
+[33m8cf36d8[m Merge pull request #26 from Rasha-AlHajHasan/fix/news-page
+[33m7f55a27[m[33m ([m[1;31morigin/fix/news-page[m[33m)[m Merge branch 'fix/daleeli-conflit' into fix/news-page
+[33m1689f5a[m Merge pull request #22 from Rasha-AlHajHasan/fix/rename-proxy
+[33mec5d68a[m amendments for news page ui in sprint 3
+[33m4678b2d[m feat: update footer styles and logo size
+[33m7d38a53[m[33m ([m[1;31morigin/feature/news-translation[m[33m, [m[1;32mdaleeli-project[m[33m)[m feat: add news translation with MyMemory API (AR → EN/FR)
+[33ma4a4500[m feat: add syndicates news page with Supabase integration
+[33md8a5829[m[33m ([m[1;32mbackend/news[m[33m)[m feat: add automated OEA and LOP news scraping and api integration
+[33mcc35ea5[m Merge pull request #23 from Rasha-AlHajHasan/feature/edited-logo
+[33meec18a3[m[33m ([m[1;31morigin/feature/edited-logo[m[33m, [m[1;32mfeature/edited-logo[m[33m)[m feat:added 2 logo and different colors
+[33m371eeec[m[33m ([m[1;31morigin/fix/rename-proxy[m[33m)[m fix: rename middleware file to proxy
+[33m328cc57[m Merge pull request #21 from Rasha-AlHajHasan/fix/news-page
+[33m615b335[m fix news page
+[33mdff4a07[m Merge pull request #20 from Rasha-AlHajHasan/fix/news-page
+[33m9961004[m testing changes
+[33m3c96013[m news page v1
+[33mb79edfe[m Merge pull request #19 from Rasha-AlHajHasan/feature/i18n-support
+[33ma332fa6[m chore: update .gitignore
+[33m79bc13d[m feat(ui): integrate shadcn/ui component library
+[33m7a5724e[m feat(ui): integrate shadcn/ui component library
+[33m8af0ed5[m feat(i18n): integrate next-intl plugin into Next.js configuration
+[33m3e29294[m feat(i18n): add routing, request, and navigation configuration files
+[33m70e7be3[m feat(header,i18n): use useTranslations in footer
+[33m15f233a[m feat(header,i18n): use useTranslations in header and add LanguageSwitcher component
+[33m0f6b92c[m feat(ui,i18n): integrate shadcn/ui components and configure translation libraries
+[33mc317dea[m feat(i18n): add LanguageSwitcher component for locale switching
+[33m50fdc28[m feat(i18n): add English translation file (en.json)
+[33m53a1965[m feat(i18n): add localized pages under [locales] directory
+[33m23565ff[m feat(i18n): add localized pages under [locale] directory
+[33mf3e0137[m feat(i18n): add translate.mjs script for handling translations
+[33m713674e[m feat: profile page with syndicate relation and modern UI and  connected  to database
+[33m5d9b7e2[m Merge pull request #18 from Rasha-AlHajHasan/feature/edits-in-navs
+[33m7aeb26f[m[33m ([m[1;31morigin/feature/edits-in-navs[m[33m, [m[1;32mfeature/edits-in-navs[m[33m)[m feat: fixed the logo in the nav and footer
+[33mc3bc9b1[m Merge pull request #17 from Rasha-AlHajHasan/feature/home-page
+[33ma06c26b[m Merge branch 'daleeli-project' into feature/home-page
+[33m95acd73[m refactor: remove supabase data fetching and logging from Page component
+[33m43a1312[m Merge branch 'daleeli-project' into feature/home-page
+[33mb8050e0[m feat: build home page UI
+[33mb9112bf[m Merge pull request #16 from Rasha-AlHajHasan/fix/folder-name-conflit
+[33ma3f1bf6[m fix: fix and merge conflit
+[33mbfe472c[m Merge pull request #15 from Rasha-AlHajHasan/fix/logo-merge
+[33m87071bb[m fix: fix and merge conflit
+[33ma9aae3d[m fix: fix and merge conflit
+[33m007f798[m Merge pull request #14 from Rasha-AlHajHasan/feature/added-logo-nav-footer-user-profile
+[33mae76ead[m Merge branch 'fix/logo-merge' into feature/added-logo-nav-footer-user-profile
+[33m433dfe3[m[33m ([m[1;31morigin/feature/added-logo-nav-footer-user-profile[m[33m, [m[1;32mfeature/added-logo-nav-footer-user-profile[m[33m)[m feat:added logo for nav and footer and also made user profile
+[33m6e80ded[m Merge pull request #13 from Rasha-AlHajHasan/feat/add-auth
+[33m928d3cb[m fix: implement login page
+[33m565b7d4[m feat: implement  login page
+[33m4761b85[m feat:start implementing authentication system with login and registration pages
+[33m200d4d7[m Merge pull request #12 from Rasha-AlHajHasan/feature/signup-syndicate
+[33m3109bf4[m Merge branch 'feat/add-auth' into feature/signup-syndicate
+[33m490ff94[m add register page with syndicate selection and UI improvements , created database tables add database schema, auth trigger, and RLS for Daleel
+[33mf0fcf0b[m Merge pull request #9 from Rasha-AlHajHasan/feature/about-page
+[33mae9bcff[m Merge branch 'daleeli-project' into feature/about-page
+[33m4585dd3[m Merge pull request #8 from Rasha-AlHajHasan/feature/syndicates-page
+[33mf85307a[m[33m ([m[1;31morigin/feature/about-page[m[33m)[m Merge branch 'daleeli-project' into feature/about-page
+[33mc740b87[m[33m ([m[1;31morigin/feature/syndicates-page[m[33m)[m fix: update global layout font
+[33mec94113[m fix: refine Syndicates page design
+[33m6b2dace[m fix: refine SyndicateCard design
+[33m045957f[m style: refine About page
+[33m23fe9c1[m feat: update content
+[33m3224659[m Merge pull request #7 from Rasha-AlHajHasan/fix/next-image-Un-configured-Host
+[33mb1a73ed[m feat: configure image optimization and add lucide-react dependency
+[33mcbc22a6[m Merge pull request #5 from Rasha-AlHajHasan/refactor/header-footer-ui
+[33m8b95339[m refactor: improve footer UI
+[33ma43b4f4[m refactor: improve header UI
+[33me4c3bf8[m feat: build About page UI
+[33mb245208[m feat: add PrincipleCard component
+[33m3bdcc41[m feat: add FeatureCard component
+[33m7df715c[m feat: add OrderCard component
+[33ma3f844e[m Merge pull request #4 from Rasha-AlHajHasan/feature/add-logo-daleeli
+[33mfe6b3f7[m[33m ([m[1;31morigin/feature/add-logo-daleeli[m[33m, [m[1;32mfeature/add-logo-daleeli[m[33m)[m feat: add logo with animations
+[33m33ca612[m Merge pull request #3 from Rasha-AlHajHasan/Scrum-6
+[33m1b6bae0[m Merge pull request #2 from Rasha-AlHajHasan/feature/supabase-setup
+[33m0d6b36f[m Restore LICENSE file
+[33m64e92f5[m Setup Supabase client, env config, and test connection
+[33m6c5f68b[m fix(syndicates): refine list, search input, and UI
+[33m39b6651[m feat: add SyndicateCard component
+[33mece390f[m feat: add header and footer to main layout
+[33m33eae00[m feat: add header component
+[33md83f5ae[m feat: add footer component
+[33m387435c[m docs: add contribution guide
+[33m647405b[m chore: initialize Next.js in daleeli-project
+[33m0197186[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Revise README for detailed project overview
+[33ma4ba8a9[m docs: add initial README with project overview
+[33m9436d95[m Initial commit

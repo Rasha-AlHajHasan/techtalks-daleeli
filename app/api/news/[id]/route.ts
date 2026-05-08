@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-     return NextResponse.json({ news: data ?? [] })
+     return NextResponse.json(data ?? [])
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
