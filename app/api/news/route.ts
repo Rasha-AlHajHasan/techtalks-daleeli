@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseServerClient } from "@/app/lib/auth/request-user";
 import type {
   DBNewsItem,
   NewsItemWithSyndicate,
@@ -16,24 +16,9 @@ const LANGUAGE_MAP: Record<string, string> = {
 const FIELDS_TO_TRANSLATE = ["title", "summary", "content"] as const;
 type TranslatableField = (typeof FIELDS_TO_TRANSLATE)[number];
 
-// ─── Supabase server client ───────────────────────────────────────────────────
-function getSupabaseServer() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) {
-    throw new Error("Missing Supabase env vars");
-  }
-
-  return createClient(url, key);
-}
-
 // ─── MyMemory single request ──────────────────────────────────────────────────
 // MyMemory limit: 500 chars per request.
 // We use a SEPARATOR that is very unlikely to appear in Arabic news text.
-const SEPARATOR = " ||| ";
 
 async function myMemoryRequest(
   text: string,
@@ -93,7 +78,7 @@ async function translateNewsItem(
   item: NewsItemWithSyndicate,
   targetLang: string,
 ): Promise<NewsItemWithSyndicate> {
-  const translated = { ...item };
+  const translated: NewsItemWithSyndicate = { ...item };
 
   // Fire title, summary, content all at the same time
   const results = await Promise.allSettled(
@@ -107,7 +92,13 @@ async function translateNewsItem(
   FIELDS_TO_TRANSLATE.forEach((field, i) => {
     const result = results[i];
     if (result.status === "fulfilled") {
-      (translated as any)[field] = result.value;
+      if (field === "title") {
+        translated.title = result.value ?? item.title;
+      } else if (field === "summary") {
+        translated.summary = result.value;
+      } else {
+        translated.content = result.value;
+      }
     }
     // On rejection keep original Arabic text
   });
@@ -144,6 +135,13 @@ async function translateAllNews(
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const locale = searchParams.get("locale") ?? "ar";
+  const syndicate = searchParams.get("syndicate");
+  const syndicateId = searchParams.get("syndicate_id");
+  const limitParam = Number(searchParams.get("limit"));
+  const limit =
+    Number.isInteger(limitParam) && limitParam > 0
+      ? Math.min(limitParam, 100)
+      : null;
 
   if (!LANGUAGE_MAP[locale]) {
     return NextResponse.json(
@@ -152,9 +150,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const supabase = getSupabaseServer();
+  const supabase = getSupabaseServerClient();
+  const syndicatesJoin = syndicate ? "syndicates!inner" : "syndicates";
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("news_items")
     .select(
       `
@@ -171,7 +170,7 @@ export async function GET(request: NextRequest) {
       status,
       language,
       is_active,
-      syndicates (
+      ${syndicatesJoin} (
         id,
         name,
         slug,
@@ -182,6 +181,20 @@ export async function GET(request: NextRequest) {
     .eq("is_active", true)
     .eq("status", "published")
     .order("published_at", { ascending: false });
+
+  if (syndicateId) {
+    query = query.eq("syndicate_id", syndicateId);
+  }
+
+  if (syndicate) {
+    query = query.eq("syndicates.slug", syndicate);
+  }
+
+  if (limit) {
+    query = query.limit(limit);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Supabase error:", error);
@@ -227,7 +240,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = getSupabaseServer();
+    const supabase = getSupabaseServerClient();
 
     const { data, error } = await supabase
       .from("news_items")
