@@ -1,39 +1,34 @@
-import Link from "next/link";
-import { supabase } from "@/app/lib/supabase/client";
+import PageUI from "./pageUI";
+import { getLocale } from "next-intl/server";
 
-export type Syndicate = {
+export type BackendSyndicate = {
   id: string;
   name: string;
   slug: string;
   description_ar: string | null;
+  sector?: string;
 };
 
-export default async function Home() {
-  const { data, error } = await supabase
-    .from("syndicates")
-    .select("*")
-    .order("created_at", { ascending: false });
+export default async function SyndicatesPage() {
+  const locale = await getLocale();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-  if (error) return <div>Error loading data</div>;
+  let backendData: BackendSyndicate[] = [];
 
-  const syndicates = data as Syndicate[];
+  try {
+    const res = await fetch(`${baseUrl}/api/syndicates?locale=${locale}`, {
+      cache: "no-store",
+    });
 
-  return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">النقابات</h1>
+    if (res.ok) {
+      const data = await res.json();
+      backendData = data.syndicates || [];
+    } else {
+      console.error("API returned an error status:", res.status);
+    }
+  } catch (error) {
+    console.error("Error fetching syndicates from API:", error);
+  }
 
-      <div className="grid gap-4">
-        {syndicates.map((s) => (
-          <Link
-            key={s.id}
-            href={`/syndicates/${s.slug}`}
-            className="border p-4 rounded hover:bg-gray-50"
-          >
-            <h2 className="text-lg font-semibold">{s.name}</h2>
-            <p className="text-sm text-gray-600">{s.description_ar}</p>
-          </Link>
-        ))}
-      </div>
-    </main>
-  );
+  return <PageUI initialData={backendData} />;
 }
