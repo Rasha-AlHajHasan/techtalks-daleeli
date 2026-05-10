@@ -397,81 +397,110 @@ export default function ServicesPage() {
     if (f) handleFileSelect(f);
   }
 
-  async function handleAnalyze() {
-    if (!file || !countryCode) return;
+ async function handleAnalyze() {
+  if (!file || !countryCode) return;
 
-    setStep("loading");
-    setErrorMsg("");
+  setStep("loading");
+  setErrorMsg("");
 
-    try {
-      // 1. Get current user
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error("You must be logged in to analyze a contract.");
+  try {
+    // 1. Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) throw new Error("You must be logged in to analyze a contract.");
 
-      // 2. Insert upload row
-      setLoadingMsg("Creating upload record…");
-      const { data: uploadRow, error: insertError } = await supabase
-        .from("contract_uploads")
-        .insert({
-          user_id: user.id,
-          file_path: "pending",
-          original_filename: file.name,
-          mime_type: file.type,
-          file_size_bytes: file.size,
-          country_code: countryCode,
-          upload_status: "uploaded",
-          extraction_status: "pending",
-          analysis_status: "pending",
-        })
-        .select("id")
-        .single();
+    // 2. Extract text from PDF in the browser
+    setLoadingMsg("Reading your contract…");
+    const pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
-      if (insertError || !uploadRow) {
-        throw new Error(`Failed to create upload record: ${insertError?.message}`);
-      }
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-      // 3. Upload file to storage
-      setLoadingMsg("Uploading your contract…");
-      const filePath = `${user.id}/${uploadRow.id}/${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("contract-uploads")
-        .upload(filePath, file, { contentType: file.type, upsert: false });
-
-      if (uploadError) {
-        throw new Error(`Failed to upload file: ${uploadError.message}`);
-      }
-
-      // 4. Update file_path in DB
-      setLoadingMsg("Saving file path…");
-      await supabase
-        .from("contract_uploads")
-        .update({ file_path: filePath })
-        .eq("id", uploadRow.id);
-
-      // 5. Call Edge Function
-      setLoadingMsg("Analyzing your contract with AI…");
-      const { data, error: fnError } = await supabase.functions.invoke("analyze-contract", {
-        body: { contract_upload_id: uploadRow.id },
-      });
-
-      if (fnError || data?.error) {
-        throw new Error(data?.error ?? fnError?.message ?? "Edge function failed");
-      }
-
-      // 6. Show result
-      const resultText =
-        typeof data === "string"
-          ? data
-          : data?.result ?? data?.analysis ?? JSON.stringify(data);
-
-      setResult(resultText);
-      setStep("result");
-
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : JSON.stringify(err));
-      setStep("error");
+    let extractedText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((item: any) => ("str" in item ? item.str : ""))
+        .join(" ");
+      extractedText += pageText + "\n";
     }
+
+    if (extractedText.trim().length < 50) {
+      throw new Error("Could not extract readable text from the PDF. Please ensure it is not a scanned/image-only PDF.");
+    }
+
+    // Limit to ~12000 chars
+    const contractText = extractedText.trim().slice(0, 12000);
+
+    // 3. Insert upload row
+    setLoadingMsg("Creating upload record…");
+    const { data: uploadRow, error: insertError } = await supabase
+      .from("contract_uploads")
+      .insert({
+        user_id: user.id,
+        file_path: "pending",
+        original_filename: file.name,
+        mime_type: file.type,
+        file_size_bytes: file.size,
+        country_code: countryCode,
+        upload_status: "uploaded",
+        extraction_status: "pending",
+        analysis_status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (insertError || !uploadRow) {
+      throw new Error(`Failed to create upload record: ${insertError?.message}`);
+    }
+
+    // 4. Upload file to storage
+    setLoadingMsg("Uploading your contract…");
+    const filePath = `${user.id}/${uploadRow.id}/${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("contract-uploads")
+      .upload(filePath, file, { contentType: file.type, upsert: false });
+
+    if (uploadError) {
+      throw new Error(`Failed to upload file: ${uploadError.message}`);
+    }
+
+    // 5. Update file_path in DB
+    await supabase
+      .from("contract_uploads")
+      .update({ file_path: filePath })
+      .eq("id", uploadRow.id);
+
+    // 6. Call Edge Function — pass extracted text directly
+    setLoadingMsg("Analyzing your contract with AI…");
+    const { data, error: fnError } = await supabase.functions.invoke("analyze-contract", {
+      body: {
+        contract_upload_id: uploadRow.id,
+        contract_text: contractText,   // ← send text directly
+      },
+    });
+
+    if (fnError || data?.error) {
+      throw new Error(data?.error ?? fnError?.message ?? "Edge function failed");
+    }
+
+    const resultText =
+      typeof data === "string"
+        ? data
+        : data?.result ?? data?.analysis ?? JSON.stringify(data);
+
+    setResult(resultText);
+    setStep("result");
+
+  } catch (err: unknown) {
+    setErrorMsg(err instanceof Error ? err.message : JSON.stringify(err));
+    setStep("error");
   }
+}
 
   function reset() {
     setStep("country");
