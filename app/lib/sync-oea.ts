@@ -1,10 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
-
-// Server-side client with service role key (bypasses RLS)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { supabase } from '@/app/lib/supabase/client'
 import { scrapeOEANews } from './scrapers/oea'
 
 function getErrorMessage(error: unknown) {
@@ -37,7 +31,8 @@ async function findSyndicateId(keywords: string[]) {
 }
 
 async function resolveSourceId(syndicateId: string) {
-  const { data: matchingItem } = await supabase
+  // First try to find from existing news_items
+  const { data: fromNews } = await supabase
     .from('news_items')
     .select('source_id')
     .eq('syndicate_id', syndicateId)
@@ -45,18 +40,17 @@ async function resolveSourceId(syndicateId: string) {
     .limit(1)
     .maybeSingle()
 
-  if (matchingItem?.source_id) {
-    return matchingItem.source_id
-  }
+  if (fromNews?.source_id) return fromNews.source_id
 
-  const { data: fallbackItem } = await supabase
-    .from('news_items')
-    .select('source_id')
-    .not('source_id', 'is', null)
+  // Fallback — look directly in syndicate_sources
+  const { data: fromSources } = await supabase
+    .from('syndicate_sources')
+    .select('id')
+    .eq('syndicate_id', syndicateId)
     .limit(1)
     .maybeSingle()
 
-  return fallbackItem?.source_id ?? null
+  return fromSources?.id ?? null
 }
 
 function slugify(text: string): string {
@@ -117,7 +111,7 @@ export async function syncOEANews() {
   console.log('Starting OEA news sync...')
 
   // 1. Get the Engineers syndicate ID from your DB
-  const syndicateId = await findSyndicateId(['engineer', 'engineers', 'architect', 'oea'])
+ const syndicateId = await findSyndicateId(['مهندسين', 'engineer', 'oea'])
 
   if (!syndicateId) {
     console.error('Engineers syndicate not found in DB')

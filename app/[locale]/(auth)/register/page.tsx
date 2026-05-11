@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bell } from "lucide-react";
 
 type Syndicate = {
   id: string;
@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [syndicateId, setSyndicateId] = useState("");
   const [memberNumber, setMemberNumber] = useState("");
+  const [subscribeToNews, setSubscribeToNews] = useState(true);
   const [syndicates, setSyndicates] = useState<Syndicate[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -85,6 +86,7 @@ export default function RegisterPage() {
           phone_number: phoneNumber,
           syndicate_id: syndicateId,
           syndicate_member_number: memberNumber,
+          subscribe_to_news: subscribeToNews,
         },
       },
     });
@@ -101,6 +103,31 @@ export default function RegisterPage() {
         "Email confirmation is still enabled. Disable it in Supabase.",
       );
       return;
+    }
+
+    if (subscribeToNews) {
+      const token = data.session.access_token;
+      const res = await fetch("/api/news/subscriptions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          syndicate_id: syndicateId,
+          subscribe_to_news: true,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setMessageType("error");
+        setMessage(
+          body?.error ??
+            "Account created, but news subscription could not be saved.",
+        );
+        return;
+      }
     }
 
     setMessageType("success");
@@ -232,6 +259,31 @@ export default function RegisterPage() {
                 </Select>
               </div>
             </div>
+
+            <label
+              htmlFor="subscribe-news"
+              className="flex cursor-pointer items-start gap-3 rounded-xl border border-blue-100 bg-blue-50/70 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+            >
+              <input
+                id="subscribe-news"
+                type="checkbox"
+                checked={subscribeToNews}
+                onChange={(e) => setSubscribeToNews(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-blue-300 text-blue-700 accent-blue-700"
+              />
+              <span className="flex min-w-0 flex-1 gap-2">
+                <Bell className="mt-0.5 size-4 shrink-0 text-blue-700" />
+                <span>
+                  <span className="block text-sm font-bold text-slate-900">
+                    Subscribe to syndicate news
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-600">
+                    Show latest news from your selected syndicate when you sign
+                    in or open Daleeli.
+                  </span>
+                </span>
+              </span>
+            </label>
 
             <Button
               type="submit"
