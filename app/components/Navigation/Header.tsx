@@ -219,8 +219,10 @@ const Header = () => {
 
                   {open && (
                     <div
-                      className={`absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg ${
-                        isRtl ? "text-right" : "text-left"
+                      className={`absolute mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white p-2 shadow-lg ${
+                        isRtl
+                          ? "left-0 text-right"
+                          : "right-0 text-left"
                       }`}
                       dir={isRtl ? "rtl" : "ltr"}
                     >
