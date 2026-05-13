@@ -218,6 +218,87 @@
       "source": "Source"
     }
   },
+  "profile": {
+    "hero": {
+      "badge": "Daleeli Profile",
+      "title": "My Account",
+      "description": "Manage your identity, syndicate connection, and account details from one secure profile.",
+      "cta": "Browse Syndicates"
+    },
+    "sections": {
+      "syndicateConnection": "Syndicate Connection",
+      "accountInformation": "Account Information"
+    },
+    "labels": {
+      "memberNumber": "Member Number",
+      "accountCreated": "Account Created",
+      "syndicate": "Syndicate",
+      "syndicateSlug": "Syndicate Slug",
+      "governmentNumber": "Government Number",
+      "accountStatus": "Account Status",
+      "fullName": "Full Name",
+      "emailAddress": "Email Address",
+      "createdAt": "Created At"
+    },
+    "status": {
+      "activeAccount": "Active Account",
+      "verifiedLink": "Verified Link",
+      "active": "Active"
+    },
+    "fallback": {
+      "user": "User",
+      "notAssigned": "Not assigned"
+    }
+  },
+  "admin": {
+    "news": {
+      "title": "Add News Article",
+      "description": "Copy news from oea.org.lb and paste it here",
+      "fields": {
+        "title": {
+          "label": "Title *",
+          "placeholder": "Article title"
+        },
+        "summary": {
+          "label": "Summary",
+          "placeholder": "Short summary shown on the news card"
+        },
+        "contentType": {
+          "label": "Content Type"
+        },
+        "content": {
+          "label": "Full Content",
+          "placeholder": "Full article content"
+        },
+        "sourceUrl": {
+          "label": "Source URL",
+          "placeholder": "https://www.oea.org.lb/news/article-name"
+        },
+        "publishedDate": {
+          "label": "Published Date"
+        }
+      },
+      "contentTypes": {
+        "news": "News",
+        "announcements": "Announcement",
+        "decisions": "Decision",
+        "activities": "Activity",
+        "circulars": "Circular",
+        "events": "Event",
+        "membershipUpdates": "Membership Update"
+      },
+      "messages": {
+        "titleRequired": "Title is required",
+        "error": "Error: {error}",
+        "success": "Article published successfully!",
+        "genericError": "Something went wrong"
+      },
+      "actions": {
+        "publish": "Publish Article",
+        "publishing": "Publishing..."
+      }
+    }
+  },
   "services": {
     "hero": {
       "badge": "AI-Powered",

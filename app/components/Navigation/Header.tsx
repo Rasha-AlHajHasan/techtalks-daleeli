@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { supabase } from "@/app/lib/supabase/browser";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 
@@ -33,6 +33,8 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const t = useTranslations("header");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
 
   const navLinks = [
     { href: "/syndicates", label: t("navLinks.syndicates") },
@@ -193,7 +195,11 @@ const Header = () => {
             <div className="hidden lg:block">
               {authUser ? (
                 <div className="relative" ref={menuRef}>
-                  <div className="flex items-center gap-3">
+                  <div
+                    className={`flex items-center gap-3 ${
+                      isRtl ? "flex-row-reverse" : ""
+                    }`}
+                  >
                     <span className="text-sm font-bold text-slate-700">
                       {displayName}
                     </span>
@@ -212,7 +218,12 @@ const Header = () => {
                   </div>
 
                   {open && (
-                    <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                    <div
+                      className={`absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg ${
+                        isRtl ? "text-right" : "text-left"
+                      }`}
+                      dir={isRtl ? "rtl" : "ltr"}
+                    >
                       <div className="border-b border-slate-100 px-3 pb-3 pt-2 mb-2">
                         <p className="text-sm font-bold text-slate-900 truncate">
                           {displayName}
@@ -223,7 +234,11 @@ const Header = () => {
                           </p>
                         )}
                       </div>
-                      <Button asChild variant="ghost" className="w-full">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className={`w-full ${isRtl ? "justify-end" : ""}`}
+                      >
                         <Link href="/profile" onClick={() => setOpen(false)}>
                           {t("auth.profile")}
                         </Link>
@@ -231,7 +246,7 @@ const Header = () => {
                       <Button
                         variant="destructive"
                         onClick={handleLogout}
-                        className="w-full"
+                        className={`w-full ${isRtl ? "justify-end" : ""}`}
                       >
                         {t("auth.signOut")}
                       </Button>
