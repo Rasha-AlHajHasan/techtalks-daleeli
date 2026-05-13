@@ -299,6 +299,137 @@
       }
     }
   },
+  "authPages": {
+    "shared": {
+      "logoAlt": "Daleeli Logo",
+      "imageAlt": "Modern corporate environment",
+      "backHome": "Back to Home",
+      "copyright": "© {year} Daleeli · Lebanese Professional Syndicates Portal",
+      "panel": {
+        "badge": "Daleeli Portal"
+      },
+      "stats": {
+        "syndicates": {
+          "value": "6",
+          "label": "Syndicates"
+        },
+        "languages": {
+          "value": "3",
+          "label": "Languages"
+        },
+        "access": {
+          "value": "Free",
+          "label": "Access"
+        }
+      }
+    },
+    "login": {
+      "eyebrow": {
+        "signin": "Welcome Back",
+        "forgot": "Account Recovery",
+        "recovery": "Secure Access"
+      },
+      "title": {
+        "signin": "Sign in to your account",
+        "forgot": "Reset your password",
+        "recovery": "Set new password"
+      },
+      "description": {
+        "signin": "Access your professional syndicate services.",
+        "forgot": "Enter your email and we'll send you reset instructions.",
+        "recovery": "Choose a strong new password for your Daleeli account."
+      },
+      "fields": {
+        "email": {
+          "label": "Professional Email"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "newPassword": {
+          "label": "New Password"
+        }
+      },
+      "actions": {
+        "signin": "Sign in",
+        "authenticating": "Authenticating...",
+        "forgotPassword": "Forgot password?",
+        "sendReset": "Send Reset Link",
+        "sending": "Sending...",
+        "backToSignin": "← Back to sign in",
+        "updatePassword": "Update Password",
+        "updating": "Updating..."
+      },
+      "links": {
+        "noAccount": "Don't have an account?",
+        "register": "Register here"
+      },
+      "messages": {
+        "recoveryPrompt": "Enter a new password below to finish resetting your password.",
+        "loginSuccess": "Login successful. Redirecting...",
+        "emailRequired": "Please enter your email address first.",
+        "resetSent": "Password reset instructions have been sent to your email address.",
+        "passwordMin": "Your new password must be at least 6 characters long.",
+        "passwordUpdated": "Your password has been updated."
+      },
+      "panel": {
+        "description": "Bridging professional excellence with modern accessibility for Lebanon's practitioners."
+      }
+    },
+    "register": {
+      "eyebrow": "Get Started",
+      "title": "Create your account",
+      "description": "Register with your official syndicate information to access services and guidance.",
+      "fields": {
+        "fullName": {
+          "label": "Full Name",
+          "placeholder": "Enter your full name"
+        },
+        "email": {
+          "label": "Professional Email"
+        },
+        "phone": {
+          "label": "Phone Number",
+          "placeholder": "+961 ..."
+        },
+        "memberNumber": {
+          "label": "Syndicate No.",
+          "placeholder": "Min. 6 digits"
+        },
+        "password": {
+          "label": "Password"
+        },
+        "syndicate": {
+          "label": "Syndicate",
+          "placeholder": "Select a syndicate"
+        }
+      },
+      "subscribe": {
+        "title": "Subscribe to syndicate news",
+        "description": "Show latest news from your selected syndicate when you sign in or open Daleeli."
+      },
+      "actions": {
+        "create": "Create Account",
+        "creating": "Creating account..."
+      },
+      "links": {
+        "hasAccount": "Already have an account?",
+        "signin": "Sign in here"
+      },
+      "messages": {
+        "syndicatesLoadError": "Failed to load syndicates: {error}",
+        "fullNameRequired": "Full name is required.",
+        "syndicateRequired": "Please select a syndicate.",
+        "memberNumberInvalid": "Syndicate member number must be at least 6 digits.",
+        "emailConfirmationEnabled": "Email confirmation is still enabled. Disable it in Supabase.",
+        "subscriptionSaveError": "Account created, but news subscription could not be saved.",
+        "welcome": "Welcome to Daleeli!"
+      },
+      "panel": {
+        "description": "Join Lebanon's professional community — one unified platform for all syndicates."
+      }
+    }
+  },
   "services": {
     "hero": {
       "badge": "AI-Powered",

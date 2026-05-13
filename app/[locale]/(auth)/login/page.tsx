@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type AuthMode = "signin" | "forgot" | "recovery";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("authPages.login");
+  const tShared = useTranslations("authPages.shared");
   const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,9 +39,7 @@ export default function LoginPage() {
       if (recoveryInUrl) {
         setMode("recovery");
         setMessageType("success");
-        setMessage(
-          "Enter a new password below to finish resetting your password.",
-        );
+        setMessage(t("messages.recoveryPrompt"));
         return;
       }
       if (session) router.replace("/");
@@ -53,9 +54,7 @@ export default function LoginPage() {
       if (event === "PASSWORD_RECOVERY") {
         setMode("recovery");
         setMessageType("success");
-        setMessage(
-          "Enter a new password below to finish resetting your password.",
-        );
+        setMessage(t("messages.recoveryPrompt"));
         return;
       }
       if (event === "SIGNED_IN" && !recoveryInUrl) router.replace("/");
@@ -65,7 +64,7 @@ export default function LoginPage() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, t]);
 
   const resetFeedback = () => {
     setMessage("");
@@ -87,7 +86,7 @@ export default function LoginPage() {
       return;
     }
     setMessageType("success");
-    setMessage("Login successful. Redirecting...");
+    setMessage(t("messages.loginSuccess"));
     router.replace("/");
   };
 
@@ -96,7 +95,7 @@ export default function LoginPage() {
     resetFeedback();
     if (!email.trim()) {
       setMessageType("error");
-      setMessage("Please enter your email address first.");
+      setMessage(t("messages.emailRequired"));
       return;
     }
     setLoading(true);
@@ -110,9 +109,7 @@ export default function LoginPage() {
       return;
     }
     setMessageType("success");
-    setMessage(
-      "Password reset instructions have been sent to your email address.",
-    );
+    setMessage(t("messages.resetSent"));
   };
 
   const handleUpdatePassword = async (e: FormEvent<HTMLFormElement>) => {
@@ -120,7 +117,7 @@ export default function LoginPage() {
     resetFeedback();
     if (newPassword.trim().length < 6) {
       setMessageType("error");
-      setMessage("Your new password must be at least 6 characters long.");
+      setMessage(t("messages.passwordMin"));
       return;
     }
     setLoading(true);
@@ -132,7 +129,7 @@ export default function LoginPage() {
       return;
     }
     setMessageType("success");
-    setMessage("Your password has been updated.");
+    setMessage(t("messages.passwordUpdated"));
     setNewPassword("");
     router.replace("/");
   };
@@ -147,7 +144,7 @@ export default function LoginPage() {
           <Link href="/" className="mb-6 flex w-fit items-center gap-3">
             <Image
               src="/Daleeli-logo-navy.svg"
-              alt="Daleeli Logo"
+              alt={tShared("logoAlt")}
               width={100}
               height={100}
               className="h-10 w-auto"
@@ -160,32 +157,34 @@ export default function LoginPage() {
 
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700 mb-3 block">
             {isRecoveryMode
-              ? "Secure Access"
+              ? t("eyebrow.recovery")
               : isForgotMode
-                ? "Account Recovery"
-                : "Welcome Back"}
+                ? t("eyebrow.forgot")
+                : t("eyebrow.signin")}
           </span>
 
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">
             {isRecoveryMode
-              ? "Set new password"
+              ? t("title.recovery")
               : isForgotMode
-                ? "Reset your password"
-                : "Sign in to your account"}
+                ? t("title.forgot")
+                : t("title.signin")}
           </h1>
 
           <p className="mb-6 text-sm leading-relaxed text-slate-500">
             {isRecoveryMode
-              ? "Choose a strong new password for your Daleeli account."
+              ? t("description.recovery")
               : isForgotMode
-                ? "Enter your email and we'll send you reset instructions."
-                : "Access your professional syndicate services."}
+                ? t("description.forgot")
+                : t("description.signin")}
           </p>
 
           {isRecoveryMode ? (
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password">
+                  {t("fields.newPassword.label")}
+                </Label>
                 <Input
                   id="new-password"
                   type="password"
@@ -204,10 +203,10 @@ export default function LoginPage() {
                 className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
-                  "Updating..."
+                  t("actions.updating")
                 ) : (
                   <span className="flex items-center gap-2">
-                    Update Password <ArrowRight size={15} />
+                    {t("actions.updatePassword")} <ArrowRight size={15} />
                   </span>
                 )}
               </Button>
@@ -215,7 +214,9 @@ export default function LoginPage() {
           ) : isForgotMode ? (
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="forgot-email">Professional Email</Label>
+                <Label htmlFor="forgot-email">
+                  {t("fields.email.label")}
+                </Label>
                 <Input
                   id="forgot-email"
                   type="email"
@@ -233,10 +234,10 @@ export default function LoginPage() {
                 className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
-                  "Sending..."
+                  t("actions.sending")
                 ) : (
                   <span className="flex items-center gap-2">
-                    Send Reset Link <ArrowRight size={15} />
+                    {t("actions.sendReset")} <ArrowRight size={15} />
                   </span>
                 )}
               </Button>
@@ -248,13 +249,13 @@ export default function LoginPage() {
                 }}
                 className="w-full text-sm font-semibold text-slate-400 hover:text-slate-700 transition text-center pt-1"
               >
-                ← Back to sign in
+                {t("actions.backToSignin")}
               </button>
             </form>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="email">Professional Email</Label>
+                <Label htmlFor="email">{t("fields.email.label")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -269,7 +270,9 @@ export default function LoginPage() {
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">
+                    {t("fields.password.label")}
+                  </Label>
                   <button
                     type="button"
                     onClick={() => {
@@ -278,7 +281,7 @@ export default function LoginPage() {
                     }}
                     className="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline transition"
                   >
-                    Forgot password?
+                    {t("actions.forgotPassword")}
                   </button>
                 </div>
                 <Input
@@ -299,10 +302,10 @@ export default function LoginPage() {
                 className="h-10 w-full bg-blue-700 hover:bg-blue-800"
               >
                 {loading ? (
-                  "Authenticating..."
+                  t("actions.authenticating")
                 ) : (
                   <span className="flex items-center gap-2">
-                    Sign in <ArrowRight size={15} />
+                    {t("actions.signin")} <ArrowRight size={15} />
                   </span>
                 )}
               </Button>
@@ -324,12 +327,12 @@ export default function LoginPage() {
           <div className="mt-6 space-y-3 text-center">
             {!isRecoveryMode && (
               <p className="text-sm text-slate-500">
-                Don&apos;t have an account?{" "}
+                {t("links.noAccount")}{" "}
                 <Link
                   href="/register"
                   className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
                 >
-                  Register here
+                  {t("links.register")}
                 </Link>
               </p>
             )}
@@ -337,13 +340,12 @@ export default function LoginPage() {
               href="/"
               className="inline-block text-sm font-semibold text-slate-400 hover:text-slate-700 transition"
             >
-              Back to Home
+              {tShared("backHome")}
             </Link>
           </div>
 
           <p className="mt-6 text-center text-xs text-slate-300">
-            © {new Date().getFullYear()} Daleeli · Lebanese Professional
-            Syndicates Portal
+            {tShared("copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>
@@ -351,7 +353,7 @@ export default function LoginPage() {
       <div className="relative hidden lg:flex lg:w-[52%] xl:w-[55%]">
         <Image
           src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200"
-          alt="Modern corporate environment"
+          alt={tShared("imageAlt")}
           fill
           className="object-cover object-center"
           priority
@@ -360,18 +362,17 @@ export default function LoginPage() {
         <div className="absolute bottom-0 left-0 right-0 p-12">
           <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-md mb-5">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-              Daleeli Portal
+              {tShared("panel.badge")}
             </span>
           </div>
           <p className="text-xl font-semibold leading-snug text-white max-w-sm">
-            Bridging professional excellence with modern accessibility for
-            Lebanon&apos;s practitioners.
+            {t("panel.description")}
           </p>
           <div className="mt-8 flex items-center gap-8">
             {[
-              ["6", "Syndicates"],
-              ["3", "Languages"],
-              ["Free", "Access"],
+              [tShared("stats.syndicates.value"), tShared("stats.syndicates.label")],
+              [tShared("stats.languages.value"), tShared("stats.languages.label")],
+              [tShared("stats.access.value"), tShared("stats.access.label")],
             ].map(([num, label]) => (
               <div key={label}>
                 <p className="text-2xl font-extrabold text-white">{num}</p>

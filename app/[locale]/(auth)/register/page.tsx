@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowRight, Bell } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Syndicate = {
   id: string;
@@ -24,6 +25,8 @@ type Syndicate = {
 };
 
 export default function RegisterPage() {
+  const t = useTranslations("authPages.register");
+  const tShared = useTranslations("authPages.shared");
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -47,13 +50,13 @@ export default function RegisterPage() {
 
       if (error) {
         setMessageType("error");
-        setMessage(`Failed to load syndicates: ${error.message}`);
+        setMessage(t("messages.syndicatesLoadError", { error: error.message }));
         return;
       }
       setSyndicates(data || []);
     };
     fetchSyndicates();
-  }, []);
+  }, [t]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,17 +65,17 @@ export default function RegisterPage() {
 
     if (!fullName.trim()) {
       setMessageType("error");
-      setMessage("Full name is required.");
+      setMessage(t("messages.fullNameRequired"));
       return;
     }
     if (!syndicateId) {
       setMessageType("error");
-      setMessage("Please select a syndicate.");
+      setMessage(t("messages.syndicateRequired"));
       return;
     }
     if (!/^[0-9]{6,}$/.test(memberNumber)) {
       setMessageType("error");
-      setMessage("Syndicate member number must be at least 6 digits.");
+      setMessage(t("messages.memberNumberInvalid"));
       return;
     }
 
@@ -99,9 +102,7 @@ export default function RegisterPage() {
     }
     if (!data.session) {
       setMessageType("error");
-      setMessage(
-        "Email confirmation is still enabled. Disable it in Supabase.",
-      );
+      setMessage(t("messages.emailConfirmationEnabled"));
       return;
     }
 
@@ -124,14 +125,14 @@ export default function RegisterPage() {
         setMessageType("error");
         setMessage(
           body?.error ??
-            "Account created, but news subscription could not be saved.",
+            t("messages.subscriptionSaveError"),
         );
         return;
       }
     }
 
     setMessageType("success");
-    setMessage("Welcome to Daleeli!");
+    setMessage(t("messages.welcome"));
     router.push("/profile");
     router.refresh();
   };
@@ -143,7 +144,7 @@ export default function RegisterPage() {
           <Link href="/" className="mb-4 flex w-fit items-center gap-3">
             <Image
               src="/Daleeli-logo-navy.svg"
-              alt="Daleeli Logo"
+              alt={tShared("logoAlt")}
               width={100}
               height={100}
               className="h-9 w-auto"
@@ -155,35 +156,36 @@ export default function RegisterPage() {
           </Link>
 
           <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-blue-700">
-            Get Started
+            {t("eyebrow")}
           </span>
 
           <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-slate-900">
-            Create your account
+            {t("title")}
           </h1>
 
           <p className="mb-3 text-sm leading-relaxed text-slate-500">
-            Register with your official syndicate information to access services
-            and guidance.
+            {t("description")}
           </p>
 
           <form onSubmit={handleRegister} className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="full-name">Full Name</Label>
+                <Label htmlFor="full-name">
+                  {t("fields.fullName.label")}
+                </Label>
                 <Input
                   id="full-name"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
+                  placeholder={t("fields.fullName.placeholder")}
                   required
                   className="h-10"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="email">Professional Email</Label>
+                <Label htmlFor="email">{t("fields.email.label")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -199,24 +201,26 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">{t("fields.phone.label")}</Label>
                 <Input
                   id="phone"
                   type="text"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="+961 ..."
+                  placeholder={t("fields.phone.placeholder")}
                   className="h-10"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="member-number">Syndicate No.</Label>
+                <Label htmlFor="member-number">
+                  {t("fields.memberNumber.label")}
+                </Label>
                 <Input
                   id="member-number"
                   type="text"
                   value={memberNumber}
                   onChange={(e) => setMemberNumber(e.target.value)}
-                  placeholder="Min. 6 digits"
+                  placeholder={t("fields.memberNumber.placeholder")}
                   required
                   className="h-10"
                 />
@@ -225,7 +229,9 @@ export default function RegisterPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">
+                  {t("fields.password.label")}
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -240,14 +246,18 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="syndicate">Syndicate</Label>
+                <Label htmlFor="syndicate">
+                  {t("fields.syndicate.label")}
+                </Label>
                 <Select
                   value={syndicateId}
                   onValueChange={setSyndicateId}
                   required
                 >
                   <SelectTrigger id="syndicate" className="h-10 w-full">
-                    <SelectValue placeholder="Select a syndicate" />
+                    <SelectValue
+                      placeholder={t("fields.syndicate.placeholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {syndicates.map((s) => (
@@ -275,11 +285,10 @@ export default function RegisterPage() {
                 <Bell className="mt-0.5 size-4 shrink-0 text-blue-700" />
                 <span>
                   <span className="block text-sm font-bold text-slate-900">
-                    Subscribe to syndicate news
+                    {t("subscribe.title")}
                   </span>
                   <span className="mt-0.5 block text-xs leading-5 text-slate-600">
-                    Show latest news from your selected syndicate when you sign
-                    in or open Daleeli.
+                    {t("subscribe.description")}
                   </span>
                 </span>
               </span>
@@ -291,10 +300,10 @@ export default function RegisterPage() {
               className="h-10 w-full bg-blue-700 hover:bg-blue-800"
             >
               {loading ? (
-                "Creating account..."
+                t("actions.creating")
               ) : (
                 <span className="flex items-center gap-2">
-                  Create Account <ArrowRight size={15} />
+                  {t("actions.create")} <ArrowRight size={15} />
                 </span>
               )}
             </Button>
@@ -314,25 +323,24 @@ export default function RegisterPage() {
 
           <div className="mt-4 space-y-1 text-center">
             <p className="text-sm text-slate-500">
-              Already have an account?{" "}
+              {t("links.hasAccount")}{" "}
               <Link
                 href="/login"
                 className="font-bold text-blue-700 hover:text-blue-800 hover:underline transition-colors"
               >
-                Sign in here
+                {t("links.signin")}
               </Link>
             </p>
             <Link
               href="/"
               className="inline-block text-sm font-semibold text-slate-400 hover:text-slate-700 transition"
             >
-              Back to Home
+              {tShared("backHome")}
             </Link>
           </div>
 
           <p className="mt-4 text-center text-xs text-slate-300">
-            © {new Date().getFullYear()} Daleeli · Lebanese Professional
-            Syndicates Portal
+            {tShared("copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>
@@ -340,7 +348,7 @@ export default function RegisterPage() {
       <div className="relative hidden lg:flex lg:w-[52%] xl:w-[55%]">
         <Image
           src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200"
-          alt="Modern corporate environment"
+          alt={tShared("imageAlt")}
           fill
           className="object-cover object-center"
           priority
@@ -349,18 +357,17 @@ export default function RegisterPage() {
         <div className="absolute bottom-0 left-0 right-0 p-12">
           <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-md mb-5">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white">
-              Daleeli Portal
+              {tShared("panel.badge")}
             </span>
           </div>
           <p className="text-xl font-semibold leading-snug text-white max-w-sm">
-            Join Lebanon&apos;s professional community — one unified platform for all
-            syndicates.
+            {t("panel.description")}
           </p>
           <div className="mt-8 flex items-center gap-8">
             {[
-              ["6", "Syndicates"],
-              ["3", "Languages"],
-              ["Free", "Access"],
+              [tShared("stats.syndicates.value"), tShared("stats.syndicates.label")],
+              [tShared("stats.languages.value"), tShared("stats.languages.label")],
+              [tShared("stats.access.value"), tShared("stats.access.label")],
             ].map(([num, label]) => (
               <div key={label}>
                 <p className="text-2xl font-extrabold text-white">{num}</p>
