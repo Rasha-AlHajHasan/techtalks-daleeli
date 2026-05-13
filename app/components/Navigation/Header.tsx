@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname, useRouter } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -89,8 +89,13 @@ const Header = () => {
           fullName,
           initials: getInitials(fullName, user.email ?? null),
         });
-      } catch (err: any) {
-        if (err?.name === "AbortError" || cancelled) return;
+      } catch (err: unknown) {
+        if (
+          cancelled ||
+          (err instanceof Error && err.name === "AbortError")
+        ) {
+          return;
+        }
         console.error("Failed to load user:", err);
       }
     };

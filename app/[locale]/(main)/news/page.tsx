@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
-import { Search, Newspaper, ExternalLink, Calendar, Heart } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Calendar, ExternalLink, Heart, Newspaper, Search } from "lucide-react";
 import { getAllNews, getSyndicatesWithCount } from "@/app/lib/news/queries";
 import type { NewsItemWithSyndicate } from "@/app/lib/news/queries";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type SyndicateFilter = {
   id: string;
   name: string;
@@ -15,7 +15,6 @@ type SyndicateFilter = {
   count: number;
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const today = new Date().toISOString().split("T")[0];
 
 function isToday(dateStr?: string | null) {
@@ -24,9 +23,10 @@ function isToday(dateStr?: string | null) {
 }
 
 function formatDate(dateStr: string | null, locale: string) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const localeCode =
     locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-GB";
+
   return new Date(dateStr).toLocaleDateString(localeCode, {
     day: "numeric",
     month: "short",
@@ -34,7 +34,6 @@ function formatDate(dateStr: string | null, locale: string) {
   });
 }
 
-// ─── Skeleton Card ────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden animate-pulse">
@@ -50,7 +49,6 @@ function SkeletonCard() {
   );
 }
 
-// ─── News Card ────────────────────────────────────────────────────────────────
 function NewsCard({
   item,
   locale,
@@ -58,6 +56,7 @@ function NewsCard({
   item: NewsItemWithSyndicate;
   locale: string;
 }) {
+  const t = useTranslations("news.card");
   const [saved, setSaved] = useState(false);
 
   const displayDate = item.published_at ?? item.fetched_at;
@@ -75,23 +74,18 @@ function NewsCard({
           : "border-slate-200 hover:border-blue-600/25"
       }`}
     >
-      {/* Today Banner */}
       {todayItem && (
         <div className="bg-blue-100 px-4 py-1.5 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
           <span className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">
-            {locale === "ar" ? "اليوم" : locale === "fr" ? "Aujourd'hui" : "Today"}
+            {t("today")}
           </span>
         </div>
       )}
 
-      {/* Top blue accent bar */}
       <div className="h-1 bg-gradient-to-r from-blue-600 to-blue-400" />
 
-      {/* Content — no fixed height, grows with data */}
       <div className="p-5 flex flex-col gap-3">
-
-        {/* Badge row */}
         <div className="flex items-center justify-between gap-2">
           {item.language && (
             <span className="inline-flex items-center px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-[10px] font-bold uppercase tracking-wider text-blue-700">
@@ -110,19 +104,16 @@ function NewsCard({
           </button>
         </div>
 
-        {/* Title */}
         <h3 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-blue-700 transition-colors">
           {item.title}
         </h3>
 
-        {/* Summary — only rendered if it exists */}
         {item.summary && (
           <p className="text-xs text-slate-500 leading-relaxed">
             {item.summary}
           </p>
         )}
 
-        {/* Syndicate + date */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
           {syndicate && (
             <div className="flex items-center gap-1.5 min-w-0">
@@ -144,18 +135,17 @@ function NewsCard({
           )}
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2">
           {syndicateSlug ? (
             <Link
-              href={`/${locale}/syndicates/${syndicateSlug}`}
+              href={`/syndicates/${syndicateSlug}`}
               className="flex-1 text-center text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg py-2 transition"
             >
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
+              {t("readMore")}
             </Link>
           ) : (
             <span className="flex-1 text-center text-xs font-semibold text-slate-400 bg-slate-100 rounded-lg py-2 cursor-not-allowed">
-              {locale === "ar" ? "اقرأ المزيد" : locale === "fr" ? "Lire la suite" : "Read More"}
+              {t("readMore")}
             </span>
           )}
 
@@ -167,7 +157,7 @@ function NewsCard({
               className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition"
             >
               <ExternalLink size={11} />
-              {locale === "ar" ? "المصدر" : locale === "fr" ? "Source" : "Source"}
+              {t("source")}
             </a>
           )}
         </div>
@@ -176,11 +166,11 @@ function NewsCard({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function NewsPage() {
   const params = useParams();
   const locale = (params.locale as string) ?? "ar";
   const isRTL = locale === "ar";
+  const t = useTranslations("news");
 
   const [search, setSearch] = useState("");
   const [activeSyndicate, setActiveSyndicate] = useState<string | null>(null);
@@ -208,6 +198,7 @@ export default function NewsPage() {
         setLoading(false);
       }
     }
+
     fetchData();
   }, [locale]);
 
@@ -223,6 +214,7 @@ export default function NewsPage() {
       const matchedSlugs = syndicates
         .filter((s) => s.name.toLowerCase().includes(q))
         .map((s) => s.slug);
+
       items = items.filter(
         (n) =>
           n.title.toLowerCase().includes(q) ||
@@ -234,68 +226,18 @@ export default function NewsPage() {
     return items;
   }, [search, activeSyndicate, newsList, syndicates]);
 
-  // ── UI strings ───────────────────────────────────────────────────────────
-  const t = {
-    portal:
-      locale === "ar" ? "البوابة الرسمية للنقابات"
-      : locale === "fr" ? "Portail Officiel des Syndicats"
-      : "Official Syndicate Portal",
-    heading:
-      locale === "ar" ? "آخر الأخبار"
-      : locale === "fr" ? "Dernières Nouvelles"
-      : "Latest News",
-    subtitle:
-      locale === "ar" ? "اطلع على آخر التحديثات والقرارات والإعلانات من النقابات اللبنانية المهنية."
-      : locale === "fr" ? "Découvrez les dernières mises à jour, décisions et annonces des syndicats professionnels libanais."
-      : "Check latest updates, decisions, and announcements from Lebanese professional syndicates.",
-    searchPlaceholder:
-      locale === "ar" ? "ابحث باسم النقابة أو بالكلمة المفتاحية..."
-      : locale === "fr" ? "Rechercher par syndicat ou mot-clé..."
-      : "Search by syndicate name or keyword...",
-    searchBtn: locale === "ar" ? "بحث" : locale === "fr" ? "Chercher" : "Search",
-    syndicateLabel: locale === "ar" ? "النقابة" : locale === "fr" ? "Syndicat" : "Syndicate",
-    allSyndicates:
-      locale === "ar" ? "جميع النقابات"
-      : locale === "fr" ? "Tous les syndicats"
-      : "All Syndicates",
-    latestNews:
-      locale === "ar" ? "آخر الأخبار"
-      : locale === "fr" ? "Dernières nouvelles"
-      : "Latest News",
-    featured:
-      locale === "ar" ? "مميز" : locale === "fr" ? "À la une" : "Featured",
-    exploreLabel:
-      locale === "ar" ? "استكشف تحديثات النقابات في لبنان"
-      : locale === "fr" ? "Explorez les actualités des syndicats du Liban"
-      : "Explore syndicate updates from Lebanon",
-    errorMsg:
-      locale === "ar" ? "فشل تحميل الأخبار. يرجى تحديث الصفحة."
-      : locale === "fr" ? "Échec du chargement. Veuillez actualiser."
-      : "Failed to load news. Please try refreshing.",
-    noNews:
-      locale === "ar" ? "لا توجد أخبار."
-      : locale === "fr" ? "Aucune actualité trouvée."
-      : "No news found.",
-    translating:
-      locale === "ar" ? null
-      : locale === "fr" ? "Traduction en cours…"
-      : "Translating news…",
-  };
-
   return (
     <div className="min-h-screen bg-slate-50" dir={isRTL ? "rtl" : "ltr"}>
-
-      {/* ── Hero ── */}
       <section className="border-b border-slate-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-12 text-center">
           <span className="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
-            {t.portal}
+            {t("hero.badge")}
           </span>
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight mb-3">
-            {t.heading}
+            {t("hero.title")}
           </h1>
           <p className="text-slate-500 text-base mb-8 max-w-md mx-auto">
-            {t.subtitle}
+            {t("hero.subtitle")}
           </p>
 
           <div className="max-w-xl mx-auto flex gap-3">
@@ -310,25 +252,22 @@ export default function NewsPage() {
                   setSearch(e.target.value);
                   setActiveSyndicate(null);
                 }}
-                placeholder={t.searchPlaceholder}
+                placeholder={t("search.placeholder")}
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition"
               />
             </div>
             <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-5 py-3 rounded-xl transition whitespace-nowrap">
-              {t.searchBtn}
+              {t("search.button")}
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── Body ── */}
       <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col lg:flex-row gap-8">
-
-        {/* Sidebar */}
         <aside className="lg:w-64 flex-shrink-0">
           <div className="bg-white border border-slate-200 rounded-2xl p-5 sticky top-6">
             <h2 className="text-xs font-extrabold text-blue-600 uppercase tracking-widest mb-4">
-              {t.syndicateLabel}
+              {t("filters.syndicateLabel")}
             </h2>
             <ul className="space-y-1">
               <li>
@@ -341,7 +280,7 @@ export default function NewsPage() {
                       : "text-slate-600 hover:bg-slate-50")
                   }
                 >
-                  <span>{t.allSyndicates}</span>
+                  <span>{t("filters.allSyndicates")}</span>
                   <span
                     className={
                       "text-[11px] px-2 py-0.5 rounded-full font-semibold " +
@@ -365,7 +304,9 @@ export default function NewsPage() {
                     <li key={syn.id}>
                       <button
                         onClick={() => {
-                          setActiveSyndicate(syn.slug === activeSyndicate ? null : syn.slug);
+                          setActiveSyndicate(
+                            syn.slug === activeSyndicate ? null : syn.slug,
+                          );
                           setSearch("");
                         }}
                         className={
@@ -375,7 +316,9 @@ export default function NewsPage() {
                             : "text-slate-600 hover:bg-slate-50")
                         }
                       >
-                        <span className="text-left leading-snug">{syn.name}</span>
+                        <span className="text-left leading-snug">
+                          {syn.name}
+                        </span>
                         <span
                           className={
                             "text-[11px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ml-2 " +
@@ -393,12 +336,15 @@ export default function NewsPage() {
           </div>
         </aside>
 
-        {/* Main */}
         <main className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <div>
-              <h2 className="text-xl font-extrabold text-slate-800">{t.latestNews}</h2>
-              <p className="text-xs text-slate-400 mt-0.5">{t.exploreLabel}</p>
+              <h2 className="text-xl font-extrabold text-slate-800">
+                {t("tabs.latest")}
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {t("exploreLabel")}
+              </p>
             </div>
             <div className="flex gap-2">
               <button
@@ -410,7 +356,7 @@ export default function NewsPage() {
                     : "bg-white border border-slate-200 text-slate-600 hover:border-blue-600/40")
                 }
               >
-                {t.latestNews}
+                {t("tabs.latest")}
               </button>
               <button
                 onClick={() => setActiveTab("featured")}
@@ -421,28 +367,27 @@ export default function NewsPage() {
                     : "bg-white border border-slate-200 text-slate-600 hover:border-blue-600/40")
                 }
               >
-                {t.featured}
+                {t("tabs.featured")}
               </button>
             </div>
           </div>
 
-          {/* Translating banner */}
-          {loading && locale !== "ar" && t.translating && (
+          {loading && locale !== "ar" && (
             <div className="flex items-center gap-2 mb-4 text-xs text-blue-600 bg-blue-50 border border-blue-100 px-4 py-2.5 rounded-xl">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse flex-shrink-0" />
-              {t.translating}
+              {t("loading.translating")}
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium text-red-500">{t.errorMsg}</p>
+              <p className="text-sm font-medium text-red-500">
+                {t("states.error")}
+              </p>
             </div>
           )}
 
-          {/* Skeletons */}
           {loading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
               {[...Array(6)].map((_, i) => (
@@ -451,15 +396,13 @@ export default function NewsPage() {
             </div>
           )}
 
-          {/* Empty */}
           {!loading && !error && filtered.length === 0 && (
             <div className="text-center py-20 text-slate-400">
               <Newspaper size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">{t.noNews}</p>
+              <p className="text-sm font-medium">{t("states.empty")}</p>
             </div>
           )}
 
-          {/* Grid — items-start so cards don't stretch to match tallest sibling */}
           {!loading && !error && filtered.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 items-start">
               {filtered.map((item) => (

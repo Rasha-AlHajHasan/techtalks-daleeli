@@ -175,6 +175,129 @@
         "engineering": "Engineering",
         "finance": "Finance"
       }
+    },
+    "directory": {
+      "title": "Syndicate Directory",
+      "count": "Showing {count} registered organizations",
+      "empty": "No syndicates found matching your search criteria."
+    },
+    "card": {
+      "noImage": "No Image",
+      "noDescription": "No description available."
     }
+  },
+  "news": {
+    "hero": {
+      "badge": "Official Syndicate Portal",
+      "title": "Latest News",
+      "subtitle": "Check latest updates, decisions, and announcements from Lebanese professional syndicates."
+    },
+    "search": {
+      "placeholder": "Search by syndicate name or keyword...",
+      "button": "Search"
+    },
+    "filters": {
+      "syndicateLabel": "Syndicate",
+      "allSyndicates": "All Syndicates"
+    },
+    "tabs": {
+      "latest": "Latest News",
+      "featured": "Featured"
+    },
+    "exploreLabel": "Explore syndicate updates from Lebanon",
+    "loading": {
+      "translating": "Translating news..."
+    },
+    "states": {
+      "error": "Failed to load news. Please try refreshing.",
+      "empty": "No news found."
+    },
+    "card": {
+      "today": "Today",
+      "readMore": "Read More",
+      "source": "Source"
+    }
+  },
+  "services": {
+    "hero": {
+      "badge": "AI-Powered",
+      "title": "Contract Analysis",
+      "description": "Upload your contract PDF and get an instant AI-powered legal analysis based on the applicable country's law."
+    },
+    "countries": {
+      "LB": "Lebanon",
+      "SA": "Saudi Arabia",
+      "AE": "UAE",
+      "EG": "Egypt",
+      "JO": "Jordan",
+      "KW": "Kuwait",
+      "QA": "Qatar",
+      "BH": "Bahrain",
+      "OM": "Oman",
+      "IQ": "Iraq",
+      "FR": "France",
+      "GB": "United Kingdom",
+      "DE": "Germany",
+      "US": "United States"
+    },
+    "country": {
+      "title": "Select Country",
+      "description": "Which country's law applies to your contract?",
+      "placeholder": "Choose a country...",
+      "continue": "Continue ->"
+    },
+    "upload": {
+      "title": "Upload Contract",
+      "analyzingUnder": "Analyzing under",
+      "law": "law",
+      "change": "Change",
+      "remove": "Remove",
+      "dropPrefix": "Drop your PDF here or",
+      "browse": "browse",
+      "requirements": "PDF only · Max 20 MB",
+      "analyze": "Analyze Contract"
+    },
+    "loading": {
+      "title": "Please wait...",
+      "uploading": "Uploading your contract...",
+      "reading": "Reading your contract...",
+      "creatingRecord": "Creating upload record...",
+      "analyzing": "Analyzing your contract with AI..."
+    },
+    "error": {
+      "title": "Something went wrong",
+      "tryAgain": "Try Again"
+    },
+    "errors": {
+      "pdfOnly": "Only PDF files are supported.",
+      "fileTooLarge": "File is too large. Maximum size is 20 MB.",
+      "loginRequired": "You must be logged in to analyze a contract.",
+      "unreadablePdf": "Could not extract readable text from the PDF. Please ensure it is not a scanned/image-only PDF."
+    },
+    "result": {
+      "score": "Score",
+      "verdict": {
+        "good": "Good Contract",
+        "fair": "Fair Contract",
+        "concerning": "Concerning",
+        "redFlags": "Red Flags"
+      },
+      "complete": "Analysis complete",
+      "recommendation": "Recommendation",
+      "askCompany": "Ask the company",
+      "questionForMissing": "Can you add a clause covering: {clause}?",
+      "questionForFlag": "I have concerns about this term. Can you clarify or revise it? \"{flag}\"",
+      "riskFlags": "Risk Flags",
+      "missingClauses": "Missing Clauses",
+      "countryRules": "Country-Specific Rules",
+      "rightsObligations": "Rights & Obligations",
+      "yourRights": "Your Rights",
+      "yourObligations": "Your Obligations",
+      "employerObligations": "Employer Obligations",
+      "legalImplications": "Legal Implications",
+      "jobDuties": "Job Duties",
+      "analyzeAnother": "Analyze Another Contract"
+    },
+    "securityNote": "Your documents are processed securely and never stored beyond analysis."
   }
 }
