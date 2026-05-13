@@ -27,6 +27,7 @@ type Syndicate = {
 export default function RegisterPage() {
   const t = useTranslations("authPages.register");
   const tShared = useTranslations("authPages.shared");
+  const tCommon = useTranslations("common");
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
@@ -151,7 +152,7 @@ export default function RegisterPage() {
               priority
             />
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
-              Daleeli
+              {tCommon("siteName")}
             </span>
           </Link>
 

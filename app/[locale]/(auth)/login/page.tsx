@@ -17,6 +17,7 @@ export default function LoginPage() {
   const router = useRouter();
   const t = useTranslations("authPages.login");
   const tShared = useTranslations("authPages.shared");
+  const tCommon = useTranslations("common");
   const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -151,7 +152,7 @@ export default function LoginPage() {
               priority
             />
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
-              Daleeli
+              {tCommon("siteName")}
             </span>
           </Link>
 

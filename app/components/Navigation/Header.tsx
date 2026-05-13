@@ -33,6 +33,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const t = useTranslations("header");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const isRtl = locale === "ar";
 
@@ -156,14 +157,14 @@ const Header = () => {
             <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/Daleeli-logo-navy.svg"
-                alt="Daleeli Logo"
+                alt={`${tCommon("siteName")} Logo`}
                 width={100}
                 height={100}
                 className="h-12 w-auto"
                 priority
               />
               <span className="hidden md:block text-2xl font-extrabold tracking-tight text-slate-900">
-                Daleeli
+                {tCommon("siteName")}
               </span>
             </Link>
 
@@ -293,7 +294,7 @@ const Header = () => {
             onClick={() => setMobileMenuOpen(false)}
           >
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
-              Daleeli
+              {tCommon("siteName")}
             </span>
           </Link>
           <div onClick={() => setMobileMenuOpen(false)}>
