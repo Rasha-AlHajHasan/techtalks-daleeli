@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabase/browser";
+import { useLocale, useTranslations } from "next-intl";
 
 type Profile = {
   id: string;
@@ -19,6 +20,8 @@ type Profile = {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("profile");
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -67,7 +70,10 @@ export default function ProfilePage() {
   }, [router]);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+    const dateLocale =
+      locale === "ar" ? "ar-LB" : locale === "fr" ? "fr-FR" : "en-US";
+
+    return new Date(date).toLocaleDateString(dateLocale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -117,14 +123,13 @@ export default function ProfilePage() {
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1a2b48]/60">
-              Daleeli Profile
+              {t("hero.badge")}
             </p>
             <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950">
-              My Account
+              {t("hero.title")}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Manage your identity, syndicate connection, and account details
-              from one secure profile.
+              {t("hero.description")}
             </p>
           </div>
 
@@ -132,7 +137,7 @@ export default function ProfilePage() {
             href="/syndicates"
             className="inline-flex w-fit items-center rounded-xl bg-[#1a2b48] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#142238]"
           >
-            Browse Syndicates
+            {t("hero.cta")}
           </Link>
         </div>
 
@@ -144,7 +149,7 @@ export default function ProfilePage() {
               </div>
 
               <h2 className="mt-6 text-2xl font-bold text-black">
-                {profile?.full_name || "User"}
+                {profile?.full_name || t("fallback.user")}
               </h2>
 
               <p className="mt-2 break-all text-sm text-slate-600">
@@ -152,14 +157,14 @@ export default function ProfilePage() {
               </p>
 
               <div className="mt-6 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                Active Account
+                {t("status.activeAccount")}
               </div>
             </div>
 
             <div className="space-y-4 p-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Member Number
+                  {t("labels.memberNumber")}
                 </p>
                 <p className="mt-2 text-lg font-bold text-slate-900">
                   {profile?.syndicate_member_number || "-"}
@@ -170,7 +175,7 @@ export default function ProfilePage() {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Account Created
+                  {t("labels.accountCreated")}
                 </p>
                 <p className="mt-2 text-base font-semibold text-slate-900">
                   {profile?.created_at ? formatDate(profile.created_at) : "-"}
@@ -184,34 +189,38 @@ export default function ProfilePage() {
               <div className="flex flex-col justify-between gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                    Syndicate Connection
+                    {t("sections.syndicateConnection")}
                   </p>
                   <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                    {profile?.syndicates?.[0]?.name || "Not assigned"}
+                    {profile?.syndicates?.[0]?.name ||
+                      t("fallback.notAssigned")}
                   </h3>
                 </div>
 
                 <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                  Verified Link
+                  {t("status.verifiedLink")}
                 </span>
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <InfoCard
-                  label="Syndicate"
-                  value={profile?.syndicates?.[0]?.name || "Not assigned"}
+                  label={t("labels.syndicate")}
+                  value={
+                    profile?.syndicates?.[0]?.name ||
+                    t("fallback.notAssigned")
+                  }
                 />
                 <InfoCard
-                  label="Syndicate Slug"
+                  label={t("labels.syndicateSlug")}
                   value={profile?.syndicates?.[0]?.slug || "-"}
                 />
                 <InfoCard
-                  label="Government Number"
+                  label={t("labels.governmentNumber")}
                   value={profile?.syndicate_member_number || "-"}
                 />
                 <InfoCard
-                  label="Account Status"
-                  value="Active"
+                  label={t("labels.accountStatus")}
+                  value={t("status.active")}
                   valueClassName="text-emerald-700"
                 />
               </div>
@@ -219,20 +228,20 @@ export default function ProfilePage() {
 
             <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
-                Account Information
+                {t("sections.accountInformation")}
               </p>
 
               <div className="mt-5 space-y-4">
                 <DetailRow
-                  label="Full Name"
+                  label={t("labels.fullName")}
                   value={profile?.full_name || "-"}
                 />
                 <DetailRow
-                  label="Email Address"
+                  label={t("labels.emailAddress")}
                   value={profile?.email || "-"}
                 />
                 <DetailRow
-                  label="Created At"
+                  label={t("labels.createdAt")}
                   value={
                     profile?.created_at ? formatDate(profile.created_at) : "-"
                   }

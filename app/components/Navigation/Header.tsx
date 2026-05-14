@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname, useRouter } from "next/navigation";
 import { UserCircle, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { supabase } from "@/app/lib/supabase/browser";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { Button } from "@/components/ui/button";
 
@@ -33,6 +33,9 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const t = useTranslations("header");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const isRtl = locale === "ar";
 
   const navLinks = [
     { href: "/syndicates", label: t("navLinks.syndicates") },
@@ -89,8 +92,13 @@ const Header = () => {
           fullName,
           initials: getInitials(fullName, user.email ?? null),
         });
-      } catch (err: any) {
-        if (err?.name === "AbortError" || cancelled) return;
+      } catch (err: unknown) {
+        if (
+          cancelled ||
+          (err instanceof Error && err.name === "AbortError")
+        ) {
+          return;
+        }
         console.error("Failed to load user:", err);
       }
     };
@@ -149,14 +157,14 @@ const Header = () => {
             <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/Daleeli-logo-navy.svg"
-                alt="Daleeli Logo"
+                alt={`${tCommon("siteName")} Logo`}
                 width={100}
                 height={100}
                 className="h-12 w-auto"
                 priority
               />
               <span className="hidden md:block text-2xl font-extrabold tracking-tight text-slate-900">
-                Daleeli
+                {tCommon("siteName")}
               </span>
             </Link>
 
@@ -188,7 +196,11 @@ const Header = () => {
             <div className="hidden lg:block">
               {authUser ? (
                 <div className="relative" ref={menuRef}>
-                  <div className="flex items-center gap-3">
+                  <div
+                    className={`flex items-center gap-3 ${
+                      isRtl ? "flex-row-reverse" : ""
+                    }`}
+                  >
                     <span className="text-sm font-bold text-slate-700">
                       {displayName}
                     </span>
@@ -207,7 +219,14 @@ const Header = () => {
                   </div>
 
                   {open && (
-                    <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                    <div
+                      className={`absolute mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-white p-2 shadow-lg ${
+                        isRtl
+                          ? "left-0 text-right"
+                          : "right-0 text-left"
+                      }`}
+                      dir={isRtl ? "rtl" : "ltr"}
+                    >
                       <div className="border-b border-slate-100 px-3 pb-3 pt-2 mb-2">
                         <p className="text-sm font-bold text-slate-900 truncate">
                           {displayName}
@@ -218,7 +237,11 @@ const Header = () => {
                           </p>
                         )}
                       </div>
-                      <Button asChild variant="ghost" className="w-full">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className={`w-full ${isRtl ? "justify-end" : ""}`}
+                      >
                         <Link href="/profile" onClick={() => setOpen(false)}>
                           {t("auth.profile")}
                         </Link>
@@ -226,7 +249,7 @@ const Header = () => {
                       <Button
                         variant="destructive"
                         onClick={handleLogout}
-                        className="w-full"
+                        className={`w-full ${isRtl ? "justify-end" : ""}`}
                       >
                         {t("auth.signOut")}
                       </Button>
@@ -271,7 +294,7 @@ const Header = () => {
             onClick={() => setMobileMenuOpen(false)}
           >
             <span className="text-xl font-extrabold tracking-tight text-slate-900">
-              Daleeli
+              {tCommon("siteName")}
             </span>
           </Link>
           <div onClick={() => setMobileMenuOpen(false)}>

@@ -121,10 +121,10 @@ export default function PageUI({ initialData }: PageUIProps) {
 
       <div className="max-w-7xl mx-auto px-8 pb-4">
         <h2 className="text-2xl font-bold text-slate-900 mb-2">
-          Syndicate Directory
+          {t("directory.title")}
         </h2>
         <p className="text-sm text-slate-500 mb-6">
-          Showing {filtered.length} registered organizations
+          {t("directory.count", { count: filtered.length })}
         </p>
       </div>
 
@@ -136,7 +136,7 @@ export default function PageUI({ initialData }: PageUIProps) {
           filtered.map((syn) => <SyndicateCard key={syn.id} syn={syn} />)
         ) : (
           <div className="col-span-full py-12 text-center text-slate-500 bg-white border border-slate-200 rounded-xl">
-            No syndicates found matching your search criteria.
+            {t("directory.empty")}
           </div>
         )}
       </div>
