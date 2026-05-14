@@ -96,7 +96,7 @@ Daleeli
 
 ## Project Status
 
-Daleeli is currently in **active MVP development** as part of an internship program at [TechTalks](https://techtalkslb.com), built by a team of five developers.
+Daleeli is currently in **active MVP development** as part of an internship program at [TechTalks](https://techtalkslb.com/), built by a team of five developers.
 
 **MVP scope includes:**
 
