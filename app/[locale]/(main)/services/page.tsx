@@ -1,34 +1,59 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
+import { supabase } from "@/app/lib/supabase/browser";
+
 import {
-  FileText, Upload, ChevronDown, CheckCircle2,
-  AlertCircle, Loader2, Globe, X, FileCheck,
-  ShieldCheck, ClipboardList, AlertTriangle,
-  XCircle, Info, Star, RotateCcw, MessageSquare, Gavel,
+  MapPin,
+  Building,
+  ExternalLink,
+  Filter,
+  ArrowRight,
+  SearchX,
+  FileText,
+  Upload,
+  ChevronDown,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Globe,
+  FileCheck,
+  ShieldCheck,
+  ClipboardList,
+  AlertTriangle,
+  XCircle,
+  Info,
+  Star,
+  RotateCcw,
+  MessageSquare,
+  Gavel,
 } from "lucide-react";
 import { supabase } from "@/app/lib/supabase/browser";
 
-// â”€â”€â”€ Countries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-const COUNTRIES = [
-  { code: "LB", flag: "🇱🇧" },
-  { code: "SA", flag: "🇸🇦" },
-  { code: "AE", flag: "🇦🇪" },
-  { code: "EG", flag: "🇪🇬" },
-  { code: "JO", flag: "🇯🇴" },
-  { code: "KW", flag: "🇰🇼" },
-  { code: "QA", flag: "🇶🇦" },
-  { code: "BH", flag: "🇧🇭" },
-  { code: "OM", flag: "🇴🇲" },
-  { code: "IQ", flag: "🇮🇶" },
-  { code: "FR", flag: "🇫🇷" },
-  { code: "GB", flag: "🇬🇧" },
-  { code: "DE", flag: "🇩🇪" },
-  { code: "US", flag: "🇺🇸" },
-] as const;
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Types & Interfaces ───────────────────────────────────────────────────────
+interface Job {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  url: string;
+}
+
+interface Syndicate {
+  id: string;
+  name: string;
+}
+
 type Step = "country" | "upload" | "loading" | "result" | "error";
 
 interface RightsAndObligations {
@@ -50,7 +75,25 @@ interface ParsedAnalysis {
   recommendation?: string;
 }
 
-// â”€â”€â”€ Verdict config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Constants ────────────────────────────────────────────────────────────────
+const COUNTRIES = [
+  { code: "LB", name: "Lebanon",        flag: "🇱🇧" },
+  { code: "SA", name: "Saudi Arabia",   flag: "🇸🇦" },
+  { code: "AE", name: "UAE",            flag: "🇦🇪" },
+  { code: "EG", name: "Egypt",          flag: "🇪🇬" },
+  { code: "JO", name: "Jordan",         flag: "🇯🇴" },
+  { code: "KW", name: "Kuwait",         flag: "🇰🇼" },
+  { code: "QA", name: "Qatar",          flag: "🇶🇦" },
+  { code: "BH", name: "Bahrain",        flag: "🇧🇭" },
+  { code: "OM", name: "Oman",           flag: "🇴🇲" },
+  { code: "IQ", name: "Iraq",           flag: "🇮🇶" },
+  { code: "FR", name: "France",         flag: "🇫🇷" },
+  { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "DE", name: "Germany",        flag: "🇩🇪" },
+  { code: "US", name: "United States",  flag: "🇺🇸" },
+];
+
+// ─── Verdict config ───────────────────────────────────────────────────────────
 const VERDICT_CONFIG = {
   GOOD: {
     labelKey: "verdict.good",
@@ -209,8 +252,11 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
     return (
       <div className="space-y-4">
         <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{result}</p>
-        <button onClick={onReset} className="w-full py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200">
-          {t("analyzeAnother")}
+        <button
+          onClick={onReset}
+          className="w-full py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
+        >
+          Analyze Another Contract
         </button>
       </div>
     );
@@ -247,7 +293,6 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
 
       {/* Scrollable body */}
       <div className="space-y-4 max-h-[480px] overflow-y-auto pr-1">
-
         {parsed.recommendation && (
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
@@ -292,7 +337,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           </div>
         )}
 
-        {(rights.employee_rights?.length || rights.employee_obligations?.length || rights.employer_obligations?.length) && (
+        {(rights.employee_rights?.length || rights.employee_obligations?.length || rights.employer_obligations?.length) ? (
           <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4">
             <div className="flex items-center gap-2 text-slate-600">
               <ShieldCheck size={15} />
@@ -317,7 +362,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
               </div>
             )}
           </div>
-        )}
+        ) : null}
 
         {(parsed.legal_implications?.length ?? 0) > 0 && (
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
@@ -353,8 +398,17 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
 
 // â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function ServicesPage() {
-  const t = useTranslations("services");
+  const params = useParams();
 
+  // --- Job Opportunities State ---
+  const [syndicates, setSyndicates] = useState<Syndicate[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [selectedSyndicate, setSelectedSyndicate] = useState<string>("all");
+  const [loadingSyndicates, setLoadingSyndicates] = useState(true);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+  const [jobsError, setJobsError] = useState("");
+
+  // --- Contract Analysis State ---
   const [step, setStep] = useState<Step>("country");
   const [countryCode, setCountryCode] = useState<string>("");
   const [countryOpen, setCountryOpen] = useState(false);
@@ -377,6 +431,47 @@ export default function ServicesPage() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    async function fetchSyndicates() {
+      try {
+        const { data, error } = await supabase
+          .from("syndicates")
+          .select("id, name")
+          .eq("is_active", true)
+          .order("name");
+        if (error) throw error;
+        if (data) setSyndicates(data);
+      } catch (err) {
+        console.error("Error loading syndicates:", err);
+      } finally {
+        setLoadingSyndicates(false);
+      }
+    }
+    fetchSyndicates();
+  }, []);
+
+  useEffect(() => {
+    async function fetchJobs() {
+      setLoadingJobs(true);
+      setJobsError("");
+      try {
+        const res = await fetch(`/api/jobs?syndicate=${encodeURIComponent(selectedSyndicate)}`);
+        const data = await res.json();
+        if (data.jobs) {
+          setJobs(data.jobs);
+        } else if (data.error) {
+          throw new Error(data.error);
+        }
+      } catch (err) {
+        setJobsError("Unable to load jobs right now.");
+      } finally {
+        setLoadingJobs(false);
+      }
+    }
+    fetchJobs();
+  }, [selectedSyndicate]);
+
+  // --- Contract Analysis Handlers ---
   const selectedCountry = COUNTRIES.find((c) => c.code === countryCode);
   const selectedCountryName = selectedCountry
     ? t(`countries.${selectedCountry.code}`)
@@ -403,110 +498,101 @@ export default function ServicesPage() {
     if (f) handleFileSelect(f);
   }
 
- async function handleAnalyze() {
-  if (!file || !countryCode) return;
+  async function handleAnalyze() {
+    if (!file || !countryCode) return;
+    setStep("loading");
+    setErrorMsg("");
 
-  setStep("loading");
-  setErrorMsg("");
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("You must be logged in to analyze a contract.");
 
-  try {
-    // 1. Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error(t("errors.loginRequired"));
+      setLoadingMsg("Reading your contract…");
+      const pdfjsLib = await import("pdfjs-dist");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+        "pdfjs-dist/build/pdf.worker.min.mjs",
+        import.meta.url
+      ).toString();
 
-    // 2. Extract text from PDF in the browser
-    setLoadingMsg("loading.reading");
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let extractedText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items
+          .map((item: any) => ("str" in item ? item.str : ""))
+          .join(" ");
+        extractedText += pageText + "\n";
+      }
 
-    let extractedText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items
-        .map((item: { str?: string }) => item.str ?? "")
-        .join(" ");
-      extractedText += pageText + "\n";
+      if (extractedText.trim().length < 50) {
+        throw new Error("Could not extract readable text from the PDF. Please ensure it is not a scanned/image-only PDF.");
+      }
+
+      const contractText = extractedText.trim().slice(0, 12000);
+
+      setLoadingMsg("Creating upload record…");
+      const { data: uploadRow, error: insertError } = await supabase
+        .from("contract_uploads")
+        .insert({
+          user_id: user.id,
+          file_path: "pending",
+          original_filename: file.name,
+          mime_type: file.type,
+          file_size_bytes: file.size,
+          country_code: countryCode,
+          upload_status: "uploaded",
+          extraction_status: "pending",
+          analysis_status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (insertError || !uploadRow) {
+        throw new Error(`Failed to create upload record: ${insertError?.message}`);
+      }
+
+      setLoadingMsg("Uploading your contract…");
+      const filePath = `${user.id}/${uploadRow.id}/${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("contract-uploads")
+        .upload(filePath, file, { contentType: file.type, upsert: false });
+
+      if (uploadError) {
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+
+      await supabase
+        .from("contract_uploads")
+        .update({ file_path: filePath })
+        .eq("id", uploadRow.id);
+
+      setLoadingMsg("Analyzing your contract with AI…");
+      const { data, error: fnError } = await supabase.functions.invoke("analyze-contract", {
+        body: {
+          contract_upload_id: uploadRow.id,
+          contract_text: contractText,
+        },
+      });
+
+      if (fnError || data?.error) {
+        throw new Error(data?.error ?? fnError?.message ?? "Edge function failed");
+      }
+
+      const resultText =
+        typeof data === "string"
+          ? data
+          : data?.result ?? data?.analysis ?? JSON.stringify(data);
+
+      setResult(resultText);
+      setStep("result");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : JSON.stringify(err));
+      setStep("error");
     }
-
-    if (extractedText.trim().length < 50) {
-      throw new Error(t("errors.unreadablePdf"));
-    }
-
-    // Limit to ~12000 chars
-    const contractText = extractedText.trim().slice(0, 12000);
-
-    // 3. Insert upload row
-    setLoadingMsg("loading.creatingRecord");
-    const { data: uploadRow, error: insertError } = await supabase
-      .from("contract_uploads")
-      .insert({
-        user_id: user.id,
-        file_path: "pending",
-        original_filename: file.name,
-        mime_type: file.type,
-        file_size_bytes: file.size,
-        country_code: countryCode,
-        upload_status: "uploaded",
-        extraction_status: "pending",
-        analysis_status: "pending",
-      })
-      .select("id")
-      .single();
-
-    if (insertError || !uploadRow) {
-      throw new Error(`Failed to create upload record: ${insertError?.message}`);
-    }
-
-    // 4. Upload file to storage
-    setLoadingMsg("loading.uploading");
-    const filePath = `${user.id}/${uploadRow.id}/${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("contract-uploads")
-      .upload(filePath, file, { contentType: file.type, upsert: false });
-
-    if (uploadError) {
-      throw new Error(`Failed to upload file: ${uploadError.message}`);
-    }
-
-    // 5. Update file_path in DB
-    await supabase
-      .from("contract_uploads")
-      .update({ file_path: filePath })
-      .eq("id", uploadRow.id);
-
-    // 6. Call Edge Function â€” pass extracted text directly
-    setLoadingMsg("loading.analyzing");
-    const { data, error: fnError } = await supabase.functions.invoke("analyze-contract", {
-      body: {
-        contract_upload_id: uploadRow.id,
-        contract_text: contractText,   // â† send text directly
-      },
-    });
-
-    if (fnError || data?.error) {
-      throw new Error(data?.error ?? fnError?.message ?? "Edge function failed");
-    }
-
-    const resultText =
-      typeof data === "string"
-        ? data
-        : data?.result ?? data?.analysis ?? JSON.stringify(data);
-
-    setResult(resultText);
-    setStep("result");
-
-  } catch (err: unknown) {
-    setErrorMsg(err instanceof Error ? err.message : JSON.stringify(err));
-    setStep("error");
   }
-}
 
   function reset() {
     setStep("country");
@@ -517,39 +603,78 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-24">
+      {/* ── CONTRACT ANALYSIS ── */}
+      <div>
+        <section className="border-b border-slate-200 bg-white">
+          <div className="max-w-3xl mx-auto px-6 py-12 text-center">
+            <span className="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
+              AI-Powered
+            </span>
+            <h1 className="text-4xl font-extrabold text-slate-900 mb-3">Contract Analysis</h1>
+            <p className="text-slate-500 text-base max-w-md mx-auto">
+              Upload your contract PDF and get an instant AI-powered legal analysis based on the applicable country's law.
+            </p>
+          </div>
+        </section>
 
-      {/* Hero */}
-      <section className="border-b border-slate-200 bg-white">
-        <div className="max-w-3xl mx-auto px-6 py-12 text-center">
-          <span className="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
-            {t("hero.badge")}
-          </span>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-3">{t("hero.title")}</h1>
-          <p className="text-slate-500 text-base max-w-md mx-auto">
-            {t("hero.description")}
-          </p>
-        </div>
-      </section>
+        <div className="max-w-xl mx-auto px-6 py-12">
+          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8">
+            <StepDots step={step} />
 
-      {/* Card */}
-      <div className="max-w-xl mx-auto px-6 py-12">
-        <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8">
+            {/* Step 1: Country */}
+            {step === "country" && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Globe size={22} className="text-blue-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">Select Country</h2>
+                  <p className="text-sm text-slate-400">Which country's law applies to your contract?</p>
+                </div>
 
-          <StepDots step={step} />
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setCountryOpen((o) => !o)}
+                    className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-slate-200 hover:border-blue-400 bg-white text-sm transition-all duration-200"
+                  >
+                    <span className="flex items-center gap-2">
+                      {selectedCountry ? (
+                        <>
+                          <span className="text-lg">{selectedCountry.flag}</span>
+                          <span className="text-slate-800 font-medium">{selectedCountry.name}</span>
+                        </>
+                      ) : (
+                        <span className="text-slate-400">Choose a country…</span>
+                      )}
+                    </span>
+                    <ChevronDown size={16} className={`text-slate-400 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+                  </button>
 
-          {/* Step 1: Country */}
-          {step === "country" && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Globe size={22} className="text-blue-600" />
+                  {countryOpen && (
+                    <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
+                      <div className="max-h-64 overflow-y-auto py-1">
+                        {COUNTRIES.map((c) => (
+                          <button
+                            key={c.code}
+                            onClick={() => { setCountryCode(c.code); setCountryOpen(false); }}
+                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-blue-50 transition text-left ${
+                              countryCode === c.code ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700"
+                            }`}
+                          >
+                            <span className="text-base">{c.flag}</span>
+                            <span>{c.name}</span>
+                            {countryCode === c.code && <CheckCircle2 size={14} className="ml-auto text-blue-600" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <h2 className="text-xl font-bold text-slate-800 mb-1">{t("country.title")}</h2>
                 <p className="text-sm text-slate-400">{t("country.description")}</p>
               </div>
 
-              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setCountryOpen(!countryOpen)}
                   className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition ${
@@ -558,54 +683,19 @@ export default function ServicesPage() {
                       : "border-slate-200 bg-slate-50 text-slate-400"
                   }`}
                 >
-                  <span className="flex items-center gap-2">
-                    {selectedCountry ? (
-                      <>
-                        <span className="text-lg">{selectedCountry.flag}</span>
-                        <span className="text-slate-800 font-medium">{selectedCountryName}</span>
-                      </>
-                    ) : t("country.placeholder")}
-                  </span>
-                  <ChevronDown size={16} className={`text-slate-400 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+                  Continue →
                 </button>
-
-                {countryOpen && (
-                  <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
-                    <div className="max-h-64 overflow-y-auto py-1">
-                      {COUNTRIES.map((c) => (
-                        <button
-                          key={c.code}
-                          onClick={() => { setCountryCode(c.code); setCountryOpen(false); }}
-                          className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-blue-50 transition text-left ${
-                            countryCode === c.code ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700"
-                          }`}
-                        >
-                          <span className="text-base">{c.flag}</span>
-                          <span>{t(`countries.${c.code}`)}</span>
-                          {countryCode === c.code && <CheckCircle2 size={14} className="ml-auto text-blue-600" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              <button
-                disabled={!countryCode}
-                onClick={() => setStep("upload")}
-                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
-              >
-                {t("country.continue")}
-              </button>
-            </div>
-          )}
-
-          {/* Step 2: Upload */}
-          {step === "upload" && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Upload size={22} className="text-blue-600" />
+            {/* Step 2: Upload */}
+            {step === "upload" && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Upload size={22} className="text-blue-600" />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">Upload Contract</h2>
+                  <p className="text-sm text-slate-400">Drop your PDF contract below</p>
                 </div>
                 <h2 className="text-xl font-bold text-slate-800 mb-1">{t("upload.title")}</h2>
                 <p className="text-sm text-slate-400">
@@ -621,42 +711,43 @@ export default function ServicesPage() {
                 </p>
               </div>
 
-              <div
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                onClick={() => !file && fileInputRef.current?.click()}
-                className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 cursor-pointer ${
-                  file ? "border-blue-600 bg-blue-50 cursor-default" :
-                  dragOver ? "border-blue-400 bg-blue-50 scale-[1.01]" :
-                  "border-slate-200 hover:border-blue-300 hover:bg-slate-50"
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="application/pdf"
-                  className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }}
-                />
-                {file ? (
-                  <div className="space-y-2">
-                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto">
-                      <FileCheck size={20} className="text-blue-600" />
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
+                  onClick={() => !file && fileInputRef.current?.click()}
+                  className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 cursor-pointer ${
+                    file
+                      ? "border-blue-600 bg-blue-50 cursor-default"
+                      : dragOver
+                        ? "border-blue-400 bg-blue-50 scale-[1.01]"
+                        : "border-slate-200 hover:border-blue-300 hover:bg-slate-50"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }}
+                  />
+                  {file ? (
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto">
+                        <FileCheck size={20} className="text-blue-600" />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-700">{file.name}</p>
+                      <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-800 break-all">{file.name}</p>
-                    <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setFile(null); }}
-                      className="inline-flex items-center gap-1 text-xs text-rose-400 hover:text-rose-600 mt-1"
-                    >
-                      <X size={12} /> {t("upload.remove")}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto">
-                      <FileText size={20} className="text-slate-400" />
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto">
+                        <FileText size={20} className="text-slate-400" />
+                      </div>
+                      <p className="text-sm font-semibold text-slate-600">
+                        Drop your PDF here or <span className="text-blue-600">browse</span>
+                      </p>
+                      <p className="text-xs text-slate-400">PDF only · Max 20 MB</p>
                     </div>
                     <p className="text-sm font-semibold text-slate-600">
                       {t("upload.dropPrefix")} <span className="text-blue-600">{t("upload.browse")}</span>
@@ -676,57 +767,190 @@ export default function ServicesPage() {
             </div>
           )}
 
-          {/* Step 3: Loading */}
-          {step === "loading" && (
-            <div className="py-8 text-center space-y-5">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-                <Loader2 size={28} className="text-blue-600 animate-spin" />
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setStep("country")}
+                    className="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-sm hover:border-slate-300 transition-all duration-200"
+                  >
+                    ← Back
+                  </button>
+                  <button
+                    disabled={!file}
+                    onClick={handleAnalyze}
+                    className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
+                  >
+                    Analyze →
+                  </button>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800 mb-1">{t("loading.title")}</h2>
-                <p className="text-sm text-slate-400">{t(loadingMsg)}</p>
-              </div>
-              <div className="flex justify-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
+            )}
+
+            {/* Step 3: Loading */}
+            {step === "loading" && (
+              <div className="py-8 text-center space-y-5">
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
+                  <Loader2 size={28} className="text-blue-600 animate-spin" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800 mb-1">Please wait…</h2>
+                  <p className="text-sm text-slate-400">{loadingMsg}</p>
+                </div>
+                <div className="flex justify-center gap-1.5">
+                  {[0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Step 4: Result */}
-          {step === "result" && (
-            <AnalysisResult result={result} onReset={reset} />
-          )}
+            {/* Step 4: Result */}
+            {step === "result" && (
+              <AnalysisResult result={result} onReset={reset} />
+            )}
 
-          {/* Error */}
-          {step === "error" && (
-            <div className="py-6 text-center space-y-5">
-              <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto">
-                <AlertCircle size={22} className="text-red-500" />
+            {/* Error */}
+            {step === "error" && (
+              <div className="py-6 text-center space-y-5">
+                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+                  <AlertCircle size={22} className="text-red-500" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800 mb-1">Something went wrong</h2>
+                  <p className="text-sm text-slate-500 break-all">{errorMsg}</p>
+                </div>
+                <button
+                  onClick={reset}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
+                >
+                  <RotateCcw size={14} />
+                  Try Again
+                </button>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800 mb-1">{t("error.title")}</h2>
-                <p className="text-sm text-slate-500 break-all">{errorMsg}</p>
-              </div>
-              <button
-                onClick={reset}
-                className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition"
-              >
-                {t("error.tryAgain")}
-              </button>
+            )}
+          </div>
+
+          <p className="text-center text-xs text-slate-400 mt-5">
+            Your documents are processed securely and never stored beyond analysis.
+          </p>
+        </div>
+      </div>
+
+      {/* ── JOB OPPORTUNITIES ── */}
+      <div className="bg-white border-t border-slate-200 flex-1">
+        {jobsError ? (
+          <div className="container mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold mb-6 text-slate-900">Job Opportunities</h1>
+            <div className="p-8 text-center text-red-600 bg-red-50 border border-red-100 rounded-2xl font-medium">
+              {jobsError}
             </div>
-          )}
+          </div>
+        ) : (
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <h1 className="text-3xl font-extrabold mb-8 text-slate-900 tracking-tight">
+              Job Opportunities
+            </h1>
+
+            <div className="space-y-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-200/80">
+                <div className="flex items-center gap-3 flex-1 w-full sm:w-auto">
+                  <Filter size={18} className="text-slate-400 shrink-0" />
+                  <Select
+                    value={selectedSyndicate}
+                    onValueChange={(value) => setSelectedSyndicate(value)}
+                    disabled={loadingSyndicates}
+                  >
+                    <SelectTrigger className="w-full sm:w-[350px] bg-transparent border-none shadow-none text-sm font-semibold text-slate-700 focus:ring-0">
+                      <SelectValue placeholder="Select Syndicate" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl shadow-xl border-slate-100">
+                      <SelectItem value="all" className="font-bold text-blue-600">
+                        جميع النقابات
+                      </SelectItem>
+                      {syndicates.map((s) => (
+                        <SelectItem key={s.id} value={s.name}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-5">
-          {t("securityNote")}
-        </p>
+              {loadingJobs ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[1, 2, 3, 4].map((n) => (
+                    <div
+                      key={n}
+                      className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm animate-pulse flex flex-col h-64"
+                    >
+                      <div className="w-2/3 h-6 bg-slate-200 rounded-md mb-4"></div>
+                      <div className="flex gap-2 mb-6">
+                        <div className="w-24 h-6 bg-slate-100 rounded-md"></div>
+                        <div className="w-32 h-6 bg-slate-100 rounded-md"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : jobs.length === 0 ? (
+                <div className="py-24 flex flex-col items-center justify-center bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm">
+                  <div className="bg-slate-50 p-4 rounded-full mb-4">
+                    <SearchX size={32} className="text-slate-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">No positions found</h3>
+                  <p className="text-slate-500 text-sm max-w-sm text-center">
+                    We couldn't find any active listings matching your criteria right now.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {jobs.map((job) => (
+                    <a
+                      key={job.id}
+                      href={job.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex flex-col p-6 bg-white border border-slate-200/80 rounded-2xl hover:border-blue-400 hover:shadow-lg transition-all duration-300 h-full relative"
+                    >
+                      <div className="flex justify-between items-start gap-4 mb-5">
+                        <div>
+                          <h4 className="font-extrabold text-lg text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-2 leading-tight">
+                            {job.title}
+                          </h4>
+                          <div className="flex flex-wrap items-center gap-2 mt-3">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-slate-600 text-xs font-semibold">
+                              <Building size={14} />
+                              {job.company}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-100 text-blue-700 text-xs font-semibold">
+                              <MapPin size={14} />
+                              {job.location}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-xl group-hover:bg-blue-600 group-hover:text-white text-slate-400 transition-colors shrink-0">
+                          <ExternalLink size={18} />
+                        </div>
+                      </div>
+                      <p className="text-sm text-slate-500 line-clamp-3 leading-relaxed mb-6">
+                        {job.description}
+                      </p>
+                      <div className="mt-auto pt-4 border-t border-slate-100 flex items-center text-sm font-bold text-slate-400 group-hover:text-blue-600 transition-colors">
+                        View Opportunity
+                        <ArrowRight size={16} className="ml-1" />
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
