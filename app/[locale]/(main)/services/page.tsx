@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { supabase } from "@/app/lib/supabase/browser";
 
 import {
@@ -29,7 +29,6 @@ import {
   MessageSquare,
   Gavel,
 } from "lucide-react";
-import { supabase } from "@/app/lib/supabase/browser";
 
 import {
   Select,
@@ -77,20 +76,20 @@ interface ParsedAnalysis {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const COUNTRIES = [
-  { code: "LB", name: "Lebanon",        flag: "🇱🇧" },
-  { code: "SA", name: "Saudi Arabia",   flag: "🇸🇦" },
-  { code: "AE", name: "UAE",            flag: "🇦🇪" },
-  { code: "EG", name: "Egypt",          flag: "🇪🇬" },
-  { code: "JO", name: "Jordan",         flag: "🇯🇴" },
-  { code: "KW", name: "Kuwait",         flag: "🇰🇼" },
-  { code: "QA", name: "Qatar",          flag: "🇶🇦" },
-  { code: "BH", name: "Bahrain",        flag: "🇧🇭" },
-  { code: "OM", name: "Oman",           flag: "🇴🇲" },
-  { code: "IQ", name: "Iraq",           flag: "🇮🇶" },
-  { code: "FR", name: "France",         flag: "🇫🇷" },
+  { code: "LB", name: "Lebanon", flag: "🇱🇧" },
+  { code: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "AE", name: "UAE", flag: "🇦🇪" },
+  { code: "EG", name: "Egypt", flag: "🇪🇬" },
+  { code: "JO", name: "Jordan", flag: "🇯🇴" },
+  { code: "KW", name: "Kuwait", flag: "🇰🇼" },
+  { code: "QA", name: "Qatar", flag: "🇶🇦" },
+  { code: "BH", name: "Bahrain", flag: "🇧🇭" },
+  { code: "OM", name: "Oman", flag: "🇴🇲" },
+  { code: "IQ", name: "Iraq", flag: "🇮🇶" },
+  { code: "FR", name: "France", flag: "🇫🇷" },
   { code: "GB", name: "United Kingdom", flag: "🇬🇧" },
-  { code: "DE", name: "Germany",        flag: "🇩🇪" },
-  { code: "US", name: "United States",  flag: "🇺🇸" },
+  { code: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "US", name: "United States", flag: "🇺🇸" },
 ];
 
 // ─── Verdict config ───────────────────────────────────────────────────────────
@@ -133,7 +132,7 @@ const VERDICT_CONFIG = {
   },
 } as const;
 
-// â”€â”€â”€ Step Dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Step Dots ────────────────────────────────────────────────────────────────
 function StepDots({ step }: { step: Step }) {
   const steps: Step[] = ["country", "upload", "loading", "result"];
   const idx = steps.indexOf(step === "error" ? "result" : step);
@@ -143,13 +142,17 @@ function StepDots({ step }: { step: Step }) {
         <div key={s} className="flex items-center gap-2">
           <div
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              i < idx ? "bg-blue-600" :
-              i === idx ? "bg-blue-600 ring-4 ring-blue-100" :
-              "bg-slate-200"
+              i < idx
+                ? "bg-blue-600"
+                : i === idx
+                  ? "bg-blue-600 ring-4 ring-blue-100"
+                  : "bg-slate-200"
             }`}
           />
           {i < steps.length - 1 && (
-            <div className={`h-px w-8 transition-all duration-300 ${i < idx ? "bg-blue-600" : "bg-slate-200"}`} />
+            <div
+              className={`h-px w-8 transition-all duration-300 ${i < idx ? "bg-blue-600" : "bg-slate-200"}`}
+            />
           )}
         </div>
       ))}
@@ -157,7 +160,7 @@ function StepDots({ step }: { step: Step }) {
   );
 }
 
-// â”€â”€â”€ Score Ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Score Ring ───────────────────────────────────────────────────────────────
 function ScoreRing({ score }: { score: number }) {
   const t = useTranslations("services.result");
   const clamped = Math.min(100, Math.max(0, score));
@@ -165,48 +168,79 @@ function ScoreRing({ score }: { score: number }) {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (clamped / 100) * circumference;
   const color =
-    clamped >= 70 ? "#10b981" :
-    clamped >= 45 ? "#3b82f6" :
-    clamped >= 25 ? "#f59e0b" : "#ef4444";
+    clamped >= 70
+      ? "#10b981"
+      : clamped >= 45
+        ? "#3b82f6"
+        : clamped >= 25
+          ? "#f59e0b"
+          : "#ef4444";
 
   return (
     <div className="flex flex-col items-center gap-1">
       <div className="relative w-20 h-20">
         <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="7" />
           <circle
-            cx="40" cy="40" r={radius}
-            fill="none" stroke={color} strokeWidth="7"
-            strokeDasharray={circumference} strokeDashoffset={offset}
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke="#e2e8f0"
+            strokeWidth="7"
+          />
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth="7"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
             strokeLinecap="round"
             className="transition-all duration-700 ease-out"
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-extrabold text-slate-800">{clamped}</span>
+          <span className="text-lg font-extrabold text-slate-800">
+            {clamped}
+          </span>
         </div>
       </div>
-      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">{t("score")}</p>
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">
+        {t("score")}
+      </p>
     </div>
   );
 }
 
-// â”€â”€â”€ List Items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function ListItems({ items, variant = "default" }: {
+// ─── List Items ───────────────────────────────────────────────────────────────
+function ListItems({
+  items,
+  variant = "default",
+}: {
   items: string[];
   variant?: "default" | "warning" | "danger" | "success";
 }) {
   const bulletColor =
-    variant === "danger" ? "bg-red-400" :
-    variant === "warning" ? "bg-amber-400" :
-    variant === "success" ? "bg-emerald-400" :
-    "bg-slate-300";
+    variant === "danger"
+      ? "bg-red-400"
+      : variant === "warning"
+        ? "bg-amber-400"
+        : variant === "success"
+          ? "bg-emerald-400"
+          : "bg-slate-300";
 
   return (
     <ul className="space-y-1.5">
       {items.map((item, i) => (
-        <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600 leading-relaxed">
-          <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${bulletColor}`} />
+        <li
+          key={i}
+          className="flex items-start gap-2.5 text-sm text-slate-600 leading-relaxed"
+        >
+          <span
+            className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${bulletColor}`}
+          />
           {item}
         </li>
       ))}
@@ -214,11 +248,19 @@ function ListItems({ items, variant = "default" }: {
   );
 }
 
-// â”€â”€â”€ Questions To Ask â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function QuestionsToAsk({ missing, flags }: { missing: string[]; flags: string[] }) {
+// ─── Questions To Ask ─────────────────────────────────────────────────────────
+function QuestionsToAsk({
+  missing,
+  flags,
+}: {
+  missing: string[];
+  flags: string[];
+}) {
   const t = useTranslations("services.result");
   const questions: string[] = [];
-  missing.forEach((clause) => questions.push(t("questionForMissing", { clause })));
+  missing.forEach((clause) =>
+    questions.push(t("questionForMissing", { clause })),
+  );
   flags.forEach((flag) => questions.push(t("questionForFlag", { flag })));
   if (questions.length === 0) return null;
 
@@ -226,13 +268,17 @@ function QuestionsToAsk({ missing, flags }: { missing: string[]; flags: string[]
     <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 space-y-3">
       <div className="flex items-center gap-2 text-violet-700">
         <MessageSquare size={14} />
-        <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("askCompany")}</h4>
+        <h4 className="text-[11px] font-bold uppercase tracking-widest">
+          {t("askCompany")}
+        </h4>
       </div>
       <ul className="space-y-2">
         {questions.map((q, i) => (
           <li key={i} className="flex items-start gap-2.5">
             <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full bg-violet-200 flex items-center justify-center">
-              <span className="text-[9px] font-bold text-violet-700">{i + 1}</span>
+              <span className="text-[9px] font-bold text-violet-700">
+                {i + 1}
+              </span>
             </span>
             <span className="text-sm text-violet-800 leading-relaxed">{q}</span>
           </li>
@@ -242,8 +288,14 @@ function QuestionsToAsk({ missing, flags }: { missing: string[]; flags: string[]
   );
 }
 
-// â”€â”€â”€ Analysis Result â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function AnalysisResult({ result, onReset }: { result: string; onReset: () => void }) {
+// ─── Analysis Result ──────────────────────────────────────────────────────────
+function AnalysisResult({
+  result,
+  onReset,
+}: {
+  result: string;
+  onReset: () => void;
+}) {
   const t = useTranslations("services.result");
   let parsed: ParsedAnalysis = {};
   try {
@@ -251,22 +303,28 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
   } catch {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{result}</p>
+        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+          {result}
+        </p>
         <button
           onClick={onReset}
           className="w-full py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
         >
-          Analyze Another Contract
+          {t("analyzeAnother")}
         </button>
       </div>
     );
   }
 
-  const verdictKey = (parsed.overall_verdict?.toUpperCase() as keyof typeof VERDICT_CONFIG) ?? "FAIR";
+  const verdictKey =
+    (parsed.overall_verdict?.toUpperCase() as keyof typeof VERDICT_CONFIG) ??
+    "FAIR";
   const verdict = VERDICT_CONFIG[verdictKey] ?? VERDICT_CONFIG.FAIR;
   const VerdictIcon = verdict.icon;
   const rights = parsed.rights_and_obligations ?? {};
-  const hasMissingOrFlags = (parsed.missing_clauses?.length ?? 0) > 0 || (parsed.risk_flags?.length ?? 0) > 0;
+  const hasMissingOrFlags =
+    (parsed.missing_clauses?.length ?? 0) > 0 ||
+    (parsed.risk_flags?.length ?? 0) > 0;
 
   return (
     <div className="space-y-5">
@@ -274,11 +332,15 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
       <div className={`rounded-2xl border p-4 ${verdict.bg} ${verdict.border}`}>
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ring-4 ${verdict.ring} bg-white`}>
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center ring-4 ${verdict.ring} bg-white`}
+            >
               <VerdictIcon size={18} className={verdict.iconColor} />
             </div>
             <div>
-              <p className={`font-extrabold text-base ${verdict.text}`}>{t(verdict.labelKey)}</p>
+              <p className={`font-extrabold text-base ${verdict.text}`}>
+                {t(verdict.labelKey)}
+              </p>
               <p className="text-xs text-slate-500 mt-0.5">{t("complete")}</p>
             </div>
           </div>
@@ -297,21 +359,30 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <Star size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("recommendation")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("recommendation")}
+              </h4>
             </div>
-            <p className="text-sm text-slate-700 leading-relaxed">{parsed.recommendation}</p>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              {parsed.recommendation}
+            </p>
           </div>
         )}
 
         {hasMissingOrFlags && (
-          <QuestionsToAsk missing={parsed.missing_clauses ?? []} flags={parsed.risk_flags ?? []} />
+          <QuestionsToAsk
+            missing={parsed.missing_clauses ?? []}
+            flags={parsed.risk_flags ?? []}
+          />
         )}
 
         {(parsed.risk_flags?.length ?? 0) > 0 && (
           <div className="rounded-2xl border border-red-100 bg-red-50/50 p-4">
             <div className="flex items-center gap-2 text-red-600 mb-2">
               <AlertCircle size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("riskFlags")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("riskFlags")}
+              </h4>
             </div>
             <ListItems items={parsed.risk_flags!} variant="danger" />
           </div>
@@ -321,7 +392,9 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-4">
             <div className="flex items-center gap-2 text-amber-600 mb-2">
               <AlertTriangle size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("missingClauses")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("missingClauses")}
+              </h4>
             </div>
             <ListItems items={parsed.missing_clauses!} variant="warning" />
           </div>
@@ -331,36 +404,50 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-blue-600 mb-2">
               <Gavel size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("countryRules")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("countryRules")}
+              </h4>
             </div>
             <ListItems items={parsed.country_specific_notes!} />
           </div>
         )}
 
-        {(rights.employee_rights?.length || rights.employee_obligations?.length || rights.employer_obligations?.length) ? (
+        {rights.employee_rights?.length ||
+        rights.employee_obligations?.length ||
+        rights.employer_obligations?.length ? (
           <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4">
             <div className="flex items-center gap-2 text-slate-600">
               <ShieldCheck size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("rightsObligations")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("rightsObligations")}
+              </h4>
             </div>
             {rights.employee_rights && rights.employee_rights.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider mb-2">{t("yourRights")}</p>
+                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider mb-2">
+                  {t("yourRights")}
+                </p>
                 <ListItems items={rights.employee_rights} variant="success" />
               </div>
             )}
-            {rights.employee_obligations && rights.employee_obligations.length > 0 && (
-              <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{t("yourObligations")}</p>
-                <ListItems items={rights.employee_obligations} />
-              </div>
-            )}
-            {rights.employer_obligations && rights.employer_obligations.length > 0 && (
-              <div>
-                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-2">{t("employerObligations")}</p>
-                <ListItems items={rights.employer_obligations} />
-              </div>
-            )}
+            {rights.employee_obligations &&
+              rights.employee_obligations.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                    {t("yourObligations")}
+                  </p>
+                  <ListItems items={rights.employee_obligations} />
+                </div>
+              )}
+            {rights.employer_obligations &&
+              rights.employer_obligations.length > 0 && (
+                <div>
+                  <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-2">
+                    {t("employerObligations")}
+                  </p>
+                  <ListItems items={rights.employer_obligations} />
+                </div>
+              )}
           </div>
         ) : null}
 
@@ -368,7 +455,9 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <Gavel size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("legalImplications")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("legalImplications")}
+              </h4>
             </div>
             <ListItems items={parsed.legal_implications!} />
           </div>
@@ -378,7 +467,9 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <ClipboardList size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("jobDuties")}</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">
+                {t("jobDuties")}
+              </h4>
             </div>
             <ListItems items={parsed.duties!} />
           </div>
@@ -396,9 +487,9 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
   );
 }
 
-// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ServicesPage() {
-  const params = useParams();
+  const t = useTranslations("services");
 
   // --- Job Opportunities State ---
   const [syndicates, setSyndicates] = useState<Syndicate[]>([]);
@@ -423,7 +514,10 @@ export default function ServicesPage() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setCountryOpen(false);
       }
     }
@@ -455,7 +549,9 @@ export default function ServicesPage() {
       setLoadingJobs(true);
       setJobsError("");
       try {
-        const res = await fetch(`/api/jobs?syndicate=${encodeURIComponent(selectedSyndicate)}`);
+        const res = await fetch(
+          `/api/jobs?syndicate=${encodeURIComponent(selectedSyndicate)}`,
+        );
         const data = await res.json();
         if (data.jobs) {
           setJobs(data.jobs);
@@ -504,14 +600,17 @@ export default function ServicesPage() {
     setErrorMsg("");
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error("You must be logged in to analyze a contract.");
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error(t("errors.loginRequired"));
 
-      setLoadingMsg("Reading your contract…");
+      setLoadingMsg("loading.reading");
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
         "pdfjs-dist/build/pdf.worker.min.mjs",
-        import.meta.url
+        import.meta.url,
       ).toString();
 
       const arrayBuffer = await file.arrayBuffer();
@@ -528,12 +627,12 @@ export default function ServicesPage() {
       }
 
       if (extractedText.trim().length < 50) {
-        throw new Error("Could not extract readable text from the PDF. Please ensure it is not a scanned/image-only PDF.");
+        throw new Error(t("errors.unreadablePdf"));
       }
 
       const contractText = extractedText.trim().slice(0, 12000);
 
-      setLoadingMsg("Creating upload record…");
+      setLoadingMsg("loading.creatingRecord");
       const { data: uploadRow, error: insertError } = await supabase
         .from("contract_uploads")
         .insert({
@@ -551,10 +650,12 @@ export default function ServicesPage() {
         .single();
 
       if (insertError || !uploadRow) {
-        throw new Error(`Failed to create upload record: ${insertError?.message}`);
+        throw new Error(
+          `Failed to create upload record: ${insertError?.message}`,
+        );
       }
 
-      setLoadingMsg("Uploading your contract…");
+      setLoadingMsg("loading.uploading");
       const filePath = `${user.id}/${uploadRow.id}/${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("contract-uploads")
@@ -569,22 +670,27 @@ export default function ServicesPage() {
         .update({ file_path: filePath })
         .eq("id", uploadRow.id);
 
-      setLoadingMsg("Analyzing your contract with AI…");
-      const { data, error: fnError } = await supabase.functions.invoke("analyze-contract", {
-        body: {
-          contract_upload_id: uploadRow.id,
-          contract_text: contractText,
+      setLoadingMsg("loading.analyzing");
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "analyze-contract",
+        {
+          body: {
+            contract_upload_id: uploadRow.id,
+            contract_text: contractText,
+          },
         },
-      });
+      );
 
       if (fnError || data?.error) {
-        throw new Error(data?.error ?? fnError?.message ?? "Edge function failed");
+        throw new Error(
+          data?.error ?? fnError?.message ?? "Edge function failed",
+        );
       }
 
       const resultText =
         typeof data === "string"
           ? data
-          : data?.result ?? data?.analysis ?? JSON.stringify(data);
+          : (data?.result ?? data?.analysis ?? JSON.stringify(data));
 
       setResult(resultText);
       setStep("result");
@@ -609,11 +715,13 @@ export default function ServicesPage() {
         <section className="border-b border-slate-200 bg-white">
           <div className="max-w-3xl mx-auto px-6 py-12 text-center">
             <span className="inline-block bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4">
-              AI-Powered
+              {t("hero.badge")}
             </span>
-            <h1 className="text-4xl font-extrabold text-slate-900 mb-3">Contract Analysis</h1>
+            <h1 className="text-4xl font-extrabold text-slate-900 mb-3">
+              {t("hero.title")}
+            </h1>
             <p className="text-slate-500 text-base max-w-md mx-auto">
-              Upload your contract PDF and get an instant AI-powered legal analysis based on the applicable country's law.
+              {t("hero.description")}
             </p>
           </div>
         </section>
@@ -629,8 +737,12 @@ export default function ServicesPage() {
                   <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Globe size={22} className="text-blue-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-slate-800 mb-1">Select Country</h2>
-                  <p className="text-sm text-slate-400">Which country's law applies to your contract?</p>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">
+                    {t("country.title")}
+                  </h2>
+                  <p className="text-sm text-slate-400">
+                    {t("country.description")}
+                  </p>
                 </div>
 
                 <div className="relative" ref={dropdownRef}>
@@ -641,14 +753,23 @@ export default function ServicesPage() {
                     <span className="flex items-center gap-2">
                       {selectedCountry ? (
                         <>
-                          <span className="text-lg">{selectedCountry.flag}</span>
-                          <span className="text-slate-800 font-medium">{selectedCountry.name}</span>
+                          <span className="text-lg">
+                            {selectedCountry.flag}
+                          </span>
+                          <span className="text-slate-800 font-medium">
+                            {selectedCountryName}
+                          </span>
                         </>
                       ) : (
-                        <span className="text-slate-400">Choose a country…</span>
+                        <span className="text-slate-400">
+                          {t("country.placeholder")}
+                        </span>
                       )}
                     </span>
-                    <ChevronDown size={16} className={`text-slate-400 transition-transform ${countryOpen ? "rotate-180" : ""}`} />
+                    <ChevronDown
+                      size={16}
+                      className={`text-slate-400 transition-transform ${countryOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
 
                   {countryOpen && (
@@ -657,35 +778,40 @@ export default function ServicesPage() {
                         {COUNTRIES.map((c) => (
                           <button
                             key={c.code}
-                            onClick={() => { setCountryCode(c.code); setCountryOpen(false); }}
+                            onClick={() => {
+                              setCountryCode(c.code);
+                              setCountryOpen(false);
+                            }}
                             className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-blue-50 transition text-left ${
-                              countryCode === c.code ? "bg-blue-50 text-blue-700 font-semibold" : "text-slate-700"
+                              countryCode === c.code
+                                ? "bg-blue-50 text-blue-700 font-semibold"
+                                : "text-slate-700"
                             }`}
                           >
                             <span className="text-base">{c.flag}</span>
                             <span>{c.name}</span>
-                            {countryCode === c.code && <CheckCircle2 size={14} className="ml-auto text-blue-600" />}
+                            {countryCode === c.code && (
+                              <CheckCircle2
+                                size={14}
+                                className="ml-auto text-blue-600"
+                              />
+                            )}
                           </button>
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">{t("country.title")}</h2>
-                <p className="text-sm text-slate-400">{t("country.description")}</p>
-              </div>
 
                 <button
-                  onClick={() => setCountryOpen(!countryOpen)}
-                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition ${
-                    countryCode
-                      ? "border-blue-600 bg-blue-50 text-slate-800 font-medium"
-                      : "border-slate-200 bg-slate-50 text-slate-400"
-                  }`}
+                  disabled={!countryCode}
+                  onClick={() => setStep("upload")}
+                  className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
                 >
-                  Continue →
+                  {t("country.continue")}
                 </button>
               </div>
+            )}
 
             {/* Step 2: Upload */}
             {step === "upload" && (
@@ -694,25 +820,33 @@ export default function ServicesPage() {
                   <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Upload size={22} className="text-blue-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-slate-800 mb-1">Upload Contract</h2>
-                  <p className="text-sm text-slate-400">Drop your PDF contract below</p>
+                  <h2 className="text-xl font-bold text-slate-800 mb-1">
+                    {t("upload.title")}
+                  </h2>
+                  <p className="text-sm text-slate-400">
+                    {t("upload.analyzingUnder")}{" "}
+                    <span className="font-semibold text-blue-600">
+                      {selectedCountry?.flag} {selectedCountryName}
+                    </span>{" "}
+                    {t("upload.law")}
+                    {" · "}
+                    <button
+                      onClick={() => {
+                        setStep("country");
+                        setFile(null);
+                      }}
+                      className="underline text-slate-400 hover:text-blue-600 transition"
+                    >
+                      {t("upload.change")}
+                    </button>
+                  </p>
                 </div>
-                <h2 className="text-xl font-bold text-slate-800 mb-1">{t("upload.title")}</h2>
-                <p className="text-sm text-slate-400">
-                  {t("upload.analyzingUnder")} {" "}
-                  <span className="font-semibold text-blue-600">
-                    {selectedCountry?.flag} {selectedCountryName}
-                  </span>{" "}
-                  {t("upload.law")}
-                  {" · "}
-                  <button onClick={() => { setStep("country"); setFile(null); }} className="underline text-slate-400 hover:text-blue-600 transition">
-                    {t("upload.change")}
-                  </button>
-                </p>
-              </div>
 
                 <div
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
                   onClick={() => !file && fileInputRef.current?.click()}
@@ -729,15 +863,22 @@ export default function ServicesPage() {
                     type="file"
                     accept="application/pdf"
                     className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFileSelect(f);
+                    }}
                   />
                   {file ? (
                     <div className="space-y-2">
                       <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mx-auto">
                         <FileCheck size={20} className="text-blue-600" />
                       </div>
-                      <p className="text-sm font-semibold text-slate-700">{file.name}</p>
-                      <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="text-sm font-semibold text-slate-700">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -745,27 +886,17 @@ export default function ServicesPage() {
                         <FileText size={20} className="text-slate-400" />
                       </div>
                       <p className="text-sm font-semibold text-slate-600">
-                        Drop your PDF here or <span className="text-blue-600">browse</span>
+                        {t("upload.dropPrefix")}{" "}
+                        <span className="text-blue-600">
+                          {t("upload.browse")}
+                        </span>
                       </p>
-                      <p className="text-xs text-slate-400">PDF only · Max 20 MB</p>
+                      <p className="text-xs text-slate-400">
+                        {t("upload.requirements")}
+                      </p>
                     </div>
-                    <p className="text-sm font-semibold text-slate-600">
-                      {t("upload.dropPrefix")} <span className="text-blue-600">{t("upload.browse")}</span>
-                    </p>
-                    <p className="text-xs text-slate-400">{t("upload.requirements")}</p>
-                  </div>
-                )}
-              </div>
-
-              <button
-                disabled={!file}
-                onClick={handleAnalyze}
-                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
-              >
-                {t("upload.analyze")}
-              </button>
-            </div>
-          )}
+                  )}
+                </div>
 
                 <div className="flex gap-3">
                   <button
@@ -779,7 +910,7 @@ export default function ServicesPage() {
                     onClick={handleAnalyze}
                     className="flex-1 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
                   >
-                    Analyze →
+                    {t("upload.analyze")}
                   </button>
                 </div>
               </div>
@@ -792,8 +923,10 @@ export default function ServicesPage() {
                   <Loader2 size={28} className="text-blue-600 animate-spin" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 mb-1">Please wait…</h2>
-                  <p className="text-sm text-slate-400">{loadingMsg}</p>
+                  <h2 className="text-lg font-bold text-slate-800 mb-1">
+                    {t("loading.title")}
+                  </h2>
+                  <p className="text-sm text-slate-400">{t(loadingMsg)}</p>
                 </div>
                 <div className="flex justify-center gap-1.5">
                   {[0, 1, 2].map((i) => (
@@ -805,8 +938,7 @@ export default function ServicesPage() {
                   ))}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
             {/* Step 4: Result */}
             {step === "result" && (
@@ -820,7 +952,9 @@ export default function ServicesPage() {
                   <AlertCircle size={22} className="text-red-500" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 mb-1">Something went wrong</h2>
+                  <h2 className="text-lg font-bold text-slate-800 mb-1">
+                    {t("error.title")}
+                  </h2>
                   <p className="text-sm text-slate-500 break-all">{errorMsg}</p>
                 </div>
                 <button
@@ -828,14 +962,14 @@ export default function ServicesPage() {
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
                 >
                   <RotateCcw size={14} />
-                  Try Again
+                  {t("error.tryAgain")}
                 </button>
               </div>
             )}
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-5">
-            Your documents are processed securely and never stored beyond analysis.
+            {t("securityNote")}
           </p>
         </div>
       </div>
@@ -844,7 +978,9 @@ export default function ServicesPage() {
       <div className="bg-white border-t border-slate-200 flex-1">
         {jobsError ? (
           <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-6 text-slate-900">Job Opportunities</h1>
+            <h1 className="text-3xl font-bold mb-6 text-slate-900">
+              Job Opportunities
+            </h1>
             <div className="p-8 text-center text-red-600 bg-red-50 border border-red-100 rounded-2xl font-medium">
               {jobsError}
             </div>
@@ -868,7 +1004,10 @@ export default function ServicesPage() {
                       <SelectValue placeholder="Select Syndicate" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl shadow-xl border-slate-100">
-                      <SelectItem value="all" className="font-bold text-blue-600">
+                      <SelectItem
+                        value="all"
+                        className="font-bold text-blue-600"
+                      >
                         جميع النقابات
                       </SelectItem>
                       {syndicates.map((s) => (
@@ -880,7 +1019,17 @@ export default function ServicesPage() {
                   </Select>
                 </div>
 
-        </div>
+                {!loadingJobs && (
+                  <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl shrink-0 text-center sm:text-left">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block leading-tight">
+                      Results
+                    </span>
+                    <div className="text-sm font-extrabold text-blue-700 leading-tight mt-0.5">
+                      {jobs.length} Opportunities
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {loadingJobs ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -902,9 +1051,12 @@ export default function ServicesPage() {
                   <div className="bg-slate-50 p-4 rounded-full mb-4">
                     <SearchX size={32} className="text-slate-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">No positions found</h3>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">
+                    No positions found
+                  </h3>
                   <p className="text-slate-500 text-sm max-w-sm text-center">
-                    We couldn't find any active listings matching your criteria right now.
+                    We couldn&apos;t find any active listings matching your
+                    criteria right now.
                   </p>
                 </div>
               ) : (
