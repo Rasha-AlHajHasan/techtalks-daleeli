@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { useParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export interface BackendSyndicate {
   id: string;
@@ -17,12 +17,11 @@ export interface BackendSyndicate {
 }
 
 export default function SyndicateCard({ syn }: { syn: BackendSyndicate }) {
-  const params = useParams();
-  const locale = params.locale;
+  const t = useTranslations("syndicates.card");
 
   return (
     <Link
-      href={`/${locale}/syndicates/${syn.slug}`}
+      href={`/syndicates/${syn.slug}`}
       className="group bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition flex flex-col h-full"
     >
       <div className="h-44 w-full bg-white border-b border-slate-100 p-6 flex items-center justify-center overflow-hidden">
@@ -37,7 +36,7 @@ export default function SyndicateCard({ syn }: { syn: BackendSyndicate }) {
           </div>
         ) : (
           <div className="flex h-full w-full items-center justify-center text-slate-400 text-sm">
-            No Image
+            {t("noImage")}
           </div>
         )}
       </div>
@@ -48,7 +47,7 @@ export default function SyndicateCard({ syn }: { syn: BackendSyndicate }) {
         </h3>
 
         <p className="text-sm text-slate-600 mt-2 leading-relaxed line-clamp-3">
-          {syn.description_ar || "لا يوجد وصف متاح."}
+          {syn.description_ar || t("noDescription")}
         </p>
 
         <div className="flex items-center justify-end mt-auto pt-6">

@@ -29,6 +29,7 @@ import {
   MessageSquare,
   Gavel,
 } from "lucide-react";
+import { supabase } from "@/app/lib/supabase/browser";
 
 import {
   Select,
@@ -95,7 +96,7 @@ const COUNTRIES = [
 // ─── Verdict config ───────────────────────────────────────────────────────────
 const VERDICT_CONFIG = {
   GOOD: {
-    label: "Good Contract",
+    labelKey: "verdict.good",
     icon: CheckCircle2,
     bg: "bg-emerald-50",
     border: "border-emerald-200",
@@ -104,7 +105,7 @@ const VERDICT_CONFIG = {
     ring: "ring-emerald-100",
   },
   FAIR: {
-    label: "Fair Contract",
+    labelKey: "verdict.fair",
     icon: Info,
     bg: "bg-blue-50",
     border: "border-blue-200",
@@ -113,7 +114,7 @@ const VERDICT_CONFIG = {
     ring: "ring-blue-100",
   },
   CONCERNING: {
-    label: "Concerning",
+    labelKey: "verdict.concerning",
     icon: AlertTriangle,
     bg: "bg-amber-50",
     border: "border-amber-200",
@@ -122,7 +123,7 @@ const VERDICT_CONFIG = {
     ring: "ring-amber-100",
   },
   "RED FLAGS": {
-    label: "Red Flags",
+    labelKey: "verdict.redFlags",
     icon: XCircle,
     bg: "bg-red-50",
     border: "border-red-200",
@@ -132,7 +133,7 @@ const VERDICT_CONFIG = {
   },
 } as const;
 
-// ─── Step Dots ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Step Dots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StepDots({ step }: { step: Step }) {
   const steps: Step[] = ["country", "upload", "loading", "result"];
   const idx = steps.indexOf(step === "error" ? "result" : step);
@@ -142,17 +143,13 @@ function StepDots({ step }: { step: Step }) {
         <div key={s} className="flex items-center gap-2">
           <div
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              i < idx
-                ? "bg-blue-600"
-                : i === idx
-                  ? "bg-blue-600 ring-4 ring-blue-100"
-                  : "bg-slate-200"
+              i < idx ? "bg-blue-600" :
+              i === idx ? "bg-blue-600 ring-4 ring-blue-100" :
+              "bg-slate-200"
             }`}
           />
           {i < steps.length - 1 && (
-            <div
-              className={`h-px w-8 transition-all duration-300 ${i < idx ? "bg-blue-600" : "bg-slate-200"}`}
-            />
+            <div className={`h-px w-8 transition-all duration-300 ${i < idx ? "bg-blue-600" : "bg-slate-200"}`} />
           )}
         </div>
       ))}
@@ -160,8 +157,9 @@ function StepDots({ step }: { step: Step }) {
   );
 }
 
-// ─── Score Ring ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Score Ring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ScoreRing({ score }: { score: number }) {
+  const t = useTranslations("services.result");
   const clamped = Math.min(100, Math.max(0, score));
   const radius = 30;
   const circumference = 2 * Math.PI * radius;
@@ -188,12 +186,12 @@ function ScoreRing({ score }: { score: number }) {
           <span className="text-lg font-extrabold text-slate-800">{clamped}</span>
         </div>
       </div>
-      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Score</p>
+      <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">{t("score")}</p>
     </div>
   );
 }
 
-// ─── List Items ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ List Items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ListItems({ items, variant = "default" }: {
   items: string[];
   variant?: "default" | "warning" | "danger" | "success";
@@ -216,18 +214,19 @@ function ListItems({ items, variant = "default" }: {
   );
 }
 
-// ─── Questions To Ask ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Questions To Ask â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function QuestionsToAsk({ missing, flags }: { missing: string[]; flags: string[] }) {
+  const t = useTranslations("services.result");
   const questions: string[] = [];
-  missing.forEach((clause) => questions.push(`Can you add a clause covering: ${clause}?`));
-  flags.forEach((flag) => questions.push(`I have concerns about this term — can you clarify or revise it? "${flag}"`));
+  missing.forEach((clause) => questions.push(t("questionForMissing", { clause })));
+  flags.forEach((flag) => questions.push(t("questionForFlag", { flag })));
   if (questions.length === 0) return null;
 
   return (
     <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 space-y-3">
       <div className="flex items-center gap-2 text-violet-700">
         <MessageSquare size={14} />
-        <h4 className="text-[11px] font-bold uppercase tracking-widest">Ask the company</h4>
+        <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("askCompany")}</h4>
       </div>
       <ul className="space-y-2">
         {questions.map((q, i) => (
@@ -243,8 +242,9 @@ function QuestionsToAsk({ missing, flags }: { missing: string[]; flags: string[]
   );
 }
 
-// ─── Analysis Result ──────────────────────────────────────────────────────────
+// â”€â”€â”€ Analysis Result â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AnalysisResult({ result, onReset }: { result: string; onReset: () => void }) {
+  const t = useTranslations("services.result");
   let parsed: ParsedAnalysis = {};
   try {
     parsed = typeof result === "string" ? JSON.parse(result) : result;
@@ -278,8 +278,8 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
               <VerdictIcon size={18} className={verdict.iconColor} />
             </div>
             <div>
-              <p className={`font-extrabold text-base ${verdict.text}`}>{verdict.label}</p>
-              <p className="text-xs text-slate-500 mt-0.5">Analysis complete</p>
+              <p className={`font-extrabold text-base ${verdict.text}`}>{t(verdict.labelKey)}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{t("complete")}</p>
             </div>
           </div>
           {parsed.score !== undefined && <ScoreRing score={parsed.score} />}
@@ -297,7 +297,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <Star size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Recommendation</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("recommendation")}</h4>
             </div>
             <p className="text-sm text-slate-700 leading-relaxed">{parsed.recommendation}</p>
           </div>
@@ -311,7 +311,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-red-100 bg-red-50/50 p-4">
             <div className="flex items-center gap-2 text-red-600 mb-2">
               <AlertCircle size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Risk Flags</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("riskFlags")}</h4>
             </div>
             <ListItems items={parsed.risk_flags!} variant="danger" />
           </div>
@@ -321,7 +321,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-4">
             <div className="flex items-center gap-2 text-amber-600 mb-2">
               <AlertTriangle size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Missing Clauses</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("missingClauses")}</h4>
             </div>
             <ListItems items={parsed.missing_clauses!} variant="warning" />
           </div>
@@ -331,7 +331,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-blue-600 mb-2">
               <Gavel size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Country-Specific Rules</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("countryRules")}</h4>
             </div>
             <ListItems items={parsed.country_specific_notes!} />
           </div>
@@ -341,23 +341,23 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4 space-y-4">
             <div className="flex items-center gap-2 text-slate-600">
               <ShieldCheck size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Rights &amp; Obligations</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("rightsObligations")}</h4>
             </div>
             {rights.employee_rights && rights.employee_rights.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider mb-2">Your Rights</p>
+                <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider mb-2">{t("yourRights")}</p>
                 <ListItems items={rights.employee_rights} variant="success" />
               </div>
             )}
             {rights.employee_obligations && rights.employee_obligations.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Your Obligations</p>
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2">{t("yourObligations")}</p>
                 <ListItems items={rights.employee_obligations} />
               </div>
             )}
             {rights.employer_obligations && rights.employer_obligations.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-2">Employer Obligations</p>
+                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider mb-2">{t("employerObligations")}</p>
                 <ListItems items={rights.employer_obligations} />
               </div>
             )}
@@ -368,7 +368,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <Gavel size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Legal Implications</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("legalImplications")}</h4>
             </div>
             <ListItems items={parsed.legal_implications!} />
           </div>
@@ -378,7 +378,7 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
           <div className="rounded-2xl border border-slate-100 bg-white p-4">
             <div className="flex items-center gap-2 text-slate-600 mb-2">
               <ClipboardList size={15} />
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Job Duties</h4>
+              <h4 className="text-[11px] font-bold uppercase tracking-widest">{t("jobDuties")}</h4>
             </div>
             <ListItems items={parsed.duties!} />
           </div>
@@ -390,13 +390,13 @@ function AnalysisResult({ result, onReset }: { result: string; onReset: () => vo
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold text-sm hover:bg-blue-600 hover:text-white transition-all duration-200"
       >
         <RotateCcw size={14} />
-        Analyze Another Contract
+        {t("analyzeAnother")}
       </button>
     </div>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function ServicesPage() {
   const params = useParams();
 
@@ -416,7 +416,7 @@ export default function ServicesPage() {
   const [dragOver, setDragOver] = useState(false);
   const [result, setResult] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [loadingMsg, setLoadingMsg] = useState("Uploading your contract…");
+  const [loadingMsg, setLoadingMsg] = useState("loading.uploading");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -473,15 +473,18 @@ export default function ServicesPage() {
 
   // --- Contract Analysis Handlers ---
   const selectedCountry = COUNTRIES.find((c) => c.code === countryCode);
+  const selectedCountryName = selectedCountry
+    ? t(`countries.${selectedCountry.code}`)
+    : "";
 
   function handleFileSelect(f: File) {
     if (f.type !== "application/pdf") {
-      setErrorMsg("Only PDF files are supported.");
+      setErrorMsg(t("errors.pdfOnly"));
       setStep("error");
       return;
     }
     if (f.size > 20 * 1024 * 1024) {
-      setErrorMsg("File is too large. Maximum size is 20 MB.");
+      setErrorMsg(t("errors.fileTooLarge"));
       setStep("error");
       return;
     }
@@ -668,16 +671,21 @@ export default function ServicesPage() {
                     </div>
                   )}
                 </div>
+                <h2 className="text-xl font-bold text-slate-800 mb-1">{t("country.title")}</h2>
+                <p className="text-sm text-slate-400">{t("country.description")}</p>
+              </div>
 
                 <button
-                  disabled={!countryCode}
-                  onClick={() => setStep("upload")}
-                  className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
+                  onClick={() => setCountryOpen(!countryOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-sm transition ${
+                    countryCode
+                      ? "border-blue-600 bg-blue-50 text-slate-800 font-medium"
+                      : "border-slate-200 bg-slate-50 text-slate-400"
+                  }`}
                 >
                   Continue →
                 </button>
               </div>
-            )}
 
             {/* Step 2: Upload */}
             {step === "upload" && (
@@ -689,6 +697,19 @@ export default function ServicesPage() {
                   <h2 className="text-xl font-bold text-slate-800 mb-1">Upload Contract</h2>
                   <p className="text-sm text-slate-400">Drop your PDF contract below</p>
                 </div>
+                <h2 className="text-xl font-bold text-slate-800 mb-1">{t("upload.title")}</h2>
+                <p className="text-sm text-slate-400">
+                  {t("upload.analyzingUnder")} {" "}
+                  <span className="font-semibold text-blue-600">
+                    {selectedCountry?.flag} {selectedCountryName}
+                  </span>{" "}
+                  {t("upload.law")}
+                  {" · "}
+                  <button onClick={() => { setStep("country"); setFile(null); }} className="underline text-slate-400 hover:text-blue-600 transition">
+                    {t("upload.change")}
+                  </button>
+                </p>
+              </div>
 
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -728,8 +749,23 @@ export default function ServicesPage() {
                       </p>
                       <p className="text-xs text-slate-400">PDF only · Max 20 MB</p>
                     </div>
-                  )}
-                </div>
+                    <p className="text-sm font-semibold text-slate-600">
+                      {t("upload.dropPrefix")} <span className="text-blue-600">{t("upload.browse")}</span>
+                    </p>
+                    <p className="text-xs text-slate-400">{t("upload.requirements")}</p>
+                  </div>
+                )}
+              </div>
+
+              <button
+                disabled={!file}
+                onClick={handleAnalyze}
+                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-bold text-sm transition-all duration-200"
+              >
+                {t("upload.analyze")}
+              </button>
+            </div>
+          )}
 
                 <div className="flex gap-3">
                   <button
@@ -769,7 +805,8 @@ export default function ServicesPage() {
                   ))}
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
             {/* Step 4: Result */}
             {step === "result" && (
@@ -843,17 +880,7 @@ export default function ServicesPage() {
                   </Select>
                 </div>
 
-                {!loadingJobs && (
-                  <div className="bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl shrink-0 text-center sm:text-left">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block leading-tight">
-                      Results
-                    </span>
-                    <div className="text-sm font-extrabold text-blue-700 leading-tight mt-0.5">
-                      {jobs.length} Opportunities
-                    </div>
-                  </div>
-                )}
-              </div>
+        </div>
 
               {loadingJobs ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
