@@ -8,6 +8,13 @@ export type ContentType =
   | "events"
   | "membership_updates";
 
+export type Syndicate = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url?: string | null;
+};
+
 export type NewsItem = {
   id: string;
   title: string;
@@ -18,10 +25,5 @@ export type NewsItem = {
   content_type: ContentType;
   source_url: string;
   image_url: string | null;
-  syndicate: {
-    id: string;
-    name: string;
-    slug: string;
-    logo_url?: string | null;
-  } | null;
+  syndicate: Syndicate | null;
 };
